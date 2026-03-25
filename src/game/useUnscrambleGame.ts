@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useWinRevealTimer } from './useWinRevealTimer'
 import { scoreGuess } from './engine'
 import type { GuessRow } from './useWordleGame'
 import type { ClassicGameConfig } from '../variants/types'
@@ -36,18 +37,22 @@ export function useUnscrambleGame(config: ClassicGameConfig) {
   const [buffer, setBuffer] = useState('')
   const [phase, setPhase] = useState<'playing' | 'won' | 'lost'>('playing')
   const [shake, setShake] = useState(false)
+  const [revealLock, setRevealLock] = useState(false)
+  const { schedule: scheduleWinReveal, clear: clearWinReveal } = useWinRevealTimer()
 
   const newGame = useCallback(() => {
+    clearWinReveal()
+    setRevealLock(false)
     const r = newRound(words, wordLength)
     setRound(r)
     setGuesses([])
     setBuffer('')
     setPhase('playing')
     setShake(false)
-  }, [words, wordLength])
+  }, [clearWinReveal, words, wordLength])
 
   const submit = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     const g = buffer.toUpperCase()
     if (g.length !== wordLength) return
     if (guesses.length >= maxGuesses) return
@@ -64,30 +69,34 @@ export function useUnscrambleGame(config: ClassicGameConfig) {
     setBuffer('')
 
     if (g === target) {
-      setPhase('won')
+      setRevealLock(true)
+      scheduleWinReveal(() => {
+        setPhase('won')
+        setRevealLock(false)
+      })
       return
     }
     if (next.length >= maxGuesses) {
       setPhase('lost')
     }
-  }, [buffer, guesses.length, maxGuesses, phase, target, validSet, wordLength])
+  }, [buffer, guesses.length, maxGuesses, phase, revealLock, scheduleWinReveal, target, validSet, wordLength])
 
   const addLetter = useCallback(
     (ch: string) => {
-      if (phase !== 'playing') return
+      if (phase !== 'playing' || revealLock) return
       if (guesses.length >= maxGuesses) return
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
       setBuffer((b) => b + c)
     },
-    [buffer.length, guesses.length, maxGuesses, phase, wordLength],
+    [buffer.length, guesses.length, maxGuesses, phase, revealLock, wordLength],
   )
 
   const backspace = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     setBuffer((b) => b.slice(0, -1))
-  }, [phase])
+  }, [phase, revealLock])
 
   const onPhysicalKey = useCallback(
     (key: string) => {
@@ -106,12 +115,15 @@ export function useUnscrambleGame(config: ClassicGameConfig) {
     [addLetter, backspace, submit],
   )
 
+  const inputLocked = phase !== 'playing' || revealLock
+
   return {
     target,
     guesses,
     buffer,
     phase,
     shake,
+    inputLocked,
     newGame,
     submit,
     addLetter,

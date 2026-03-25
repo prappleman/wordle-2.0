@@ -1,11 +1,10 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { scoreGuess } from './engine'
+import { WIN_REVEAL_MS } from './winReveal'
 import type { GuessRow } from './useWordleGame'
 import type { ClassicGameConfig } from '../variants/types'
 
 const MAX_ROWS = 6
-/** Time to show all-green row before sliding (matches tile flip feel). */
-const SLIDE_DELAY_MS = 1500
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -53,7 +52,7 @@ export function useInfiniteWordleGame(config: Pick<ClassicGameConfig, 'words' | 
       )
       setSlides((s) => s + 1)
       setWinPending(false)
-    }, SLIDE_DELAY_MS)
+    }, WIN_REVEAL_MS)
     return () => clearTimeout(id)
   }, [winPending, words, wordLength])
 

@@ -3,18 +3,20 @@ import { Link, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useZenGame } from '../game/useZenGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { nextLadderInRange } from '../variants/ladderRange'
+import { wordsForLength } from '../variants/variantWordLength'
 import './ZenScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function ZenRound({
   length,
+  ladderLo,
+  ladderHi,
   onAdvance,
 }: {
   length: number
+  ladderLo: number
+  ladderHi: number
   onAdvance: () => void
 }) {
   const words = wordsForLength(length)
@@ -64,8 +66,8 @@ function ZenRound({
       )}
 
       <p className="zen-screen-hint">
-        Unlimited guesses with a scrolling six-row board. In ladder mode, each solved word advances
-        the word length (7 to 3, then 4–7 again).
+        Unlimited guesses with a scrolling six-row board. In ladder mode, each solved word advances the word
+        length through {ladderLo}–{ladderHi} (after {ladderHi}, back to {ladderLo}).
       </p>
 
       <WordleGrid
@@ -77,16 +79,24 @@ function ZenRound({
         shake={game.shake}
       />
 
-      <WordleKeyboard guesses={game.gridGuesses} disabled={false} onKey={onScreenKey} />
+      <WordleKeyboard guesses={game.gridGuesses} disabled={game.inputLocked} onKey={onScreenKey} />
     </div>
   )
 }
 
 export default function LadderZenScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const [length, setLength] = useState(lo)
 
-  return <ZenRound key={length} length={length} onAdvance={() => setLength((l) => nextLadderLength(l))} />
+  return (
+    <ZenRound
+      key={length}
+      length={length}
+      ladderLo={lo}
+      ladderHi={hi}
+      onAdvance={() => setLength((l) => nextLadderInRange(l, lo, hi, 'wrap') ?? l)}
+    />
+  )
 }
 

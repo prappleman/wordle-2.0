@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { WordleKeyboard } from '../components/WordleKeyboard'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { useWord500Game, type TileNote } from '../game/useWord500Game'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { useLadderSession } from '../hooks/useLadderSession'
+import { wordsForLength } from '../variants/variantWordLength'
 import './Word500Screen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function tileNoteClass(note: TileNote): string {
   const base = 'word500-tile word500-tile--submitted'
@@ -78,10 +78,9 @@ function Word500Round({
     if (prev === game.phase) return
     prevPhaseRef.current = game.phase
     if (game.phase === 'won') onAdvance()
-    if (game.phase === 'lost') onReset()
-  }, [game.phase, onAdvance, onReset])
+  }, [game.phase, onAdvance])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
   const onScreenKey = (key: string) => {
     if (game.phase !== 'playing') return
     if (key === 'Enter') {
@@ -122,8 +121,12 @@ function Word500Round({
           ← Hub
         </Link>
         <h1 className="word500-title">Word 500 ({wordLength}) · Ladder</h1>
-        <button type="button" className="word500-new" onClick={game.newGame}>
-          Reset
+        <button
+          type="button"
+          className="word500-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
 
@@ -135,7 +138,7 @@ function Word500Round({
       {game.phase === 'won' && <p className="word500-banner word500-banner--win">Solved!</p>}
       {game.phase === 'lost' && (
         <p className="word500-banner word500-banner--lose">
-          The word was <strong>{game.target}</strong>
+          Run over. The word was <strong>{game.target}</strong>
         </p>
       )}
 
@@ -251,16 +254,20 @@ function Word500Round({
 
 export default function LadderWord500Screen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const { length, session, ladderDone, onAdvance, resetToStart } = useLadderSession(lo, hi, 'stop', variantId)
 
   return (
-    <Word500Round
-      key={length}
-      length={length}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      {ladderDone && <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={resetToStart} />}
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <Word500Round
+        key={`${session}-${length}`}
+        length={length}
+        onAdvance={onAdvance}
+        onReset={resetToStart}
+      />
+    </>
   )
 }
 

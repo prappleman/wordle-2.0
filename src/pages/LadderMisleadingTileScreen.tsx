@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { keyboardLetterHintsMisleading } from '../components/keyboardHints'
 import { useMisleadingTileGame } from '../game/useMisleadingTileGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { useLadderSession } from '../hooks/useLadderSession'
+import { wordsForLength } from '../variants/variantWordLength'
 import './MisleadingTileScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function MisleadingRound({
   length,
@@ -36,10 +36,9 @@ function MisleadingRound({
 
   useEffect(() => {
     if (game.phase === 'won') onAdvance()
-    if (game.phase === 'lost') onReset()
-  }, [game.phase, onAdvance, onReset])
+  }, [game.phase, onAdvance])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
   const keyboardHints = useMemo(
     () => keyboardLetterHintsMisleading(game.guesses),
     [game.guesses],
@@ -58,8 +57,12 @@ function MisleadingRound({
           ← Hub
         </Link>
         <h1 className="misleading-screen-title">Misleading Tile ({length}) · Ladder</h1>
-        <button type="button" className="misleading-screen-new" onClick={game.newGame}>
-          Reset
+        <button
+          type="button"
+          className="misleading-screen-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
 
@@ -73,7 +76,7 @@ function MisleadingRound({
       )}
       {game.phase === 'lost' && (
         <p className="misleading-screen-banner misleading-screen-banner--lose">
-          The word was <strong>{game.target}</strong>
+          Run over. The word was <strong>{game.target}</strong>
         </p>
       )}
 
@@ -98,16 +101,20 @@ function MisleadingRound({
 
 export default function LadderMisleadingTileScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const { length, session, ladderDone, onAdvance, resetToStart } = useLadderSession(lo, hi, 'stop', variantId)
 
   return (
-    <MisleadingRound
-      key={length}
-      length={length}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      {ladderDone && <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={resetToStart} />}
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <MisleadingRound
+        key={`${session}-${length}`}
+        length={length}
+        onAdvance={onAdvance}
+        onReset={resetToStart}
+      />
+    </>
   )
 }
 

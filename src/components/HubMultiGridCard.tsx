@@ -6,15 +6,19 @@ import './HubMultiGridCard.css'
 export function HubMultiGridCard({
   selectedLength,
   ladderMode,
+  ladderSearch,
 }: {
   selectedLength: number
   ladderMode: boolean
+  ladderSearch: string
 }) {
   return (
     <div className="hub-multi-cards" role="group" aria-label="Multi word counts">
       {MULTI_BOARD_COUNTS.map((boardCount) => {
         const maxG = multiMaxGuesses(boardCount)
-        const to = ladderMode ? `/play/ladder-multi-${boardCount}` : `/play/multi-${selectedLength}-${boardCount}`
+        const to = ladderMode
+          ? `/play/ladder-multi-${boardCount}${ladderSearch}`
+          : `/play/multi-${selectedLength}-${boardCount}`
         return (
           <Link key={boardCount} to={to} className="hub-multi-card hub-multi-card--link">
             <div className="hub-multi-card-main">

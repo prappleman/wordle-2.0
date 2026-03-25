@@ -29,7 +29,7 @@ export default function ColorlessScreen() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const { absentKeys, letterHints } = useMemo(() => {
     // Only grey letters that have been guessed and are `absent` in the true feedback.

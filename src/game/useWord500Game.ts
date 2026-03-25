@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useWinRevealTimer } from './useWinRevealTimer'
 import { scoreGuessAggregate } from './word500Aggregate'
 import type { ClassicGameConfig } from '../variants/types'
 
@@ -46,8 +47,12 @@ export function useWord500Game(config: Pick<ClassicGameConfig, 'words' | 'wordLe
   const [marks, setMarks] = useState<Record<string, TileNote>>({})
   /** Letters confirmed not in the word (from a guess where every tile was absent / “all red”). */
   const [absentLetters, setAbsentLetters] = useState<Set<string>>(() => new Set())
+  const [revealLock, setRevealLock] = useState(false)
+  const { schedule: scheduleWinReveal, clear: clearWinReveal } = useWinRevealTimer()
 
   const newGame = useCallback(() => {
+    clearWinReveal()
+    setRevealLock(false)
     setTarget(pickTarget(words, wordLength))
     setGuesses([])
     setBuffer('')
@@ -55,9 +60,10 @@ export function useWord500Game(config: Pick<ClassicGameConfig, 'words' | 'wordLe
     setPhase('playing')
     setMarks({})
     setAbsentLetters(new Set())
-  }, [words, wordLength])
+  }, [clearWinReveal, words, wordLength])
 
   const cycleMark = useCallback((row: number, col: number) => {
+    if (revealLock) return
     if (phase !== 'playing' && phase !== 'won') return
     if (row < 0 || row >= guesses.length) return
     const k = markKey(row, col)
@@ -105,7 +111,11 @@ export function useWord500Game(config: Pick<ClassicGameConfig, 'words' | 'wordLe
     if (g === target) {
       setGuesses((prev) => [...prev, row])
       setBuffer('')
-      setPhase('won')
+      setRevealLock(true)
+      scheduleWinReveal(() => {
+        setPhase('won')
+        setRevealLock(false)
+      })
       return
     }
 
@@ -117,22 +127,22 @@ export function useWord500Game(config: Pick<ClassicGameConfig, 'words' | 'wordLe
       return next
     })
     setBuffer('')
-  }, [buffer, guesses.length, phase, target, validSet, wordLength])
+  }, [buffer, guesses.length, phase, revealLock, scheduleWinReveal, target, validSet, wordLength])
 
   const addLetter = useCallback(
     (ch: string) => {
-      if (phase !== 'playing') return
+      if (phase !== 'playing' || revealLock) return
       if (guesses.length >= MAX_GUESSES) return
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
       setBuffer((b) => b + c)
     },
-    [buffer.length, guesses.length, phase, wordLength],
+    [buffer.length, guesses.length, phase, revealLock, wordLength],
   )
 
   const backspace = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     setBuffer((b) => b.slice(0, -1))
   }, [phase])
 
@@ -160,12 +170,15 @@ export function useWord500Game(config: Pick<ClassicGameConfig, 'words' | 'wordLe
     [marks],
   )
 
+  const inputLocked = phase !== 'playing' || revealLock
+
   return {
     target,
     guesses,
     buffer,
     shake,
     phase,
+    inputLocked,
     newGame,
     submit,
     addLetter,

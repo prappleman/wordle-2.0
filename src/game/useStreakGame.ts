@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useWinRevealTimer } from './useWinRevealTimer'
 import { scoreGuess } from './engine'
 import type { GuessRow } from './useWordleGame'
 import type { ClassicGameConfig } from '../variants/types'
@@ -55,18 +56,22 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
   const [shake, setShake] = useState(false)
   const [streak, setStreak] = useState(0)
   const [best, setBest] = useState(() => readBest(bestKey))
+  const [revealLock, setRevealLock] = useState(false)
+  const { schedule: scheduleWinReveal, clear: clearWinReveal } = useWinRevealTimer()
 
   const newRun = useCallback(() => {
+    clearWinReveal()
+    setRevealLock(false)
     setTarget(pickTarget(words, wordLength))
     setGuesses([])
     setBuffer('')
     setPhase('playing')
     setShake(false)
     setStreak(0)
-  }, [words, wordLength])
+  }, [clearWinReveal, words, wordLength])
 
   const submit = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     const g = buffer.toUpperCase()
     if (g.length !== wordLength) return
     if (!validSet.has(g)) {
@@ -82,20 +87,24 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
     setBuffer('')
 
     if (g === target) {
-      setStreak((s) => {
-        const ns = s + 1
-        setBest((b) => {
-          if (ns > b) {
-            writeBest(bestKey, ns)
-            return ns
-          }
-          return b
+      setRevealLock(true)
+      scheduleWinReveal(() => {
+        setStreak((s) => {
+          const ns = s + 1
+          setBest((b) => {
+            if (ns > b) {
+              writeBest(bestKey, ns)
+              return ns
+            }
+            return b
+          })
+          return ns
         })
-        return ns
+        setTarget(pickTarget(words, wordLength))
+        setGuesses([])
+        setPhase('playing')
+        setRevealLock(false)
       })
-      setTarget(pickTarget(words, wordLength))
-      setGuesses([])
-      setPhase('playing')
       return
     }
 
@@ -106,19 +115,19 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
 
   const addLetter = useCallback(
     (ch: string) => {
-      if (phase !== 'playing') return
+      if (phase !== 'playing' || revealLock) return
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
       setBuffer((b) => b + c)
     },
-    [buffer.length, phase, wordLength],
+    [buffer.length, phase, revealLock, wordLength],
   )
 
   const backspace = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     setBuffer((b) => b.slice(0, -1))
-  }, [phase])
+  }, [phase, revealLock])
 
   const onPhysicalKey = useCallback(
     (key: string) => {
@@ -137,12 +146,15 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
     [addLetter, backspace, submit],
   )
 
+  const inputLocked = phase !== 'playing' || revealLock
+
   return {
     target,
     guesses,
     buffer,
     phase,
     shake,
+    inputLocked,
     streak,
     best,
     newRun,

@@ -30,7 +30,7 @@ export default function StreakScreen() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const onScreenKey = (key: string) => {
     if (key === 'Enter') {

@@ -4,11 +4,14 @@ import './VariantCard.css'
 
 interface VariantCardProps {
   variant: VariantDefinition
+  /** Optional query string including `?`, e.g. ladder span. */
+  search?: string
 }
 
-export function VariantCard({ variant }: VariantCardProps) {
+export function VariantCard({ variant, search }: VariantCardProps) {
+  const to = search ? `/play/${variant.id}${search}` : `/play/${variant.id}`
   return (
-    <Link to={`/play/${variant.id}`} className="variant-card">
+    <Link to={to} className="variant-card">
       <h2 className="variant-card-title">{variant.title}</h2>
       <p className="variant-card-desc">{variant.description}</p>
       {variant.tags && variant.tags.length > 0 && (

@@ -80,7 +80,7 @@ export default function ZenScreen() {
         shake={game.shake}
       />
 
-      <WordleKeyboard guesses={game.gridGuesses} disabled={false} onKey={onScreenKey} />
+      <WordleKeyboard guesses={game.gridGuesses} disabled={game.inputLocked} onKey={onScreenKey} />
     </div>
   )
 }

@@ -1,15 +1,15 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { useUnscrambleGame } from '../game/useUnscrambleGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { useLadderSession } from '../hooks/useLadderSession'
+import { wordsForLength } from '../variants/variantWordLength'
 import '../components/WordleGrid.css'
 import './UnscrambleScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function UnscrambleRound({
   length,
@@ -36,10 +36,9 @@ function UnscrambleRound({
 
   useEffect(() => {
     if (game.phase === 'won') onAdvance()
-    if (game.phase === 'lost') onReset()
-  }, [game.phase, onAdvance, onReset])
+  }, [game.phase, onAdvance])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const onScreenKey = (key: string) => {
     if (key === 'Enter') return game.submit()
@@ -63,8 +62,12 @@ function UnscrambleRound({
           ← Hub
         </Link>
         <h1 className="unscramble-screen-title">Unscramble ({length}) · Ladder</h1>
-        <button type="button" className="unscramble-screen-new" onClick={game.newGame}>
-          Reset
+        <button
+          type="button"
+          className="unscramble-screen-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
 
@@ -79,7 +82,7 @@ function UnscrambleRound({
 
       {game.phase === 'lost' && (
         <p className="unscramble-screen-banner unscramble-screen-banner--lose">
-          The word was <strong>{game.target}</strong>
+          Run over. The word was <strong>{game.target}</strong>
         </p>
       )}
 
@@ -116,16 +119,20 @@ function UnscrambleRound({
 
 export default function LadderUnscrambleScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const { length, session, ladderDone, onAdvance, resetToStart } = useLadderSession(lo, hi, 'stop', variantId)
 
   return (
-    <UnscrambleRound
-      key={length}
-      length={length}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      {ladderDone && <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={resetToStart} />}
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <UnscrambleRound
+        key={`${session}-${length}`}
+        length={length}
+        onAdvance={onAdvance}
+        onReset={resetToStart}
+      />
+    </>
   )
 }
 

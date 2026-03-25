@@ -1,12 +1,20 @@
 import { lazy } from 'react'
 import type { VariantDefinition } from './types'
 import {
+  WORDS_1,
+  WORDS_2,
   WORDS_3,
   WORDS_4,
   WORDS_5,
   WORDS_6,
   WORDS_7,
+  WORDS_8,
+  WORDS_9,
+  WORDS_10,
+  WORDS_11,
+  WORDS_12,
 } from '../data/words/words12dictsGame'
+import { LADDER_PICK_LENGTHS } from './ladderLength'
 import { MULTI_BOARD_COUNTS, multiMaxGuesses } from './multiVariant'
 
 const MultiWordleScreen = lazy(() => import('../pages/MultiWordleScreen'))
@@ -33,73 +41,63 @@ const CAT_CLASSIC = 'Classic'
 const CAT_MULTI = 'Multi-board & special'
 const CAT_NEW = 'New modes'
 
+/** Hub “normal” play lengths (2–12). */
+const PLAY_LENS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const
+
+const WORDS_BY_LEN: Record<number, readonly string[]> = {
+  1: WORDS_1,
+  2: WORDS_2,
+  3: WORDS_3,
+  4: WORDS_4,
+  5: WORDS_5,
+  6: WORDS_6,
+  7: WORDS_7,
+  8: WORDS_8,
+  9: WORDS_9,
+  10: WORDS_10,
+  11: WORDS_11,
+  12: WORDS_12,
+}
+
+const CLASSIC_TITLE: Record<number, string> = {
+  2: 'Tiny',
+  3: 'Micro',
+  4: 'Mini',
+  5: 'Classic',
+  6: 'Extra',
+  7: 'Wide',
+  8: 'Grand',
+  9: 'Vast',
+  10: 'Epic',
+  11: 'Titan',
+  12: 'Mega',
+}
+
+function classicTags(len: number): string[] {
+  const t = [`${len}-letter`, '6 guesses']
+  if (len === 5) t.push('classic')
+  if (len === 3 || len === 4) t.push('quick')
+  return t
+}
+
 export const VARIANTS: VariantDefinition[] = [
-  {
-    kind: 'classic',
-    id: 'classic-3',
-    title: 'Micro',
-    description: 'Three-letter words from the word list.',
-    tags: ['3-letter', 'quick', '6 guesses'],
-    category: CAT_CLASSIC,
-    config: {
-      wordLength: 3,
-      maxGuesses: 6,
-      words: WORDS_3,
-    },
-  },
-  {
-    kind: 'classic',
-    id: 'classic-4',
-    title: 'Mini',
-    description: 'Four-letter words from the word list.',
-    tags: ['4-letter', 'quick', '6 guesses'],
-    category: CAT_CLASSIC,
-    config: {
-      wordLength: 4,
-      maxGuesses: 6,
-      words: WORDS_4,
-    },
-  },
-  {
-    kind: 'classic',
-    id: 'classic-5',
-    title: 'Classic',
-    description: 'Six guesses to find a five-letter word.',
-    tags: ['5-letter', 'classic', '6 guesses'],
-    category: CAT_CLASSIC,
-    config: {
-      wordLength: 5,
-      maxGuesses: 6,
-      words: WORDS_5,
-    },
-  },
-  {
-    kind: 'classic',
-    id: 'classic-6',
-    title: 'Extra',
-    description: 'Same rules, six-letter answers.',
-    tags: ['6-letter', '6 guesses'],
-    category: CAT_CLASSIC,
-    config: {
-      wordLength: 6,
-      maxGuesses: 6,
-      words: WORDS_6,
-    },
-  },
-  {
-    kind: 'classic',
-    id: 'classic-7',
-    title: 'Wide',
-    description: 'Seven-letter words; same scoring rules.',
-    tags: ['7-letter', '6 guesses'],
-    category: CAT_CLASSIC,
-    config: {
-      wordLength: 7,
-      maxGuesses: 6,
-      words: WORDS_7,
-    },
-  },
-  ...([3, 4, 5, 6, 7] as const).flatMap((len) =>
+  ...PLAY_LENS.map(
+    (len) =>
+      ({
+        kind: 'classic',
+        id: `classic-${len}`,
+        title: CLASSIC_TITLE[len]!,
+        description: 'Standard Wordle scoring—green, yellow, gray. Six guesses.',
+        tags: classicTags(len),
+        category: CAT_CLASSIC,
+        config: {
+          wordLength: len,
+          maxGuesses: 6,
+          words: WORDS_BY_LEN[len]!,
+        },
+      }) satisfies VariantDefinition,
+  ),
+  ...PLAY_LENS.flatMap((len) =>
     MULTI_BOARD_COUNTS.map((boards) => {
       const maxG = multiMaxGuesses(boards)
       return {
@@ -113,7 +111,7 @@ export const VARIANTS: VariantDefinition[] = [
       }
     }),
   ),
-  ...([3, 4, 5, 6, 7] as const).flatMap((n) => [
+  ...PLAY_LENS.flatMap((n) => [
     {
       kind: 'custom' as const,
       id: `infinite-${n}`,
@@ -135,7 +133,7 @@ export const VARIANTS: VariantDefinition[] = [
       screen: Word500Screen,
     },
   ]),
-  ...([3, 4, 5, 6, 7] as const).flatMap((n) => {
+  ...PLAY_LENS.flatMap((n) => {
     const lenLabel = `${n}-letter`
     return [
       {
@@ -143,8 +141,8 @@ export const VARIANTS: VariantDefinition[] = [
         id: `colorless-${n}`,
         title: 'Colorless',
         description:
-        'No tile colors—green and yellow are both white to show which letters are in the word; gray shows absent letters.',
-      tags: [lenLabel, 'letters', '8 guesses'],
+          'No tile colors—green and yellow are both white to show which letters are in the word; gray shows absent letters.',
+        tags: [lenLabel, 'letters', '8 guesses'],
         category: CAT_NEW,
         screen: ColorlessScreen,
       },
@@ -154,7 +152,7 @@ export const VARIANTS: VariantDefinition[] = [
         title: 'Alternating',
         description:
           'One board, two words. Odd guesses score Word A, even guesses Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
-        tags: [lenLabel, 'dual', '12 guesses'],
+        tags: [lenLabel, 'dual', '10 guesses'],
         category: CAT_NEW,
         screen: AlternatingDuetScreen,
       },
@@ -210,11 +208,11 @@ export const VARIANTS: VariantDefinition[] = [
       },
     ]
   }),
-  ...([3, 4, 5, 6, 7] as const).flatMap((n) => [
+  ...LADDER_PICK_LENGTHS.flatMap((n) => [
     {
       kind: 'custom' as const,
       id: `growing-word-${n}`,
-        title: 'Classic',
+      title: 'Classic',
       description: 'Standard Wordle scoring—green, yellow, gray. Six guesses.',
       tags: ['ladder', `${n}-letter`, '6 guesses'],
       category: CAT_NEW,
@@ -223,7 +221,7 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-infinite-${n}`,
-        title: 'Infinite',
+      title: 'Infinite',
       description:
         'Six rows per round—fill the board without solving and you lose. Solve to slide away the last two guesses and continue.',
       tags: [`${n}-letter`, 'endless', 'ladder', '6 guesses'],
@@ -233,7 +231,7 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-word-500-${n}`,
-        title: 'Word 500',
+      title: 'Word 500',
       description:
         'You see green/yellow/red counts and can add your own notes by tapping tiles. Eight guesses.',
       tags: [`${n}-letter`, 'notes', 'ladder', '8 guesses'],
@@ -243,7 +241,7 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-colorless-${n}`,
-        title: 'Colorless',
+      title: 'Colorless',
       description:
         'No tile colors—green and yellow are both white to show which letters are in the word; gray shows absent letters.',
       tags: [`${n}-letter`, 'letters', 'ladder', '8 guesses'],
@@ -253,17 +251,17 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-alternating-duet-${n}`,
-        title: 'Alternating',
+      title: 'Alternating',
       description:
         'One board, two words. Odd guesses score Word A, even guesses Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
-      tags: [`${n}-letter`, 'dual', 'ladder', '12 guesses'],
+      tags: [`${n}-letter`, 'dual', 'ladder', '10 guesses'],
       category: CAT_NEW,
       screen: LadderAlternatingDuetScreen,
     },
     {
       kind: 'custom' as const,
       id: `ladder-unscramble-${n}`,
-        title: 'Unscramble',
+      title: 'Unscramble',
       description:
         'Green row shows word length only; letters appear dimmed off the keyboard if they are not in the answer. Three guesses.',
       tags: [`${n}-letter`, 'unscramble', 'ladder', '3 guesses'],
@@ -273,7 +271,7 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-streak-${n}`,
-        title: 'Streak',
+      title: 'Streak',
       description:
         'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
       tags: [`${n}-letter`, 'streak', 'ladder', '6 guesses'],
@@ -283,7 +281,7 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-misleading-${n}`,
-        title: 'Misleading Tile',
+      title: 'Misleading Tile',
       description:
         'Exactly one wrong tile per guess. Keyboard matches tile colors; green+grey for the same letter leaves that key uncolored. Ten guesses.',
       tags: [`${n}-letter`, 'hard', 'ladder', '10 guesses'],
@@ -293,7 +291,7 @@ export const VARIANTS: VariantDefinition[] = [
     {
       kind: 'custom' as const,
       id: `ladder-zen-${n}`,
-        title: 'Zen',
+      title: 'Zen',
       description:
         'Unlimited guesses, scrolling six-row board, no loss. Solve to move to the next word.',
       tags: [`${n}-letter`, 'zen', 'ladder', '6 guesses'],

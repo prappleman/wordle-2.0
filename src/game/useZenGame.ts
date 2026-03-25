@@ -1,11 +1,13 @@
 import { useCallback, useMemo, useState } from 'react'
 import { scoreGuess } from './engine'
+import { useWinRevealTimer } from './useWinRevealTimer'
+import { WIN_REVEAL_MS } from './winReveal'
 import { zenWindowGuesses } from './zenDisplay'
 import type { GuessRow } from './useWordleGame'
 import type { ClassicGameConfig } from '../variants/types'
 
 const VISIBLE_ROWS = 6
-const RECOLOR_DELAY_MS = 700
+const RECOLOR_DELAY_MS = WIN_REVEAL_MS
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -43,6 +45,8 @@ export function useZenGame(
   const [winFlash, setWinFlash] = useState(false)
   /** Zen Infinite: lock input while showing solved row before recolor. */
   const [isTransitioning, setIsTransitioning] = useState(false)
+  const [revealLock, setRevealLock] = useState(false)
+  const { schedule: scheduleWinReveal, clear: clearWinReveal } = useWinRevealTimer()
 
   const advanceWord = useCallback(() => {
     setTarget(pickTarget(words, wordLength))
@@ -52,6 +56,8 @@ export function useZenGame(
   }, [words, wordLength])
 
   const newGame = useCallback(() => {
+    clearWinReveal()
+    setRevealLock(false)
     setTarget(pickTarget(words, wordLength))
     setGuesses([])
     setBuffer('')
@@ -59,10 +65,10 @@ export function useZenGame(
     setSolvedCount(0)
     setWinFlash(false)
     setIsTransitioning(false)
-  }, [words, wordLength])
+  }, [clearWinReveal, words, wordLength])
 
   const submit = useCallback(() => {
-    if (isTransitioning) return
+    if (isTransitioning || revealLock) return
     const g = buffer.toUpperCase()
     if (g.length !== wordLength) return
     if (!validSet.has(g)) {
@@ -94,28 +100,32 @@ export function useZenGame(
           setIsTransitioning(false)
         }, RECOLOR_DELAY_MS)
       } else {
-        advanceWord()
-        setWinFlash(true)
-        window.setTimeout(() => setWinFlash(false), 900)
+        setRevealLock(true)
+        scheduleWinReveal(() => {
+          advanceWord()
+          setWinFlash(true)
+          window.setTimeout(() => setWinFlash(false), 900)
+          setRevealLock(false)
+        })
       }
     }
-  }, [advanceWord, buffer, isTransitioning, mode, target, validSet, wordLength, words])
+  }, [advanceWord, buffer, isTransitioning, mode, revealLock, scheduleWinReveal, target, validSet, wordLength, words])
 
   const addLetter = useCallback(
     (ch: string) => {
-      if (isTransitioning) return
+      if (isTransitioning || revealLock) return
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
       setBuffer((b) => b + c)
     },
-    [buffer.length, isTransitioning, wordLength],
+    [buffer.length, isTransitioning, revealLock, wordLength],
   )
 
   const backspace = useCallback(() => {
-    if (isTransitioning) return
+    if (isTransitioning || revealLock) return
     setBuffer((b) => b.slice(0, -1))
-  }, [isTransitioning])
+  }, [isTransitioning, revealLock])
 
   const onPhysicalKey = useCallback(
     (key: string) => {
@@ -141,6 +151,8 @@ export function useZenGame(
 
   const gridPhase: 'playing' | 'won' | 'lost' = 'playing'
 
+  const inputLocked = isTransitioning || revealLock
+
   return {
     target,
     guesses,
@@ -159,5 +171,6 @@ export function useZenGame(
     solvedCount,
     winFlash,
     mode,
+    inputLocked,
   }
 }

@@ -30,7 +30,7 @@ export default function MisleadingTileScreen() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const keyboardHints = useMemo(
     () => keyboardLetterHintsMisleading(game.guesses),

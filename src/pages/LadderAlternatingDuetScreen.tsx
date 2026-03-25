@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useAlternatingDuetGame } from '../game/useAlternatingDuetGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { useLadderSession } from '../hooks/useLadderSession'
+import { wordsForLength } from '../variants/variantWordLength'
 import './AlternatingDuetScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function AlternatingRound({
   length,
@@ -20,7 +20,7 @@ function AlternatingRound({
   onReset: () => void
 }) {
   const words = wordsForLength(length)
-  const game = useAlternatingDuetGame({ words, wordLength: length, maxGuesses: 12 })
+  const game = useAlternatingDuetGame({ words, wordLength: length, maxGuesses: 10 })
   const { onPhysicalKey } = game
 
   useEffect(() => {
@@ -35,8 +35,7 @@ function AlternatingRound({
 
   useEffect(() => {
     if (game.phase === 'won') onAdvance()
-    if (game.phase === 'lost') onReset()
-  }, [game.phase, onAdvance, onReset])
+  }, [game.phase, onAdvance])
 
   const keyboardDisabled = game.phase !== 'playing' || game.celebrationLock
   const onScreenKey = (key: string) => {
@@ -63,8 +62,12 @@ function AlternatingRound({
           ← Hub
         </Link>
         <h1 className="duet-screen-title">Alternating ({length}) · Ladder</h1>
-        <button type="button" className="duet-screen-new" onClick={game.newGame}>
-          Reset
+        <button
+          type="button"
+          className="duet-screen-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
 
@@ -86,7 +89,7 @@ function AlternatingRound({
               Next guess scores: <strong>Word {game.nextScoresWord}</strong>
               <span className="duet-screen-next-sub">
                 {' '}
-                (1st/3rd/5th/7th/9th/11th → A · 2nd/4th/6th/8th/10th/12th → B)
+                (1st/3rd/5th/7th/9th → A · 2nd/4th/6th/8th/10th → B)
               </span>
             </>
           ) : (
@@ -106,7 +109,9 @@ function AlternatingRound({
             role="status"
           >
             {summaryMessage}
-            {game.phase === 'lost' && <span className="duet-screen-summary-sub"> Out of guesses.</span>}
+            {game.phase === 'lost' && (
+              <span className="duet-screen-summary-sub"> Run over — out of guesses.</span>
+            )}
           </p>
 
           <div className="duet-boards duet-boards--summary">
@@ -170,16 +175,20 @@ function AlternatingRound({
 
 export default function LadderAlternatingDuetScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const { length, session, ladderDone, onAdvance, resetToStart } = useLadderSession(lo, hi, 'stop', variantId)
 
   return (
-    <AlternatingRound
-      key={length}
-      length={length}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      {ladderDone && <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={resetToStart} />}
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <AlternatingRound
+        key={`${session}-${length}`}
+        length={length}
+        onAdvance={onAdvance}
+        onReset={resetToStart}
+      />
+    </>
   )
 }
 

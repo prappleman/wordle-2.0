@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useColorlessGame } from '../game/useColorlessGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { useLadderSession } from '../hooks/useLadderSession'
+import { wordsForLength } from '../variants/variantWordLength'
 import './ColorlessScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function ColorlessRound({
   length,
@@ -37,7 +37,7 @@ function ColorlessRound({
     if (game.phase === 'lost') onReset()
   }, [game.phase, onAdvance, onReset])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const absentAndHints = useMemo(() => {
     const inWord = new Set<string>()
@@ -73,10 +73,20 @@ function ColorlessRound({
           ← Hub
         </Link>
         <h1 className="colorless-screen-title">Colorless ({length}) · Ladder</h1>
-        <button type="button" className="colorless-screen-new" onClick={game.newGame}>
-          Reset
+        <button
+          type="button"
+          className="colorless-screen-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
+
+      {game.phase === 'lost' && (
+        <p className="colorless-screen-banner colorless-screen-banner--lose">
+          Run over. The word was <strong>{game.target}</strong>
+        </p>
+      )}
 
       <p className="colorless-screen-hint">
         Any tile that would be green or yellow is white. Tiles that are not in the answer are absent (gray).
@@ -122,16 +132,20 @@ function ColorlessRound({
 
 export default function LadderColorlessScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const { length, session, ladderDone, onAdvance, resetToStart } = useLadderSession(lo, hi, 'stop', variantId)
 
   return (
-    <ColorlessRound
-      key={length}
-      length={length}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      {ladderDone && <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={resetToStart} />}
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <ColorlessRound
+        key={`${session}-${length}`}
+        length={length}
+        onAdvance={onAdvance}
+        onReset={resetToStart}
+      />
+    </>
   )
 }
 

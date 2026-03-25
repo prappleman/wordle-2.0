@@ -13,7 +13,7 @@ export default function AlternatingDuetScreen() {
   const game = useAlternatingDuetGame({
     words,
     wordLength,
-    maxGuesses: 12,
+    maxGuesses: 10,
   })
   const { onPhysicalKey } = game
 
@@ -71,7 +71,7 @@ export default function AlternatingDuetScreen() {
         Two hidden words. Each guess is checked against both answers: if your letters match Word A or Word B,
         that word counts as found (even on the other word’s “turn”). While both are unknown, odd/even turns
         choose which answer is used for scoring and the board re-tints to that lens. After one word is found,
-        tiles and keyboard use only the remaining word. Twelve guesses total.
+        tiles and keyboard use only the remaining word. Ten guesses total.
       </p>
 
       {game.phase === 'playing' && game.celebrationLock && (
@@ -87,7 +87,7 @@ export default function AlternatingDuetScreen() {
               Next guess scores: <strong>Word {game.nextScoresWord}</strong>
               <span className="duet-screen-next-sub">
                 {' '}
-                (1st/3rd/5th/7th/9th/11th → A · 2nd/4th/6th/8th/10th/12th → B)
+                (1st/3rd/5th/7th/9th → A · 2nd/4th/6th/8th/10th → B)
               </span>
             </>
           ) : (

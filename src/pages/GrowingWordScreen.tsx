@@ -3,28 +3,46 @@ import { Link, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import {
+  WORDS_1,
+  WORDS_2,
   WORDS_3,
   WORDS_4,
   WORDS_5,
   WORDS_6,
   WORDS_7,
+  WORDS_8,
+  WORDS_9,
+  WORDS_10,
+  WORDS_11,
+  WORDS_12,
 } from '../data/words/words12dictsGame'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { useGrowingWordGame } from '../game/useGrowingWordGame'
+import { useLadderRange } from '../hooks/useLadderRange'
 import { wordLengthFromVariantId } from '../variants/variantWordLength'
 import './GrowingWordScreen.css'
 
 const WORDS_BY_LEN = {
+  1: WORDS_1,
+  2: WORDS_2,
   3: WORDS_3,
   4: WORDS_4,
   5: WORDS_5,
   6: WORDS_6,
   7: WORDS_7,
+  8: WORDS_8,
+  9: WORDS_9,
+  10: WORDS_10,
+  11: WORDS_11,
+  12: WORDS_12,
 } as const
 
 export default function GrowingWordScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
   const startLength = wordLengthFromVariantId(variantId)
-  const game = useGrowingWordGame(WORDS_BY_LEN, startLength as 3 | 4 | 5 | 6 | 7)
+  const { lo, hi } = useLadderRange(variantId)
+  const game = useGrowingWordGame(WORDS_BY_LEN, startLength, lo, hi)
   const { onPhysicalKey } = game
 
   useEffect(() => {
@@ -39,7 +57,10 @@ export default function GrowingWordScreen() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
+
+  const gridPhase: 'playing' | 'won' | 'lost' =
+    game.phase === 'ladderComplete' ? 'won' : game.phase === 'won' ? 'won' : game.phase
 
   const onScreenKey = (key: string) => {
     if (key === 'Enter') {
@@ -61,19 +82,29 @@ export default function GrowingWordScreen() {
         </Link>
         <h1 className="growing-screen-title">Growing Word</h1>
         <button type="button" className="growing-screen-new" onClick={game.newGame}>
-          Reset run
+          {game.phase === 'lost' && game.lastLostTarget ? 'Start new run' : 'Reset run'}
         </button>
       </header>
 
+      <LadderRoundMeta
+        currentLength={game.currentLength}
+        lo={lo}
+        hi={hi}
+        className="growing-screen-meta"
+      />
       <p className="growing-screen-meta">
         Length <strong>{game.currentLength}</strong> · Words solved this run:{' '}
         <strong>{game.ladderStreak}</strong>
       </p>
 
       <p className="growing-screen-hint">
-        Start at {startLength} letters. Each win adds another letter (up to 7), then loops back to 3.
-        One miss resets the run to the starting length.
+        Start at {startLength} letters. Solve every length from {lo} to {hi} to finish the ladder. One miss ends the
+        run; use Reset to start again from the hub length.
       </p>
+
+      {game.phase === 'ladderComplete' && (
+        <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={game.newGame} />
+      )}
 
       {game.phase === 'lost' && game.lastLostTarget && (
         <p className="growing-screen-banner growing-screen-banner--lose">
@@ -86,7 +117,7 @@ export default function GrowingWordScreen() {
         maxGuesses={game.maxGuesses}
         guesses={game.guesses}
         buffer={game.buffer}
-        phase={game.phase}
+        phase={gridPhase}
         shake={game.shake}
       />
 

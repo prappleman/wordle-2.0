@@ -1,5 +1,8 @@
 /** Word lengths shown as one hub card per mode (links to `/{prefix}-{n}`). */
-export const HUB_WORD_LENGTHS = [3, 4, 5, 6, 7] as const
+export const HUB_PLAY_LENGTHS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const
+
+/** @deprecated use HUB_PLAY_LENGTHS */
+export const HUB_WORD_LENGTHS = HUB_PLAY_LENGTHS
 
 const CAT_CLASSIC = 'Classic'
 const CAT_MULTI = 'Multi'
@@ -32,7 +35,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Classic',
         description:
           'Standard Wordle scoring—green, yellow, gray. Pick a word length, then play with six guesses.',
-        tags: ['3–7 letters', 'classic'],
+        tags: ['2–12 letters', 'classic'],
       },
     ],
   },
@@ -45,7 +48,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Colorless',
         description:
           'No tile colors—white tiles show letters that are in the word (green/yellow are both white), gray tiles are absent.',
-        tags: ['letters', '3–7'],
+        tags: ['letters', '2–12'],
       },
       {
         kind: 'lengthGroup',
@@ -53,7 +56,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Unscramble',
         description:
           'Green row shows word length only; letters not in the answer are dimmed on the keyboard. Three guesses.',
-        tags: ['unscramble', '3–7'],
+        tags: ['unscramble', '2–12'],
       },
       {
         kind: 'lengthGroup',
@@ -61,7 +64,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Streak',
         description:
           'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
-        tags: ['streak', '3–7'],
+        tags: ['streak', '2–12'],
       },
       {
         kind: 'lengthGroup',
@@ -69,7 +72,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Misleading Tile',
         description:
           'Exactly one wrong tile per guess. Keyboard matches those colors; conflicting green/grey for a letter leaves the key blank. Ten guesses.',
-        tags: ['hard', '3–7'],
+        tags: ['hard', '2–12'],
       },
       {
         kind: 'lengthGroup',
@@ -85,7 +88,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Zen Infinite',
         description:
           'Like Zen, but wins chain instantly with no pause—endless relaxed practice.',
-        tags: ['zen', 'endless', '3–7'],
+        tags: ['zen', 'endless', '2–12'],
       },
       {
         kind: 'lengthGroup',
@@ -93,7 +96,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Infinite',
         description:
           'Sliding answers. Guess up to six times per round; when you solve, the last two guesses slide away and a new answer appears.',
-        tags: ['endless', '3–7'],
+        tags: ['endless', '2–12'],
       },
       {
         kind: 'lengthGroup',
@@ -101,7 +104,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Word 500',
         description:
           'You see green/yellow/red feedback and counts, and you can tap tiles to add your own notes. No exact per-tile positions.',
-        tags: ['notes', '3–7'],
+        tags: ['notes', '2–12'],
       },
     ],
   },
@@ -114,7 +117,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Alternating',
         description:
           'One board, two hidden words. Odd guesses score Word A, even score Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
-        tags: ['dual', '3–7'],
+        tags: ['dual', '2–12'],
       },
       { kind: 'multiGrid' },
     ],

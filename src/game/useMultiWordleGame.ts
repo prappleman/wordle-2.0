@@ -1,4 +1,5 @@
 import { useCallback, useMemo, useState } from 'react'
+import { useWinRevealTimer } from './useWinRevealTimer'
 import { scoreGuess } from './engine'
 import type { GuessRow } from './useWordleGame'
 import type { ClassicGameConfig } from '../variants/types'
@@ -59,8 +60,12 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
   const [buffer, setBuffer] = useState('')
   const [phase, setPhase] = useState<'playing' | 'won' | 'lost'>('playing')
   const [shake, setShake] = useState(false)
+  const [revealLock, setRevealLock] = useState(false)
+  const { schedule: scheduleWinReveal, clear: clearWinReveal } = useWinRevealTimer()
 
   const newGame = useCallback(() => {
+    clearWinReveal()
+    setRevealLock(false)
     setTargets(pickDistinctTargets(words, wordLength, boardCount))
     setGuessesByBoard(Array.from({ length: boardCount }, () => []))
     setSolved(Array(boardCount).fill(false))
@@ -68,10 +73,10 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
     setBuffer('')
     setPhase('playing')
     setShake(false)
-  }, [boardCount, words, wordLength])
+  }, [boardCount, clearWinReveal, words, wordLength])
 
   const submit = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     const g = buffer.toUpperCase()
     if (g.length !== wordLength) return
     if (!validSet.has(g)) {
@@ -96,7 +101,11 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
     setGuessCount(nextCount)
 
     if (nextSolved.every(Boolean)) {
-      setPhase('won')
+      setRevealLock(true)
+      scheduleWinReveal(() => {
+        setPhase('won')
+        setRevealLock(false)
+      })
       return
     }
 
@@ -109,6 +118,8 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
     guessesByBoard,
     maxGuesses,
     phase,
+    revealLock,
+    scheduleWinReveal,
     solved,
     targets,
     validSet,
@@ -117,19 +128,19 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
 
   const addLetter = useCallback(
     (ch: string) => {
-      if (phase !== 'playing') return
+      if (phase !== 'playing' || revealLock) return
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
       setBuffer((b) => b + c)
     },
-    [buffer.length, phase, wordLength],
+    [buffer.length, phase, revealLock, wordLength],
   )
 
   const backspace = useCallback(() => {
-    if (phase !== 'playing') return
+    if (phase !== 'playing' || revealLock) return
     setBuffer((b) => b.slice(0, -1))
-  }, [phase])
+  }, [phase, revealLock])
 
   const onPhysicalKey = useCallback(
     (key: string) => {
@@ -153,6 +164,8 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
     [guessesByBoard],
   )
 
+  const inputLocked = phase !== 'playing' || revealLock
+
   return {
     targets,
     guessesByBoard,
@@ -160,6 +173,7 @@ export function useMultiWordleGame(config: MultiWordleConfig) {
     buffer,
     phase,
     shake,
+    inputLocked,
     guessCount,
     newGame,
     submit,

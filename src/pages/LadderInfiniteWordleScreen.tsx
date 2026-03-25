@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useInfiniteWordleGame } from '../game/useInfiniteWordleGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { nextLadderInRange } from '../variants/ladderRange'
+import { wordsForLength } from '../variants/variantWordLength'
 import './InfiniteWordleScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function InfiniteRound({
   length,
@@ -39,16 +38,12 @@ function InfiniteRound({
   }, [onPhysicalKey, game.inputLocked])
 
   useEffect(() => {
-    if (game.phase === 'lost') {
-      onReset()
-      return
-    }
     // In infinite mode, we slide only after a correct word; trigger ladder advance when slide count increases.
     if (game.slides !== prevSlidesRef.current) {
       prevSlidesRef.current = game.slides
       if (game.slides > 0) onAdvance()
     }
-  }, [game.phase, game.slides, onAdvance, onReset])
+  }, [game.phase, game.slides, onAdvance])
 
   const onScreenKey = (key: string) => {
     if (game.inputLocked) return
@@ -70,8 +65,12 @@ function InfiniteRound({
           ← Hub
         </Link>
         <h1 className="infinite-screen-title">Infinite ({length}) · Ladder</h1>
-        <button type="button" className="infinite-screen-new" onClick={game.newGame}>
-          Reset
+        <button
+          type="button"
+          className="infinite-screen-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
 
@@ -81,7 +80,7 @@ function InfiniteRound({
 
       {game.phase === 'lost' && (
         <p className="infinite-screen-banner infinite-screen-banner--lose">
-          Out of guesses. The word was <strong>{game.target}</strong>
+          Run over. The word was <strong>{game.target}</strong>
         </p>
       )}
 
@@ -101,17 +100,20 @@ function InfiniteRound({
 
 export default function LadderInfiniteWordleScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
+  const { lo, hi } = useLadderRange(variantId)
 
-  const [length, setLength] = useState(startLength)
+  const [length, setLength] = useState(lo)
 
   return (
-    <InfiniteRound
-      key={length}
-      length={length}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <InfiniteRound
+        key={length}
+        length={length}
+        onAdvance={() => setLength((l) => nextLadderInRange(l, lo, hi, 'wrap') ?? l)}
+        onReset={() => setLength(lo)}
+      />
+    </>
   )
 }
 

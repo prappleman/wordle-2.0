@@ -62,7 +62,7 @@ export default function Word500Screen() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey, game.phase])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const onScreenKey = (key: string) => {
     if (game.phase !== 'playing') return

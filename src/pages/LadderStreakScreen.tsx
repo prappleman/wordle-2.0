@@ -2,13 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { useStreakGame } from '../game/useStreakGame'
-import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { nextLadderInRange } from '../variants/ladderRange'
+import { wordsForLength } from '../variants/variantWordLength'
 import './StreakScreen.css'
-
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
 
 function StreakRound({
   length,
@@ -39,17 +38,16 @@ function StreakRound({
 
   useEffect(() => {
     if (game.phase === 'lost') {
-      onReset()
+      prevStreakRef.current = game.streak
       return
     }
-    // In Streak mode, phase never becomes "won"; instead streak increments on every successful word.
     if (game.streak > prevStreakRef.current) {
       prevStreakRef.current = game.streak
       onAdvance()
     }
-  }, [game.phase, game.streak, onAdvance, onReset])
+  }, [game.phase, game.streak, onAdvance])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
 
   const onScreenKey = (key: string) => {
     if (key === 'Enter') return game.submit()
@@ -64,8 +62,12 @@ function StreakRound({
           ← Hub
         </Link>
         <h1 className="streak-screen-title">Streak ({length}) · Ladder</h1>
-        <button type="button" className="streak-screen-new" onClick={game.newRun}>
-          Reset
+        <button
+          type="button"
+          className="streak-screen-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newRun())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'Reset'}
         </button>
       </header>
 
@@ -79,7 +81,7 @@ function StreakRound({
 
       {game.phase === 'lost' && (
         <p className="streak-screen-banner streak-screen-banner--lose">
-          Run ended. The word was <strong>{game.target}</strong>
+          Run over. The word was <strong>{game.target}</strong>
         </p>
       )}
 
@@ -99,17 +101,20 @@ function StreakRound({
 
 export default function LadderStreakScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const startLength = wordLengthFromVariantId(variantId)
-  const [length, setLength] = useState(startLength)
+  const { lo, hi } = useLadderRange(variantId)
+  const [length, setLength] = useState(lo)
 
   return (
-    <StreakRound
-      key={length}
-      length={length}
-      variantId={variantId}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <StreakRound
+        key={length}
+        length={length}
+        variantId={variantId}
+        onAdvance={() => setLength((l) => nextLadderInRange(l, lo, hi, 'wrap') ?? l)}
+        onReset={() => setLength(lo)}
+      />
+    </>
   )
 }
 

@@ -1,24 +1,28 @@
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
+import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
+import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { useMultiWordleGame } from '../game/useMultiWordleGame'
+import { useLadderRange } from '../hooks/useLadderRange'
+import { useLadderSession } from '../hooks/useLadderSession'
 import { multiMaxGuesses, wordsForMultiLength } from '../variants/multiVariant'
 import type { MultiBoardCount } from '../variants/multiVariant'
 import './MultiWordleScreen.css'
 
-function nextLadderLength(len: number) {
-  return len === 7 ? 3 : len + 1
-}
-
 function LadderMultiRound({
   length,
   boardCount,
+  ladderLo,
+  ladderHi,
   onAdvance,
   onReset,
 }: {
   length: number
   boardCount: MultiBoardCount
+  ladderLo: number
+  ladderHi: number
   onAdvance: () => void
   onReset: () => void
 }) {
@@ -43,10 +47,9 @@ function LadderMultiRound({
 
   useEffect(() => {
     if (game.phase === 'won') onAdvance()
-    if (game.phase === 'lost') onReset()
-  }, [game.phase, onAdvance, onReset])
+  }, [game.phase, onAdvance])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  const keyboardDisabled = game.inputLocked
   const onScreenKey = (key: string) => {
     if (game.phase !== 'playing') return
     if (key === 'Enter') {
@@ -60,7 +63,7 @@ function LadderMultiRound({
     game.addLetter(key)
   }
 
-  const title = `Multi (${boardCount}×${length}) · Ladder`
+  const title = `Multi (${boardCount}×${length})`
   const gridPhase = game.phase === 'lost' ? 'lost' : game.phase === 'won' ? 'won' : 'playing'
 
   return (
@@ -70,14 +73,18 @@ function LadderMultiRound({
           ← Hub
         </Link>
         <h1 className="multi-wordle-title">{title}</h1>
-        <button type="button" className="multi-wordle-new" onClick={game.newGame}>
-          New game
+        <button
+          type="button"
+          className="multi-wordle-new"
+          onClick={() => (game.phase === 'lost' ? onReset() : game.newGame())}
+        >
+          {game.phase === 'lost' ? 'Start new run' : 'New game'}
         </button>
       </header>
 
       <p className="multi-wordle-hint">
-        Solve all words to advance the word length. One failure resets back to 3. Guess all {boardCount}{' '}
-        words in {game.maxGuesses} tries.
+        Solve all words to advance the word length ({ladderLo}–{ladderHi}). One failure ends the run; use Start new run
+        to begin again from the hub length. Guess all {boardCount} words in {game.maxGuesses} tries.
       </p>
 
       {game.phase === 'won' && (
@@ -85,7 +92,7 @@ function LadderMultiRound({
       )}
       {game.phase === 'lost' && (
         <div className="multi-wordle-banner multi-wordle-banner--lose">
-          <p>Out of guesses. Unsolved words:</p>
+          <p>Run over — out of guesses. Unsolved words:</p>
           <ul className="multi-wordle-answers">
             {game.solved.map((done, i) =>
               done ? null : (
@@ -127,6 +134,8 @@ function LadderMultiRound({
 
 export default function LadderMultiWordleScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
+  const { lo, hi } = useLadderRange(variantId)
+  const { length, session, ladderDone, onAdvance, resetToStart } = useLadderSession(lo, hi, 'stop', variantId)
   const m = variantId.match(/^ladder-multi-(\d+)$/)
   const boardCountNum = m ? Number(m[1]) : NaN
   const boardCount = boardCountNum as MultiBoardCount
@@ -134,17 +143,20 @@ export default function LadderMultiWordleScreen() {
   const isValid = [2, 4, 6, 8].includes(boardCountNum)
   if (!isValid) return <Navigate to="/" replace />
 
-  const startLength = 3
-  const [length, setLength] = useState(startLength)
-
   return (
-    <LadderMultiRound
-      key={length}
-      length={length}
-      boardCount={boardCount}
-      onAdvance={() => setLength((l) => nextLadderLength(l))}
-      onReset={() => setLength(startLength)}
-    />
+    <>
+      {ladderDone && <LadderCompleteBanner lo={lo} hi={hi} onPlayAgain={resetToStart} />}
+      <LadderRoundMeta currentLength={length} lo={lo} hi={hi} className="ladder-round-meta" />
+      <LadderMultiRound
+        key={`${session}-${length}`}
+        length={length}
+        boardCount={boardCount}
+        ladderLo={lo}
+        ladderHi={hi}
+        onAdvance={onAdvance}
+        onReset={resetToStart}
+      />
+    </>
   )
 }
 
