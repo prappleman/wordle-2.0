@@ -15,6 +15,9 @@
   --wordle-present: #b59f3b;
   --wordle-absent: #3a3a3c;
   --wordle-key-bg: #818384;
+  --wordle-tile-radius: 4px;
+  /* Word 500: third column (wrong-letter count) + note tint */
+  --word500-red: #a35656;
 
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;

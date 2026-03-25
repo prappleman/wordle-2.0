@@ -1,0 +1,128 @@
+.multi-wordle {
+  padding: 0.75rem 0.75rem 1.5rem;
+  max-width: 520px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.multi-wordle-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 0.5rem;
+}
+
+.multi-wordle-back {
+  justify-self: start;
+  color: var(--hub-accent, #6aaa64);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.multi-wordle-back:hover {
+  text-decoration: underline;
+}
+
+.multi-wordle-title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+.multi-wordle-new {
+  justify-self: end;
+  padding: 0.3rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid var(--hub-border, #3a3a3c);
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.multi-wordle-new:hover {
+  background: var(--hub-card-hover, rgba(255, 255, 255, 0.06));
+}
+
+.multi-wordle-hint {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  color: var(--hub-muted, #9ca3af);
+  padding: 0 0.25rem;
+}
+
+.multi-wordle-banner {
+  margin: 0 0 0.65rem;
+  font-size: 0.85rem;
+}
+
+.multi-wordle-banner--win {
+  color: var(--wordle-correct, #6aaa64);
+  font-weight: 700;
+}
+
+.multi-wordle-banner--lose {
+  color: var(--hub-muted, #9ca3af);
+  text-align: left;
+}
+
+.multi-wordle-banner--lose p {
+  margin: 0 0 0.35rem;
+}
+
+.multi-wordle-answers {
+  margin: 0;
+  padding-left: 1.1rem;
+  font-size: 0.85rem;
+}
+
+.multi-wordle-boards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem 0.65rem;
+  margin-bottom: 1rem;
+  justify-items: center;
+}
+
+.multi-wordle-board {
+  width: 100%;
+  max-width: 240px;
+}
+
+.multi-wordle-board .wordle-grid {
+  gap: 3px;
+  margin-bottom: 0;
+}
+
+.multi-wordle-board .wordle-row {
+  gap: 3px;
+}
+
+.multi-wordle-board .wordle-tile {
+  width: clamp(28px, 7.5vw, 34px);
+  height: clamp(28px, 7.5vw, 34px);
+  font-size: clamp(0.65rem, 3vw, 0.8rem);
+  border-width: 1px;
+}
+
+.multi-wordle .wordle-keyboard {
+  max-width: 100%;
+  gap: 6px;
+}
+
+.multi-wordle .wordle-key {
+  height: 2.85rem;
+  min-width: 1.65rem;
+  font-size: 0.72rem;
+  padding: 0 0.25rem;
+}
+
+.multi-wordle .wordle-key--wide {
+  min-width: 2.5rem;
+  font-size: 0.62rem;
+}

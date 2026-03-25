@@ -9,6 +9,9 @@ import {
 } from '../data/words/words12dictsGame'
 
 const CustomStubScreen = lazy(() => import('../pages/variants/CustomStubPage'))
+const MultiWordleScreen = lazy(() => import('../pages/MultiWordleScreen'))
+const InfiniteWordleScreen = lazy(() => import('../pages/InfiniteWordleScreen'))
+const Word500Screen = lazy(() => import('../pages/Word500Screen'))
 
 export const VARIANTS: VariantDefinition[] = [
   {
@@ -50,7 +53,7 @@ export const VARIANTS: VariantDefinition[] = [
   {
     kind: 'classic',
     id: 'classic-6',
-    title: 'Six letters',
+    title: 'Extra (6 letters)',
     description: 'Same rules, six-letter answers.',
     tags: ['6-letter'],
     config: {
@@ -70,6 +73,33 @@ export const VARIANTS: VariantDefinition[] = [
       maxGuesses: 6,
       words: WORDS_7,
     },
+  },
+  {
+    kind: 'custom',
+    id: 'quad-5',
+    title: 'Quad (4 × 5)',
+    description:
+      'Four five-letter words at once. Each guess fills every grid that is still unsolved. Nine guesses total.',
+    tags: ['multi', '5-letter'],
+    screen: MultiWordleScreen,
+  },
+  {
+    kind: 'custom',
+    id: 'infinite-5',
+    title: 'Infinite (5)',
+    description:
+      'Six guesses per round—fill the board without solving and you lose. Solve to free two rows after a short green reveal.',
+    tags: ['5-letter', 'endless'],
+    screen: InfiniteWordleScreen,
+  },
+  {
+    kind: 'custom',
+    id: 'word-500',
+    title: 'Word 500',
+    description:
+      'Only green/yellow/red counts—not which letters. Eight guesses. Tap letters to cycle your own note colors.',
+    tags: ['5-letter', 'counts'],
+    screen: Word500Screen,
   },
   {
     kind: 'custom',

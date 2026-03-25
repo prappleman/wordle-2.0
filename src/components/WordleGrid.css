@@ -39,6 +39,7 @@
   width: clamp(48px, 12vw, 56px);
   height: clamp(48px, 12vw, 56px);
   border: 2px solid var(--wordle-border, #3a3a3c);
+  border-radius: var(--wordle-tile-radius, 4px);
   display: flex;
   align-items: center;
   justify-content: center;
