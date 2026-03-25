@@ -13,8 +13,10 @@ export function keyboardLetterHints(guesses: GuessRow[]): Map<string, LetterFeed
     for (let i = 0; i < row.letters.length; i++) {
       const L = row.letters[i]!
       const fb = row.feedback[i]!
-      const prev = m.get(L) ?? 'absent'
-      if (rank[fb] > rank[prev]) {
+      const prev = m.get(L)
+      if (prev === undefined) {
+        m.set(L, fb)
+      } else if (rank[fb] > rank[prev]) {
         m.set(L, fb)
       }
     }

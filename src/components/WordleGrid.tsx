@@ -44,6 +44,7 @@ export function WordleGrid({
   return (
     <div
       className={`wordle-grid ${shake ? 'wordle-grid--shake' : ''}`}
+      data-cols={wordLength}
       role="grid"
       aria-label="Guess grid"
     >

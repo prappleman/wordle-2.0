@@ -1,12 +1,40 @@
 import { lazy } from 'react'
 import type { VariantDefinition } from './types'
-import words4 from '../data/words/4.json'
-import words5 from '../data/words/5.json'
-import words6 from '../data/words/6.json'
+import {
+  WORDS_3,
+  WORDS_4,
+  WORDS_5,
+  WORDS_6,
+  WORDS_7,
+} from '../data/words/words12dictsGame'
 
 const CustomStubScreen = lazy(() => import('../pages/variants/CustomStubPage'))
 
 export const VARIANTS: VariantDefinition[] = [
+  {
+    kind: 'classic',
+    id: 'classic-3',
+    title: 'Micro (3 letters)',
+    description: 'Three-letter words from the 12dicts game list.',
+    tags: ['3-letter', 'quick'],
+    config: {
+      wordLength: 3,
+      maxGuesses: 6,
+      words: WORDS_3,
+    },
+  },
+  {
+    kind: 'classic',
+    id: 'classic-4',
+    title: 'Mini (4 letters)',
+    description: 'Four-letter words from the 12dicts game list.',
+    tags: ['4-letter', 'quick'],
+    config: {
+      wordLength: 4,
+      maxGuesses: 6,
+      words: WORDS_4,
+    },
+  },
   {
     kind: 'classic',
     id: 'classic-5',
@@ -16,31 +44,31 @@ export const VARIANTS: VariantDefinition[] = [
     config: {
       wordLength: 5,
       maxGuesses: 6,
-      words: words5,
+      words: WORDS_5,
     },
   },
   {
     kind: 'classic',
     id: 'classic-6',
     title: 'Six letters',
-    description: 'Same rules, longer answers.',
+    description: 'Same rules, six-letter answers.',
     tags: ['6-letter'],
     config: {
       wordLength: 6,
       maxGuesses: 6,
-      words: words6,
+      words: WORDS_6,
     },
   },
   {
     kind: 'classic',
-    id: 'classic-4',
-    title: 'Mini (4 letters)',
-    description: 'Quick rounds with four-letter words.',
-    tags: ['4-letter', 'quick'],
+    id: 'classic-7',
+    title: 'Wide (7 letters)',
+    description: 'Seven-letter words; same scoring rules.',
+    tags: ['7-letter'],
     config: {
-      wordLength: 4,
+      wordLength: 7,
       maxGuesses: 6,
-      words: words4,
+      words: WORDS_7,
     },
   },
   {

@@ -68,3 +68,10 @@
   background: var(--wordle-absent, #3a3a3c);
   border-color: var(--wordle-absent, #3a3a3c);
 }
+
+/* Narrower tiles so seven-letter rows fit small viewports */
+.wordle-grid[data-cols='7'] .wordle-tile {
+  width: clamp(36px, 11vw, 50px);
+  height: clamp(36px, 11vw, 50px);
+  font-size: clamp(0.9rem, 3.2vw, 1.1rem);
+}
