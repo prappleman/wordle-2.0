@@ -1,0 +1,9 @@
+.play-page {
+  min-height: 50vh;
+}
+
+.play-page-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--hub-muted, #9ca3af);
+}

@@ -1,0 +1,35 @@
+.custom-stub {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 2rem 1.25rem;
+  text-align: center;
+}
+
+.custom-stub-title {
+  margin: 0 0 1rem;
+  font-size: 1.35rem;
+  color: var(--hub-heading, #f3f4f6);
+}
+
+.custom-stub-text {
+  margin: 0 0 1.5rem;
+  line-height: 1.55;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.custom-stub-text code {
+  font-size: 0.85em;
+  padding: 0.15rem 0.35rem;
+  border-radius: 4px;
+  background: var(--hub-code-bg, #2d2d2f);
+}
+
+.custom-stub-link {
+  font-weight: 600;
+  color: var(--hub-accent, #6aaa64);
+  text-decoration: none;
+}
+
+.custom-stub-link:hover {
+  text-decoration: underline;
+}

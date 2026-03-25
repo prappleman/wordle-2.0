@@ -1,0 +1,6 @@
+.app-shell {
+  flex: 1;
+  width: 100%;
+  min-height: 100svh;
+  box-sizing: border-box;
+}
