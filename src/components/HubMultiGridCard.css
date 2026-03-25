@@ -1,0 +1,99 @@
+.hub-multi-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  text-align: left;
+  padding: 1.1rem 1.25rem;
+  border-radius: 10px;
+  border: 1px solid var(--hub-border, #3a3a3c);
+  background: var(--hub-card, #1a1a1b);
+  color: inherit;
+  transition: border-color 0.15s ease, background 0.15s ease;
+}
+
+.hub-multi-card--link,
+a.hub-multi-card--link {
+  text-decoration: none;
+  color: inherit;
+}
+
+.hub-multi-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.hub-multi-card:hover {
+  border-color: var(--hub-accent, #6aaa64);
+  background: var(--hub-card-hover, #252526);
+}
+
+.hub-multi-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--hub-heading, #f3f4f6);
+}
+
+.hub-multi-card-desc {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.45;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.hub-multi-card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin: 0.65rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.hub-multi-card-tag {
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  background: rgba(106, 170, 100, 0.15);
+  color: var(--hub-accent, #6aaa64);
+}
+
+button.hub-length-btn {
+  font: inherit;
+  cursor: pointer;
+}
+
+.hub-length-btn--selected {
+  border-color: var(--hub-accent, #6aaa64) !important;
+  background: rgba(106, 170, 100, 0.22) !important;
+  color: var(--hub-accent, #6aaa64) !important;
+}
+
+.hub-multi-card-play {
+  padding-top: 0.15rem;
+}
+
+.hub-multi-card-play-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 0.55rem 1rem;
+  border-radius: 8px;
+  border: 1px solid var(--hub-accent, #6aaa64);
+  background: rgba(106, 170, 100, 0.18);
+  color: var(--hub-accent, #6aaa64);
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+  transition: background 0.12s ease, filter 0.12s ease;
+}
+
+.hub-multi-card-play-link:hover {
+  background: rgba(106, 170, 100, 0.28);
+  filter: brightness(1.05);
+}

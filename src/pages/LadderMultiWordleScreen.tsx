@@ -1,46 +1,54 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, Navigate, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useMultiWordleGame } from '../game/useMultiWordleGame'
-import { multiMaxGuesses, parseMultiVariantId, wordsForMultiLength } from '../variants/multiVariant'
+import { multiMaxGuesses, wordsForMultiLength } from '../variants/multiVariant'
+import type { MultiBoardCount } from '../variants/multiVariant'
 import './MultiWordleScreen.css'
 
-function MultiWordlePlay({
-  wordLength,
-  boardCount,
-}: {
-  wordLength: number
-  boardCount: number
-}) {
-  const config = useMemo(
-    () => ({
-      words: wordsForMultiLength(wordLength),
-      wordLength,
-      maxGuesses: multiMaxGuesses(boardCount),
-      boardCount,
-    }),
-    [wordLength, boardCount],
-  )
+function nextLadderLength(len: number) {
+  return len === 7 ? 3 : len + 1
+}
 
-  const game = useMultiWordleGame(config)
+function LadderMultiRound({
+  length,
+  boardCount,
+  onAdvance,
+  onReset,
+}: {
+  length: number
+  boardCount: MultiBoardCount
+  onAdvance: () => void
+  onReset: () => void
+}) {
+  const game = useMultiWordleGame({
+    words: wordsForMultiLength(length),
+    wordLength: length,
+    maxGuesses: multiMaxGuesses(boardCount),
+    boardCount,
+  })
+
   const { onPhysicalKey } = game
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
       if (e.ctrlKey || e.metaKey || e.altKey) return
-      if (e.key === 'Enter' || e.key === 'Backspace') {
-        e.preventDefault()
-      }
+      if (e.key === 'Enter' || e.key === 'Backspace') e.preventDefault()
       onPhysicalKey(e.key)
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  useEffect(() => {
+    if (game.phase === 'won') onAdvance()
+    if (game.phase === 'lost') onReset()
+  }, [game.phase, onAdvance, onReset])
 
+  const keyboardDisabled = game.phase !== 'playing'
   const onScreenKey = (key: string) => {
+    if (game.phase !== 'playing') return
     if (key === 'Enter') {
       game.submit()
       return
@@ -52,7 +60,8 @@ function MultiWordlePlay({
     game.addLetter(key)
   }
 
-  const title = `Multi (${boardCount}×${wordLength})`
+  const title = `Multi (${boardCount}×${length}) · Ladder`
+  const gridPhase = game.phase === 'lost' ? 'lost' : game.phase === 'won' ? 'won' : 'playing'
 
   return (
     <div className="multi-wordle" data-boards={String(boardCount)}>
@@ -67,8 +76,8 @@ function MultiWordlePlay({
       </header>
 
       <p className="multi-wordle-hint">
-        One guess applies to every unsolved grid. Solve all {boardCount} words in {game.maxGuesses}{' '}
-        tries.
+        Solve all words to advance the word length. One failure resets back to 3. Guess all {boardCount}{' '}
+        words in {game.maxGuesses} tries.
       </p>
 
       {game.phase === 'won' && (
@@ -91,11 +100,11 @@ function MultiWordlePlay({
 
       <div className="multi-wordle-boards" data-boards={String(boardCount)}>
         {game.guessesByBoard.map((guesses, i) => {
-          const gridPhase = game.solved[i]
+          const perBoardPhase = game.solved[i]
             ? 'won'
             : game.phase === 'lost'
               ? 'lost'
-              : 'playing'
+              : gridPhase
           return (
             <div key={i} className="multi-wordle-board">
               <WordleGrid
@@ -103,7 +112,7 @@ function MultiWordlePlay({
                 maxGuesses={game.maxGuesses}
                 guesses={guesses}
                 buffer={game.buffer}
-                phase={gridPhase}
+                phase={perBoardPhase}
                 shake={game.shake}
               />
             </div>
@@ -111,28 +120,31 @@ function MultiWordlePlay({
         })}
       </div>
 
-      <WordleKeyboard
-        guesses={game.keyboardGuesses}
-        disabled={keyboardDisabled}
-        onKey={onScreenKey}
-      />
+      <WordleKeyboard guesses={game.keyboardGuesses} disabled={keyboardDisabled} onKey={onScreenKey} />
     </div>
   )
 }
 
-export default function MultiWordleScreen() {
+export default function LadderMultiWordleScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
-  const parsed = parseMultiVariantId(variantId)
+  const m = variantId.match(/^ladder-multi-(\d+)$/)
+  const boardCountNum = m ? Number(m[1]) : NaN
+  const boardCount = boardCountNum as MultiBoardCount
 
-  if (!parsed) {
-    return <Navigate to="/" replace />
-  }
+  const isValid = [2, 4, 6, 8].includes(boardCountNum)
+  if (!isValid) return <Navigate to="/" replace />
+
+  const startLength = 3
+  const [length, setLength] = useState(startLength)
 
   return (
-    <MultiWordlePlay
-      key={variantId}
-      wordLength={parsed.wordLength}
-      boardCount={parsed.boardCount}
+    <LadderMultiRound
+      key={length}
+      length={length}
+      boardCount={boardCount}
+      onAdvance={() => setLength((l) => nextLadderLength(l))}
+      onReset={() => setLength(startLength)}
     />
   )
 }
+

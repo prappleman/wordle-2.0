@@ -1,17 +1,7 @@
 import { useCallback, useMemo, useState } from 'react'
-import { scoreGuess } from './engine'
-import type { ClassicGameConfig, LetterFeedback } from '../variants/types'
-
-export interface GuessRow {
-  letters: string
-  feedback: LetterFeedback[]
-  /** Misleading tile mode: tiles and keyboard hints use this; win uses true `feedback`. */
-  displayFeedback?: LetterFeedback[]
-  /** Alternating duet: which hidden word (0 = A, 1 = B) this row was scored against. */
-  scoredTarget?: 0 | 1
-}
-
-export type GamePhase = 'playing' | 'won' | 'lost'
+import { misleadingFeedback, scoreGuess } from './engine'
+import type { GuessRow } from './useWordleGame'
+import type { ClassicGameConfig } from '../variants/types'
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -21,7 +11,22 @@ function pickTarget(words: readonly string[], wordLength: number): string {
   return pool[Math.floor(Math.random() * pool.length)]!.toUpperCase()
 }
 
-export function useWordleGame(config: ClassicGameConfig) {
+function buildMisleadingRow(letters: string, trueFb: GuessRow['feedback']): GuessRow {
+  const n = letters.length
+  const lieIndex = Math.floor(Math.random() * n)
+  const displayFeedback = [...trueFb]
+  const truth = trueFb[lieIndex]!
+  let fake = misleadingFeedback(truth)
+  let guard = 0
+  while (fake === truth && guard < 10) {
+    fake = misleadingFeedback(truth)
+    guard++
+  }
+  displayFeedback[lieIndex] = fake
+  return { letters, feedback: trueFb, displayFeedback }
+}
+
+export function useMisleadingTileGame(config: ClassicGameConfig) {
   const { words, wordLength, maxGuesses } = config
 
   const validSet = useMemo(() => {
@@ -37,7 +42,7 @@ export function useWordleGame(config: ClassicGameConfig) {
   const [target, setTarget] = useState(() => pickTarget(words, wordLength))
   const [guesses, setGuesses] = useState<GuessRow[]>([])
   const [buffer, setBuffer] = useState('')
-  const [phase, setPhase] = useState<GamePhase>('playing')
+  const [phase, setPhase] = useState<'playing' | 'won' | 'lost'>('playing')
   const [shake, setShake] = useState(false)
 
   const newGame = useCallback(() => {
@@ -58,8 +63,8 @@ export function useWordleGame(config: ClassicGameConfig) {
       return
     }
 
-    const feedback = scoreGuess(target, g)
-    const row: GuessRow = { letters: g, feedback }
+    const trueFb = scoreGuess(target, g)
+    const row = buildMisleadingRow(g, trueFb)
     const next = [...guesses, row]
     setGuesses(next)
     setBuffer('')

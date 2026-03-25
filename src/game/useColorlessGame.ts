@@ -1,14 +1,11 @@
 import { useCallback, useMemo, useState } from 'react'
-import { scoreGuess } from './engine'
-import type { ClassicGameConfig, LetterFeedback } from '../variants/types'
+import { countLettersInWord, countPositionCorrect, scoreGuess } from './engine'
+import type { GuessRow } from './useWordleGame'
+import type { ClassicGameConfig } from '../variants/types'
 
-export interface GuessRow {
-  letters: string
-  feedback: LetterFeedback[]
-  /** Misleading tile mode: tiles and keyboard hints use this; win uses true `feedback`. */
-  displayFeedback?: LetterFeedback[]
-  /** Alternating duet: which hidden word (0 = A, 1 = B) this row was scored against. */
-  scoredTarget?: 0 | 1
+export interface ColorlessGuessRow extends GuessRow {
+  lettersInWord: number
+  correctPositions: number
 }
 
 export type GamePhase = 'playing' | 'won' | 'lost'
@@ -21,7 +18,7 @@ function pickTarget(words: readonly string[], wordLength: number): string {
   return pool[Math.floor(Math.random() * pool.length)]!.toUpperCase()
 }
 
-export function useWordleGame(config: ClassicGameConfig) {
+export function useColorlessGame(config: ClassicGameConfig) {
   const { words, wordLength, maxGuesses } = config
 
   const validSet = useMemo(() => {
@@ -35,7 +32,7 @@ export function useWordleGame(config: ClassicGameConfig) {
   }, [words, wordLength])
 
   const [target, setTarget] = useState(() => pickTarget(words, wordLength))
-  const [guesses, setGuesses] = useState<GuessRow[]>([])
+  const [guesses, setGuesses] = useState<ColorlessGuessRow[]>([])
   const [buffer, setBuffer] = useState('')
   const [phase, setPhase] = useState<GamePhase>('playing')
   const [shake, setShake] = useState(false)
@@ -59,7 +56,14 @@ export function useWordleGame(config: ClassicGameConfig) {
     }
 
     const feedback = scoreGuess(target, g)
-    const row: GuessRow = { letters: g, feedback }
+    const lettersInWord = countLettersInWord(feedback)
+    const correctPositions = countPositionCorrect(feedback)
+    const row: ColorlessGuessRow = {
+      letters: g,
+      feedback,
+      lettersInWord,
+      correctPositions,
+    }
     const next = [...guesses, row]
     setGuesses(next)
     setBuffer('')

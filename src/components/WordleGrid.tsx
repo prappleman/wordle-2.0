@@ -2,20 +2,27 @@ import type { GuessRow } from '../game/useWordleGame'
 import type { LetterFeedback } from '../variants/types'
 import './WordleGrid.css'
 
-function tileClass(feedback: LetterFeedback | undefined, filled: boolean): string {
+function tileClass(
+  feedback: LetterFeedback | undefined,
+  filled: boolean,
+  neutralSubmitted: boolean,
+): string {
   const base = 'wordle-tile'
   if (!filled) return base
   if (!feedback) return `${base} wordle-tile--typing`
+  if (neutralSubmitted) return `${base} wordle-tile--absent`
   return `${base} wordle-tile--${feedback}`
 }
 
-interface WordleGridProps {
+export interface WordleGridProps {
   wordLength: number
   maxGuesses: number
   guesses: GuessRow[]
   buffer: string
   phase: 'playing' | 'won' | 'lost'
   shake: boolean
+  /** Colorless: submitted tiles look uniform (no per-letter feedback colors). */
+  neutralSubmittedTiles?: boolean
 }
 
 export function WordleGrid({
@@ -25,6 +32,7 @@ export function WordleGrid({
   buffer,
   phase,
   shake,
+  neutralSubmittedTiles = false,
 }: WordleGridProps) {
   const currentRow = guesses.length
   const rows: { cells: string; feedback?: LetterFeedback[] }[] = []
@@ -32,7 +40,8 @@ export function WordleGrid({
   for (let r = 0; r < maxGuesses; r++) {
     if (r < guesses.length) {
       const g = guesses[r]!
-      rows.push({ cells: g.letters, feedback: g.feedback })
+      const fb = g.displayFeedback ?? g.feedback
+      rows.push({ cells: g.letters, feedback: fb })
     } else if (r === currentRow && phase === 'playing') {
       const padded = buffer.padEnd(wordLength, ' ')
       rows.push({ cells: padded })
@@ -54,10 +63,12 @@ export function WordleGrid({
             const ch = row.cells[i] ?? ' '
             const filled = ch.trim().length > 0
             const fb = row.feedback?.[i]
+            const useNeutral =
+              neutralSubmittedTiles && ri < guesses.length && row.feedback !== undefined
             return (
               <div
                 key={i}
-                className={tileClass(fb, filled)}
+                className={tileClass(fb, filled, useNeutral)}
                 role="gridcell"
               >
                 {filled ? ch : ''}

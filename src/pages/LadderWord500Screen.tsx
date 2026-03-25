@@ -1,9 +1,13 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useWord500Game, type TileNote } from '../game/useWord500Game'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
 import './Word500Screen.css'
+
+function nextLadderLength(len: number) {
+  return len === 7 ? 3 : len + 1
+}
 
 function tileNoteClass(note: TileNote): string {
   const base = 'word500-tile word500-tile--submitted'
@@ -11,7 +15,6 @@ function tileNoteClass(note: TileNote): string {
   return `${base} word500-tile--note-${note}`
 }
 
-/** Letters that have a green or yellow note on at least one submitted tile (handles duplicate letters). */
 function lettersWithGreenOrYellow(
   guesses: { letters: string }[],
   getMark: (row: number, col: number) => TileNote,
@@ -42,12 +45,20 @@ function submittedTileClass(
   return tileNoteClass('none')
 }
 
-export default function Word500Screen() {
-  const { variantId = '' } = useParams<{ variantId: string }>()
-  const configWordLength = wordLengthFromVariantId(variantId)
-  const words = wordsForLength(configWordLength)
-  const game = useWord500Game({ words, wordLength: configWordLength })
+function Word500Round({
+  length,
+  onAdvance,
+  onReset,
+}: {
+  length: number
+  onAdvance: () => void
+  onReset: () => void
+}) {
+  const words = wordsForLength(length)
+  const game = useWord500Game({ words, wordLength: length })
   const { onPhysicalKey } = game
+
+  const prevPhaseRef = useRef(game.phase)
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -62,8 +73,15 @@ export default function Word500Screen() {
     return () => window.removeEventListener('keydown', onKeyDown)
   }, [onPhysicalKey, game.phase])
 
-  const keyboardDisabled = game.phase !== 'playing'
+  useEffect(() => {
+    const prev = prevPhaseRef.current
+    if (prev === game.phase) return
+    prevPhaseRef.current = game.phase
+    if (game.phase === 'won') onAdvance()
+    if (game.phase === 'lost') onReset()
+  }, [game.phase, onAdvance, onReset])
 
+  const keyboardDisabled = game.phase !== 'playing'
   const onScreenKey = (key: string) => {
     if (game.phase !== 'playing') return
     if (key === 'Enter') {
@@ -78,8 +96,10 @@ export default function Word500Screen() {
   }
 
   const { wordLength, maxGuesses, guesses, buffer, absentLetters } = game
-
-  const greenOrYellowLetters = lettersWithGreenOrYellow(guesses, game.getMark)
+  const greenOrYellowLetters = useMemo(
+    () => lettersWithGreenOrYellow(guesses, game.getMark),
+    [guesses, game],
+  )
 
   const keyboardAbsentKeys = new Set<string>()
   for (const L of absentLetters) {
@@ -101,21 +121,18 @@ export default function Word500Screen() {
         <Link to="/" className="word500-back">
           ← Hub
         </Link>
-        <h1 className="word500-title">Word 500 ({wordLength})</h1>
+        <h1 className="word500-title">Word 500 ({wordLength}) · Ladder</h1>
         <button type="button" className="word500-new" onClick={game.newGame}>
-          New word
+          Reset
         </button>
       </header>
 
       <p className="word500-hint">
-        You only see <strong>how many</strong> letters are in the right spot (green), in the word but
-        wrong spot (yellow), or not in the word (red)—not which letters. Tap a letter to cycle your
-        own colors and keep notes. Eight guesses.
+        You only see how many letters are in the right spot (green), in the word but wrong spot (yellow),
+        or not in the word (red)—not which letters. Ladder advances to the next length on a solve.
       </p>
 
-      {game.phase === 'won' && (
-        <p className="word500-banner word500-banner--win">Solved!</p>
-      )}
+      {game.phase === 'won' && <p className="word500-banner word500-banner--win">Solved!</p>}
       {game.phase === 'lost' && (
         <p className="word500-banner word500-banner--lose">
           The word was <strong>{game.target}</strong>
@@ -178,9 +195,7 @@ export default function Word500Screen() {
                     const filled = ch.trim().length > 0
                     const letter = ch.toUpperCase()
                     const isRuledOut =
-                      filled &&
-                      absentLetters.has(letter) &&
-                      !greenOrYellowLetters.has(letter)
+                      filled && absentLetters.has(letter) && !greenOrYellowLetters.has(letter)
                     return (
                       <div
                         key={col}
@@ -233,3 +248,19 @@ export default function Word500Screen() {
     </div>
   )
 }
+
+export default function LadderWord500Screen() {
+  const { variantId = '' } = useParams<{ variantId: string }>()
+  const startLength = wordLengthFromVariantId(variantId)
+  const [length, setLength] = useState(startLength)
+
+  return (
+    <Word500Round
+      key={length}
+      length={length}
+      onAdvance={() => setLength((l) => nextLadderLength(l))}
+      onReset={() => setLength(startLength)}
+    />
+  )
+}
+

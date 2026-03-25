@@ -7,19 +7,40 @@ import {
   WORDS_6,
   WORDS_7,
 } from '../data/words/words12dictsGame'
+import { MULTI_BOARD_COUNTS, multiMaxGuesses } from './multiVariant'
 
-const CustomStubScreen = lazy(() => import('../pages/variants/CustomStubPage'))
 const MultiWordleScreen = lazy(() => import('../pages/MultiWordleScreen'))
 const InfiniteWordleScreen = lazy(() => import('../pages/InfiniteWordleScreen'))
 const Word500Screen = lazy(() => import('../pages/Word500Screen'))
+const ColorlessScreen = lazy(() => import('../pages/ColorlessScreen'))
+const AlternatingDuetScreen = lazy(() => import('../pages/AlternatingDuetScreen'))
+const GrowingWordScreen = lazy(() => import('../pages/GrowingWordScreen'))
+const LadderInfiniteWordleScreen = lazy(() => import('../pages/LadderInfiniteWordleScreen'))
+const LadderWord500Screen = lazy(() => import('../pages/LadderWord500Screen'))
+const LadderColorlessScreen = lazy(() => import('../pages/LadderColorlessScreen'))
+const LadderAlternatingDuetScreen = lazy(() => import('../pages/LadderAlternatingDuetScreen'))
+const LadderStreakScreen = lazy(() => import('../pages/LadderStreakScreen'))
+const LadderMisleadingTileScreen = lazy(() => import('../pages/LadderMisleadingTileScreen'))
+const LadderZenScreen = lazy(() => import('../pages/LadderZenScreen'))
+const LadderUnscrambleScreen = lazy(() => import('../pages/LadderUnscrambleScreen'))
+const LadderMultiWordleScreen = lazy(() => import('../pages/LadderMultiWordleScreen'))
+const StreakScreen = lazy(() => import('../pages/StreakScreen'))
+const MisleadingTileScreen = lazy(() => import('../pages/MisleadingTileScreen'))
+const ZenScreen = lazy(() => import('../pages/ZenScreen'))
+const UnscrambleScreen = lazy(() => import('../pages/UnscrambleScreen'))
+
+const CAT_CLASSIC = 'Classic'
+const CAT_MULTI = 'Multi-board & special'
+const CAT_NEW = 'New modes'
 
 export const VARIANTS: VariantDefinition[] = [
   {
     kind: 'classic',
     id: 'classic-3',
-    title: 'Micro (3 letters)',
-    description: 'Three-letter words from the 12dicts game list.',
-    tags: ['3-letter', 'quick'],
+    title: 'Micro',
+    description: 'Three-letter words from the word list.',
+    tags: ['3-letter', 'quick', '6 guesses'],
+    category: CAT_CLASSIC,
     config: {
       wordLength: 3,
       maxGuesses: 6,
@@ -29,9 +50,10 @@ export const VARIANTS: VariantDefinition[] = [
   {
     kind: 'classic',
     id: 'classic-4',
-    title: 'Mini (4 letters)',
-    description: 'Four-letter words from the 12dicts game list.',
-    tags: ['4-letter', 'quick'],
+    title: 'Mini',
+    description: 'Four-letter words from the word list.',
+    tags: ['4-letter', 'quick', '6 guesses'],
+    category: CAT_CLASSIC,
     config: {
       wordLength: 4,
       maxGuesses: 6,
@@ -41,9 +63,10 @@ export const VARIANTS: VariantDefinition[] = [
   {
     kind: 'classic',
     id: 'classic-5',
-    title: 'Classic (5 letters)',
+    title: 'Classic',
     description: 'Six guesses to find a five-letter word.',
-    tags: ['5-letter', 'classic'],
+    tags: ['5-letter', 'classic', '6 guesses'],
+    category: CAT_CLASSIC,
     config: {
       wordLength: 5,
       maxGuesses: 6,
@@ -53,9 +76,10 @@ export const VARIANTS: VariantDefinition[] = [
   {
     kind: 'classic',
     id: 'classic-6',
-    title: 'Extra (6 letters)',
+    title: 'Extra',
     description: 'Same rules, six-letter answers.',
-    tags: ['6-letter'],
+    tags: ['6-letter', '6 guesses'],
+    category: CAT_CLASSIC,
     config: {
       wordLength: 6,
       maxGuesses: 6,
@@ -65,50 +89,230 @@ export const VARIANTS: VariantDefinition[] = [
   {
     kind: 'classic',
     id: 'classic-7',
-    title: 'Wide (7 letters)',
+    title: 'Wide',
     description: 'Seven-letter words; same scoring rules.',
-    tags: ['7-letter'],
+    tags: ['7-letter', '6 guesses'],
+    category: CAT_CLASSIC,
     config: {
       wordLength: 7,
       maxGuesses: 6,
       words: WORDS_7,
     },
   },
-  {
-    kind: 'custom',
-    id: 'quad-5',
-    title: 'Quad (4 × 5)',
-    description:
-      'Four five-letter words at once. Each guess fills every grid that is still unsolved. Nine guesses total.',
-    tags: ['multi', '5-letter'],
-    screen: MultiWordleScreen,
-  },
-  {
-    kind: 'custom',
-    id: 'infinite-5',
-    title: 'Infinite (5)',
-    description:
-      'Six guesses per round—fill the board without solving and you lose. Solve to free two rows after a short green reveal.',
-    tags: ['5-letter', 'endless'],
-    screen: InfiniteWordleScreen,
-  },
-  {
-    kind: 'custom',
-    id: 'word-500',
-    title: 'Word 500',
-    description:
-      'Only green/yellow/red counts—not which letters. Eight guesses. Tap letters to cycle your own note colors.',
-    tags: ['5-letter', 'counts'],
-    screen: Word500Screen,
-  },
-  {
-    kind: 'custom',
-    id: 'lab-stub',
-    title: 'Lab (custom stub)',
-    description: 'Placeholder route for variants that need their own screen.',
-    tags: ['custom', 'stub'],
-    screen: CustomStubScreen,
-  },
+  ...([3, 4, 5, 6, 7] as const).flatMap((len) =>
+    MULTI_BOARD_COUNTS.map((boards) => {
+      const maxG = multiMaxGuesses(boards)
+      return {
+        kind: 'custom' as const,
+        id: `multi-${len}-${boards}`,
+        title: `Multi (${boards})`,
+        description: `${boards} hidden words (${len} letters each). One guess applies to every unsolved grid. ${maxG} guesses total.`,
+        tags: ['multi', `${len}-letter`, `${boards} words`],
+        category: CAT_MULTI,
+        screen: MultiWordleScreen,
+      }
+    }),
+  ),
+  ...([3, 4, 5, 6, 7] as const).flatMap((n) => [
+    {
+      kind: 'custom' as const,
+      id: `infinite-${n}`,
+      title: 'Infinite',
+      description:
+        'Six rows per round—fill the board without solving and you lose. Solve to slide away the last two guesses and continue.',
+      tags: [`${n}-letter`, 'endless', '6 guesses'],
+      category: CAT_MULTI,
+      screen: InfiniteWordleScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `word-500-${n}`,
+      title: 'Word 500',
+      description:
+        'You see green/yellow/red counts and can add your own notes by tapping tiles. Eight guesses.',
+      tags: [`${n}-letter`, 'notes', '8 guesses'],
+      category: CAT_MULTI,
+      screen: Word500Screen,
+    },
+  ]),
+  ...([3, 4, 5, 6, 7] as const).flatMap((n) => {
+    const lenLabel = `${n}-letter`
+    return [
+      {
+        kind: 'custom' as const,
+        id: `colorless-${n}`,
+        title: 'Colorless',
+        description:
+        'No tile colors—green and yellow are both white to show which letters are in the word; gray shows absent letters.',
+      tags: [lenLabel, 'letters', '8 guesses'],
+        category: CAT_NEW,
+        screen: ColorlessScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `alternating-duet-${n}`,
+        title: 'Alternating',
+        description:
+          'One board, two words. Odd guesses score Word A, even guesses Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
+        tags: [lenLabel, 'dual', '12 guesses'],
+        category: CAT_NEW,
+        screen: AlternatingDuetScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `unscramble-${n}`,
+        title: 'Unscramble',
+        description:
+          'Green row shows word length only; letters appear dimmed off the keyboard if they are not in the answer. Three guesses.',
+        tags: [lenLabel, 'unscramble', '3 guesses'],
+        category: CAT_NEW,
+        screen: UnscrambleScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `streak-${n}`,
+        title: 'Streak',
+        description:
+          'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
+        tags: [lenLabel, 'streak', '6 guesses'],
+        category: CAT_NEW,
+        screen: StreakScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `misleading-${n}`,
+        title: 'Misleading Tile',
+        description:
+          'Exactly one wrong tile per guess. Keyboard matches tile colors; green+grey for the same letter leaves that key uncolored. Ten guesses.',
+        tags: [lenLabel, 'hard', '10 guesses'],
+        category: CAT_NEW,
+        screen: MisleadingTileScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `zen-${n}`,
+        title: 'Zen',
+        description:
+          'Unlimited guesses, scrolling six-row board, no loss. Solve to move to the next word.',
+        tags: [lenLabel, 'zen', '6 guesses'],
+        category: CAT_NEW,
+        screen: ZenScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `zen-infinite-${n}`,
+        title: 'Zen Infinite',
+        description:
+          'Like Zen, but wins chain instantly with no pause—endless relaxed practice.',
+        tags: [lenLabel, 'zen', 'endless', '6 guesses'],
+        category: CAT_NEW,
+        screen: ZenScreen,
+      },
+    ]
+  }),
+  ...([3, 4, 5, 6, 7] as const).flatMap((n) => [
+    {
+      kind: 'custom' as const,
+      id: `growing-word-${n}`,
+        title: 'Classic',
+      description: 'Standard Wordle scoring—green, yellow, gray. Six guesses.',
+      tags: ['ladder', `${n}-letter`, '6 guesses'],
+      category: CAT_NEW,
+      screen: GrowingWordScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-infinite-${n}`,
+        title: 'Infinite',
+      description:
+        'Six rows per round—fill the board without solving and you lose. Solve to slide away the last two guesses and continue.',
+      tags: [`${n}-letter`, 'endless', 'ladder', '6 guesses'],
+      category: CAT_MULTI,
+      screen: LadderInfiniteWordleScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-word-500-${n}`,
+        title: 'Word 500',
+      description:
+        'You see green/yellow/red counts and can add your own notes by tapping tiles. Eight guesses.',
+      tags: [`${n}-letter`, 'notes', 'ladder', '8 guesses'],
+      category: CAT_MULTI,
+      screen: LadderWord500Screen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-colorless-${n}`,
+        title: 'Colorless',
+      description:
+        'No tile colors—green and yellow are both white to show which letters are in the word; gray shows absent letters.',
+      tags: [`${n}-letter`, 'letters', 'ladder', '8 guesses'],
+      category: CAT_NEW,
+      screen: LadderColorlessScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-alternating-duet-${n}`,
+        title: 'Alternating',
+      description:
+        'One board, two words. Odd guesses score Word A, even guesses Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
+      tags: [`${n}-letter`, 'dual', 'ladder', '12 guesses'],
+      category: CAT_NEW,
+      screen: LadderAlternatingDuetScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-unscramble-${n}`,
+        title: 'Unscramble',
+      description:
+        'Green row shows word length only; letters appear dimmed off the keyboard if they are not in the answer. Three guesses.',
+      tags: [`${n}-letter`, 'unscramble', 'ladder', '3 guesses'],
+      category: CAT_NEW,
+      screen: LadderUnscrambleScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-streak-${n}`,
+        title: 'Streak',
+      description:
+        'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
+      tags: [`${n}-letter`, 'streak', 'ladder', '6 guesses'],
+      category: CAT_NEW,
+      screen: LadderStreakScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-misleading-${n}`,
+        title: 'Misleading Tile',
+      description:
+        'Exactly one wrong tile per guess. Keyboard matches tile colors; green+grey for the same letter leaves that key uncolored. Ten guesses.',
+      tags: [`${n}-letter`, 'hard', 'ladder', '10 guesses'],
+      category: CAT_NEW,
+      screen: LadderMisleadingTileScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-zen-${n}`,
+        title: 'Zen',
+      description:
+        'Unlimited guesses, scrolling six-row board, no loss. Solve to move to the next word.',
+      tags: [`${n}-letter`, 'zen', 'ladder', '6 guesses'],
+      category: CAT_NEW,
+      screen: LadderZenScreen,
+    },
+  ]),
+  ...([2, 4, 6, 8] as const).map((boardCount) => ({
+    kind: 'custom' as const,
+    id: `ladder-multi-${boardCount}`,
+    title: `Multi (${boardCount})`,
+    description: (() => {
+      const maxG = multiMaxGuesses(boardCount)
+      return 'Several hidden words at once. Each guess fills every unsolved grid. Solve up to ' + maxG + ' times before losing.'
+    })(),
+    tags: [`${boardCount}×boards`, 'ladder'],
+    category: CAT_MULTI,
+    screen: LadderMultiWordleScreen,
+  })),
 ]
 
 const byId = new Map(VARIANTS.map((v) => [v.id, v]))

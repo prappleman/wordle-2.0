@@ -15,6 +15,8 @@ export type VariantDefinition =
       title: string
       description: string
       tags?: string[]
+      /** Hub section heading (optional grouping). */
+      category?: string
       config: ClassicGameConfig
     }
   | {
@@ -23,6 +25,8 @@ export type VariantDefinition =
       title: string
       description: string
       tags?: string[]
+      /** Hub section heading (optional grouping). */
+      category?: string
       /** Created once with `lazy(() => import(...))` at module scope — do not call `lazy` in render. */
       screen: LazyExoticComponent<ComponentType>
     }

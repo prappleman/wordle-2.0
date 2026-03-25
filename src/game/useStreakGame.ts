@@ -1,17 +1,30 @@
 import { useCallback, useMemo, useState } from 'react'
 import { scoreGuess } from './engine'
-import type { ClassicGameConfig, LetterFeedback } from '../variants/types'
+import type { GuessRow } from './useWordleGame'
+import type { ClassicGameConfig } from '../variants/types'
 
-export interface GuessRow {
-  letters: string
-  feedback: LetterFeedback[]
-  /** Misleading tile mode: tiles and keyboard hints use this; win uses true `feedback`. */
-  displayFeedback?: LetterFeedback[]
-  /** Alternating duet: which hidden word (0 = A, 1 = B) this row was scored against. */
-  scoredTarget?: 0 | 1
+export function streakBestStorageKey(variantId: string): string {
+  return `wordle-hub-streak-best-${variantId}`
 }
 
-export type GamePhase = 'playing' | 'won' | 'lost'
+function readBest(key: string): number {
+  try {
+    const v = localStorage.getItem(key)
+    if (v === null) return 0
+    const n = Number.parseInt(v, 10)
+    return Number.isFinite(n) ? n : 0
+  } catch {
+    return 0
+  }
+}
+
+function writeBest(key: string, n: number) {
+  try {
+    localStorage.setItem(key, String(n))
+  } catch {
+    /* ignore */
+  }
+}
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -21,8 +34,9 @@ function pickTarget(words: readonly string[], wordLength: number): string {
   return pool[Math.floor(Math.random() * pool.length)]!.toUpperCase()
 }
 
-export function useWordleGame(config: ClassicGameConfig) {
-  const { words, wordLength, maxGuesses } = config
+export function useStreakGame(config: ClassicGameConfig & { variantId: string }) {
+  const { words, wordLength, maxGuesses, variantId } = config
+  const bestKey = streakBestStorageKey(variantId)
 
   const validSet = useMemo(() => {
     const s = new Set<string>()
@@ -37,15 +51,18 @@ export function useWordleGame(config: ClassicGameConfig) {
   const [target, setTarget] = useState(() => pickTarget(words, wordLength))
   const [guesses, setGuesses] = useState<GuessRow[]>([])
   const [buffer, setBuffer] = useState('')
-  const [phase, setPhase] = useState<GamePhase>('playing')
+  const [phase, setPhase] = useState<'playing' | 'won' | 'lost'>('playing')
   const [shake, setShake] = useState(false)
+  const [streak, setStreak] = useState(0)
+  const [best, setBest] = useState(() => readBest(bestKey))
 
-  const newGame = useCallback(() => {
+  const newRun = useCallback(() => {
     setTarget(pickTarget(words, wordLength))
     setGuesses([])
     setBuffer('')
     setPhase('playing')
     setShake(false)
+    setStreak(0)
   }, [words, wordLength])
 
   const submit = useCallback(() => {
@@ -65,11 +82,27 @@ export function useWordleGame(config: ClassicGameConfig) {
     setBuffer('')
 
     if (g === target) {
-      setPhase('won')
-    } else if (next.length >= maxGuesses) {
+      setStreak((s) => {
+        const ns = s + 1
+        setBest((b) => {
+          if (ns > b) {
+            writeBest(bestKey, ns)
+            return ns
+          }
+          return b
+        })
+        return ns
+      })
+      setTarget(pickTarget(words, wordLength))
+      setGuesses([])
+      setPhase('playing')
+      return
+    }
+
+    if (next.length >= maxGuesses) {
       setPhase('lost')
     }
-  }, [buffer, guesses, maxGuesses, phase, target, validSet, wordLength])
+  }, [buffer, guesses, maxGuesses, phase, target, validSet, wordLength, words, bestKey])
 
   const addLetter = useCallback(
     (ch: string) => {
@@ -110,7 +143,9 @@ export function useWordleGame(config: ClassicGameConfig) {
     buffer,
     phase,
     shake,
-    newGame,
+    streak,
+    best,
+    newRun,
     submit,
     addLetter,
     backspace,

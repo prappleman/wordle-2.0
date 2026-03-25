@@ -10,6 +10,10 @@ export function PlayPage() {
     return <Navigate to="/" replace />
   }
 
+  if (variantId === 'quad-5') {
+    return <Navigate to="/play/multi-5-4" replace />
+  }
+
   const variant = getVariant(variantId)
   if (!variant) {
     return <Navigate to="/" replace />
@@ -19,7 +23,7 @@ export function PlayPage() {
     const Screen = variant.screen
     return (
       <div className="play-page">
-        <Suspense fallback={<p className="play-page-loading">Loading…</p>}>
+        <Suspense key={variantId} fallback={<p className="play-page-loading">Loading…</p>}>
           <Screen />
         </Suspense>
       </div>

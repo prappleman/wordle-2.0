@@ -12,13 +12,26 @@ interface WordleKeyboardProps {
   onKey: (key: string) => void
   /** No green/yellow/gray key hints (aggregate-only games). */
   plain?: boolean
+  /** When set, used instead of aggregating from `guesses` (e.g. misleading tile display hints). */
+  letterHints?: Map<string, LetterFeedback>
   /** Extra keys to show as absent (gray), e.g. Word 500 letters ruled out by an all-red guess. */
   absentKeys?: Iterable<string>
 }
 
-export function WordleKeyboard({ guesses, disabled, onKey, plain, absentKeys }: WordleKeyboardProps) {
+export function WordleKeyboard({
+  guesses,
+  disabled,
+  onKey,
+  plain,
+  letterHints,
+  absentKeys,
+}: WordleKeyboardProps) {
   const hints: Map<string, LetterFeedback> = useMemo(() => {
-    const m = plain ? new Map<string, LetterFeedback>() : keyboardLetterHints(guesses)
+    const m = plain
+      ? new Map<string, LetterFeedback>()
+      : letterHints
+        ? new Map(letterHints)
+        : keyboardLetterHints(guesses)
     if (absentKeys) {
       for (const ch of absentKeys) {
         const u = ch.toUpperCase()
@@ -28,7 +41,7 @@ export function WordleKeyboard({ guesses, disabled, onKey, plain, absentKeys }: 
       }
     }
     return m
-  }, [plain, guesses, absentKeys])
+  }, [plain, guesses, letterHints, absentKeys])
 
   return (
     <div className="wordle-keyboard" aria-label="On-screen keyboard">

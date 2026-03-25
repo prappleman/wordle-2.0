@@ -5,6 +5,11 @@
   text-align: center;
 }
 
+.multi-wordle[data-boards='6'],
+.multi-wordle[data-boards='8'] {
+  max-width: min(1100px, 100%);
+}
+
 .multi-wordle-header {
   display: grid;
   grid-template-columns: 1fr auto 1fr;
@@ -83,10 +88,31 @@
 
 .multi-wordle-boards {
   display: grid;
-  grid-template-columns: 1fr 1fr;
   gap: 0.5rem 0.65rem;
   margin-bottom: 1rem;
   justify-items: center;
+}
+
+.multi-wordle-boards[data-boards='2'] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.multi-wordle-boards[data-boards='4'] {
+  grid-template-columns: 1fr 1fr;
+}
+
+.multi-wordle-boards[data-boards='6'] {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.multi-wordle-boards[data-boards='8'] {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+@media (min-width: 900px) {
+  .multi-wordle-boards[data-boards='8'] {
+    grid-template-columns: repeat(4, 1fr);
+  }
 }
 
 .multi-wordle-board {

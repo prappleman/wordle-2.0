@@ -1,5 +1,26 @@
 import type { LetterFeedback } from '../variants/types'
 
+/** Count of letters in the correct position (green). */
+export function countPositionCorrect(feedback: readonly LetterFeedback[]): number {
+  return feedback.filter((f) => f === 'correct').length
+}
+
+/** Count of letters that appear in the answer (green + yellow), Wordle multiset rules. */
+export function countLettersInWord(feedback: readonly LetterFeedback[]): number {
+  return feedback.filter((f) => f === 'correct' || f === 'present').length
+}
+
+/** Pick a wrong feedback value for misleading-tile mode (never equals `truth`). */
+export function misleadingFeedback(truth: LetterFeedback): LetterFeedback {
+  if (truth === 'correct') {
+    return Math.random() < 0.5 ? 'present' : 'absent'
+  }
+  if (truth === 'present') {
+    return Math.random() < 0.5 ? 'correct' : 'absent'
+  }
+  return Math.random() < 0.5 ? 'correct' : 'present'
+}
+
 export function scoreGuess(target: string, guess: string): LetterFeedback[] {
   const t = target.toUpperCase()
   const g = guess.toUpperCase()
