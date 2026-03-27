@@ -36,6 +36,8 @@ const StreakScreen = lazy(() => import('../pages/StreakScreen'))
 const MisleadingTileScreen = lazy(() => import('../pages/MisleadingTileScreen'))
 const ZenScreen = lazy(() => import('../pages/ZenScreen'))
 const UnscrambleScreen = lazy(() => import('../pages/UnscrambleScreen'))
+const WordChainScreen = lazy(() => import('../pages/WordChainScreen'))
+const LadderWordChainScreen = lazy(() => import('../pages/LadderWordChainScreen'))
 
 const CAT_CLASSIC = 'Classic'
 const CAT_MULTI = 'Multi-board & special'
@@ -168,6 +170,16 @@ export const VARIANTS: VariantDefinition[] = [
       },
       {
         kind: 'custom' as const,
+        id: `word-chain-${n}`,
+        title: 'Word chain',
+        description:
+          'Start and goal words differ by one letter per step through real words. Guessed rows use green only vs the goal (no yellow). Pairs are solvable with a known shortest path.',
+        tags: [lenLabel, 'chain', 'path'],
+        category: CAT_NEW,
+        screen: WordChainScreen,
+      },
+      {
+        kind: 'custom' as const,
         id: `streak-${n}`,
         title: 'Streak',
         description:
@@ -297,6 +309,16 @@ export const VARIANTS: VariantDefinition[] = [
       tags: [`${n}-letter`, 'zen', 'ladder', '6 guesses'],
       category: CAT_NEW,
       screen: LadderZenScreen,
+    },
+    {
+      kind: 'custom' as const,
+      id: `ladder-word-chain-${n}`,
+      title: 'Word chain',
+      description:
+        'One-letter steps through valid words from start to goal; green-only vs goal tiles; optimal path length is shown. Win to advance the letter rungs.',
+      tags: [`${n}-letter`, 'chain', 'ladder', 'path'],
+      category: CAT_NEW,
+      screen: LadderWordChainScreen,
     },
   ]),
   ...([2, 4, 6, 8] as const).map((boardCount) => ({

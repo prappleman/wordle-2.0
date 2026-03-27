@@ -1,0 +1,46 @@
+.word-chain-board {
+  display: flex;
+  flex-direction: column;
+  margin: 0 auto 1.25rem;
+  width: fit-content;
+}
+
+.word-chain-board--shake {
+  animation: wordle-shake 0.45s ease;
+}
+
+/** Space after the start word, before the first submitted guess / typing row */
+.word-chain-board-start {
+  margin-bottom: 14px;
+}
+
+/** Tight stacking: consecutive guesses (submitted + current typing) */
+.word-chain-board-tight {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/** Space before the goal row (below last guess / typing row) */
+.word-chain-board-tight--above-goal {
+  margin-bottom: 14px;
+}
+
+.word-chain-board-block {
+  display: flex;
+  justify-content: center;
+}
+
+.word-chain-board-block--goal .word-chain-tile--endpoint {
+  border-color: var(--wordle-absent, #3a3a3c);
+}
+
+/**
+ * Start & goal: solid filled tiles like submitted guesses (same family as absent cells),
+ * slightly lighter than wrong-letter tiles so endpoints read as anchors.
+ */
+.word-chain-tile--endpoint {
+  background: color-mix(in srgb, var(--wordle-absent, #3a3a3c) 88%, #ffffff 12%);
+  border-color: color-mix(in srgb, var(--wordle-absent, #3a3a3c) 88%, #ffffff 12%);
+  color: var(--wordle-tile-text, #fff);
+}

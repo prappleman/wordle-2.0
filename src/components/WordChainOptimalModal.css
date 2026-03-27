@@ -1,0 +1,55 @@
+.word-chain-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(0, 0, 0, 0.55);
+}
+
+.word-chain-modal {
+  max-width: min(100%, 520px);
+  width: 100%;
+  padding: 1.25rem 1.35rem;
+  border-radius: 10px;
+  border: 1px solid var(--hub-border, #3a3a3c);
+  background: var(--hub-panel, #121213);
+  color: var(--hub-text, #d7dadc);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+}
+
+.word-chain-modal-title {
+  margin: 0 0 0.75rem;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.word-chain-modal-path {
+  margin: 0 0 0.65rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  word-break: break-word;
+  text-align: left;
+}
+
+.word-chain-modal-note {
+  margin: 0 0 1rem;
+  font-size: 0.85rem;
+  color: var(--hub-muted, #818384);
+}
+
+.word-chain-modal-close {
+  padding: 0.45rem 1rem;
+  border-radius: 6px;
+  border: 1px solid var(--hub-border, #3a3a3c);
+  background: transparent;
+  color: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.word-chain-modal-close:hover {
+  background: var(--hub-hover, #1a1a1b);
+}

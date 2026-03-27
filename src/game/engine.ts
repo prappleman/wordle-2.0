@@ -53,3 +53,10 @@ export function scoreGuess(target: string, guess: string): LetterFeedback[] {
 
   return result
 }
+
+/** Green only where guess matches target at that index; otherwise absent (no yellow). */
+export function scoreGuessGreenOnly(target: string, guess: string): LetterFeedback[] {
+  const t = target.toUpperCase()
+  const g = guess.toUpperCase()
+  return Array.from({ length: g.length }, (_, i) => (g[i] === t[i] ? 'correct' : 'absent'))
+}

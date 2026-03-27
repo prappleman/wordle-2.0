@@ -60,6 +60,14 @@ export const HUB_SECTIONS: HubSection[] = [
       },
       {
         kind: 'lengthGroup',
+        idPrefix: 'word-chain',
+        title: 'Word chain',
+        description:
+          'Reach a goal word by changing one letter at a time; only dictionary words, no dead ends. Guessed tiles use green only vs the goal (no yellow). Optimal guess count is computed for each puzzle.',
+        tags: ['chain', '2–12'],
+      },
+      {
+        kind: 'lengthGroup',
         idPrefix: 'streak',
         title: 'Streak',
         description:
