@@ -4,6 +4,7 @@
   border-radius: 10px;
   border: 1px solid var(--hub-border, #3a3a3c);
   background: var(--hub-card, #1a1a1b);
+  box-shadow: var(--card-shadow);
 }
 
 .hub-settings-row {

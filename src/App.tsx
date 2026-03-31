@@ -1,4 +1,5 @@
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom'
+import { FeedbackProvider } from './components/FeedbackProvider'
 import { AppLayout } from './components/layout/AppLayout'
 import BrowsePage from './pages/BrowsePage'
 import CommunityPage from './pages/CommunityPage'
@@ -13,6 +14,7 @@ import './App.css'
 export default function App() {
   return (
     <BrowserRouter>
+      <FeedbackProvider>
       <div className="app-shell">
         <Routes>
           <Route element={<AppLayout />}>
@@ -29,6 +31,7 @@ export default function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
+      </FeedbackProvider>
     </BrowserRouter>
   )
 }

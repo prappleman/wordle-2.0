@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import './MyHubPage.css'
 import { AddToHubModal } from '../components/AddToHubModal'
+import { useFeedback } from '../components/FeedbackProvider'
 import { PinCard } from '../components/PinCard'
 import type { HubSettingsState } from '../components/HubSettingsFields'
 import type { HubPin } from '../hub/types'
@@ -30,6 +31,7 @@ function applySettings(pin: HubPin, s: HubSettingsState): HubPin {
 }
 
 export default function MyHubPage() {
+  const { notify } = useFeedback()
   const { pins, updatePin, removePin } = useHubPins()
   const [editPin, setEditPin] = useState<HubPin | null>(null)
 
@@ -100,6 +102,7 @@ export default function MyHubPage() {
           confirmLabel="Save changes"
           onConfirm={(settings) => {
             updatePin(editPin.id, applySettings(editPin, settings))
+            notify(`Updated “${editPin.title}”.`)
           }}
         />
       )}

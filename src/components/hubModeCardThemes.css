@@ -1,6 +1,5 @@
 /**
- * Hub cards: only game palette (green / yellow / “red” / white) via CSS variables.
- * Accent class rotates for variety; borders + hover shine use the same tokens.
+ * Hub cards: grey panel; accent = border + colored hover shine.
  */
 
 .hub-mode-card {
@@ -8,6 +7,7 @@
   overflow: hidden;
   border-radius: 10px;
   background: var(--shell-elevated, #18181b);
+  box-shadow: var(--card-shadow);
   transition: box-shadow 0.2s ease;
 }
 

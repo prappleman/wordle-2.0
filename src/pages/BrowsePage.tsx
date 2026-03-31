@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { BrowseCard } from '../components/BrowseCard'
+import { useFeedback } from '../components/FeedbackProvider'
 import { useHubPins } from '../hub/useHubPins'
 import type { HubPin, HubPinLengthGroup, HubPinMultiGrid } from '../hub/types'
 import { HUB_SECTIONS } from '../variants/hubConfig'
@@ -25,6 +26,7 @@ type ModalOpen =
 
 export default function BrowsePage() {
   const navigate = useNavigate()
+  const { notify } = useFeedback()
   const { addPin } = useHubPins()
 
   function pinFromSettings(modal: ModalOpen, settings: HubSettingsState): Omit<HubPin, 'id'> {
@@ -57,6 +59,7 @@ export default function BrowsePage() {
   function quickAdd(nextModal: ModalOpen) {
     const s = defaultHubSettings()
     addPin(pinFromSettings(nextModal, s))
+    notify(`Added “${nextModal.title}” to My hub.`)
   }
 
   function openInCreate(modal: ModalOpen) {

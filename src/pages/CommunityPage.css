@@ -22,6 +22,7 @@
   border-radius: 10px;
   border: 1px solid var(--shell-border, #27272a);
   background: var(--hub-card, #1a1a1b);
+  box-shadow: var(--card-shadow);
 }
 
 .community-page-h2 {

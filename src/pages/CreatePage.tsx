@@ -1,7 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, Navigate, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
-import { playHrefFromPin } from '../hub/resolvePlayTarget'
-import { readHubPins } from '../hub/readHubPins'
 import {
   defaultCustomPreset,
   MAX_CUSTOM_WORD_LIST_CHARS,
@@ -10,6 +8,9 @@ import {
   normalizePreset,
   type CustomGamePreset,
 } from '../variants/customPreset'
+import { CustomPresetPlayView } from '../components/CustomPresetPlayView'
+import { VariantPlayView } from '../components/VariantPlayView'
+import { useFeedback } from '../components/FeedbackProvider'
 import { getPresetById, readCustomPresets, upsertPreset } from '../lib/customPresets'
 import {
   browseOptionKey,
@@ -20,19 +21,31 @@ import {
 } from '../variants/browseCatalog'
 import './MyVariantsPage.css'
 
-function presetSummary(p: CustomGamePreset): string {
-  const bits: string[] = []
-  bits.push(`${p.wordLength} letters`)
-  bits.push(`${p.maxGuesses} guesses`)
-  if (p.ladderEnabled) bits.push('ladder')
-  if (p.timeLimitSeconds != null) bits.push(`${p.timeLimitSeconds}s`)
-  if (p.lockRevealedGreens) bits.push('hard')
-  if (p.forbidAbsentLetters) bits.push('no grey reuse')
-  if (p.allowNonDictionary) bits.push('any letters')
-  return bits.join(' · ')
+function browseSearchForVariantId(variantId: string): string | null {
+  // ladder-<prefix>-<len>
+  if (variantId.startsWith('ladder-')) {
+    const rest = variantId.slice('ladder-'.length)
+    const i = rest.lastIndexOf('-')
+    if (i <= 0) return null
+    const prefix = rest.slice(0, i)
+    return new URLSearchParams({ browseKind: 'lengthGroup', browseId: prefix }).toString()
+  }
+  // multi-<len>-<boards>
+  if (variantId.startsWith('multi-')) {
+    const parts = variantId.split('-')
+    const boards = parts.at(-1)
+    if (!boards) return null
+    return new URLSearchParams({ browseKind: 'multiGrid', browseBoards: boards }).toString()
+  }
+  // <prefix>-<len>
+  const j = variantId.lastIndexOf('-')
+  if (j <= 0) return null
+  const prefix = variantId.slice(0, j)
+  return new URLSearchParams({ browseKind: 'lengthGroup', browseId: prefix }).toString()
 }
 
 export default function CreatePage() {
+  const { notify } = useFeedback()
   const navigate = useNavigate()
   const location = useLocation()
   const [searchParams] = useSearchParams()
@@ -42,17 +55,16 @@ export default function CreatePage() {
   const [draft, setDraft] = useState<CustomGamePreset>(() => defaultCustomPreset())
   const [customWordsText, setCustomWordsText] = useState('')
   const [formError, setFormError] = useState<string | null>(null)
-  const [savedListTick, setSavedListTick] = useState(0)
-
-  const sortedSaved = useMemo(
-    () => [...readCustomPresets()].sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' })),
-    [savedListTick, location.key, location.pathname],
-  )
-
-  const sortedHubPins = useMemo(
-    () => [...readHubPins()].sort((a, b) => a.title.localeCompare(b.title, undefined, { sensitivity: 'base' })),
-    [savedListTick, location.key, location.pathname],
-  )
+  const [testPreset, setTestPreset] = useState<CustomGamePreset | null>(null)
+  const [testVariantId, setTestVariantId] = useState<string | null>(null)
+  const [testKey, setTestKey] = useState(0)
+  const [testMinimized, setTestMinimized] = useState(false)
+  const [savePrompt, setSavePrompt] = useState<{
+    mode: 'edit' | 'create'
+    next: CustomGamePreset
+    duplicateId?: string
+    rename: string
+  } | null>(null)
 
   const browseCatalog = useMemo(() => getBrowseCatalog(), [])
 
@@ -69,22 +81,25 @@ export default function CreatePage() {
     return null
   }, [searchParams])
 
-  const hubKeyFromUrl = useMemo(() => {
-    const id = searchParams.get('hubPin')
-    return id ? `hub:${id}` : null
-  }, [searchParams])
-
   const selectedPlayHref = useMemo(() => {
     if (browseKeyFromUrl) {
       const e = findBrowseEntryByOptionKey(browseKeyFromUrl)
       return e ? playHrefFromBrowseEntry(e) : null
     }
-    if (hubKeyFromUrl) {
-      const pin = readHubPins().find((p) => p.id === hubKeyFromUrl.slice(4))
-      return pin ? playHrefFromPin(pin) : null
-    }
     return null
-  }, [browseKeyFromUrl, hubKeyFromUrl, savedListTick, location.key, location.pathname])
+  }, [browseKeyFromUrl])
+
+  const selectedVariantId = useMemo(() => {
+    if (!browseKeyFromUrl) return null
+    const entry = findBrowseEntryByOptionKey(browseKeyFromUrl)
+    if (!entry) return null
+    if (entry.kind === 'multiGrid') {
+      return `multi-${draft.wordLength}-${entry.boardCount}`
+    }
+    const base = entry.idPrefix
+    if (base === 'classic') return null
+    return draft.ladderEnabled ? `ladder-${base}-${draft.wordLength}` : `${base}-${draft.wordLength}`
+  }, [browseKeyFromUrl, draft.ladderEnabled, draft.wordLength])
 
   const defaultBrowseSearch = useMemo(
     () =>
@@ -115,6 +130,17 @@ export default function CreatePage() {
     setDraft({ ...p })
     setCustomWordsText(p.customWords.join('\n'))
     setFormError(null)
+
+    // Keep the variant selector as a pure “variant picker”.
+    // When editing a saved preset that maps to a built-in variant, sync the URL to that Browse entry
+    // so the selector shows the correct variant title (and doesn't switch to "custom:*").
+    const sp =
+      p.playVariantId != null ? browseSearchForVariantId(p.playVariantId) : null
+    if (sp) {
+      navigate({ pathname: location.pathname, search: sp }, { replace: true })
+    } else if (searchParams.toString() === '') {
+      navigate({ pathname: location.pathname, search: defaultBrowseSearch }, { replace: true })
+    }
   }, [isEditMode, presetId])
 
   if (isEditMode && presetId && !getPresetById(presetId)) {
@@ -123,49 +149,104 @@ export default function CreatePage() {
 
   const onSave = useCallback(() => {
     const words = parseCustomWordLines(customWordsText)
-    const next = normalizePreset({ ...draft, customWords: words })
+    const next = normalizePreset({ ...draft, customWords: words, playVariantId: selectedVariantId ?? undefined })
     const v = validateCustomPreset(next)
     if (!v.ok) {
       setFormError(v.message)
       return
     }
+    const nameKey = next.name.trim().toLowerCase()
+    const dup = readCustomPresets().find((p) => p.id !== next.id && p.name.trim().toLowerCase() === nameKey)
+    if (dup) {
+      setSavePrompt({
+        mode: isEditMode ? 'edit' : 'create',
+        next,
+        duplicateId: dup.id,
+        rename: `${next.name} (copy)`,
+      })
+      return
+    }
+
     upsertPreset(next)
     setFormError(null)
-    setSavedListTick((t) => t + 1)
-    if (!isEditMode) {
-      navigate({ pathname: `/create/edit/${next.id}`, search: '' }, { replace: true })
+    notify(`Saved “${next.name}”.`)
+    // Stay on current variant selection.
+  }, [customWordsText, draft, isEditMode, notify, selectedVariantId])
+
+  const onConfirmOverwrite = useCallback(() => {
+    if (!savePrompt) return
+    const { next, duplicateId } = savePrompt
+    if (!duplicateId) return
+    // Enforce unique names: overwrite the existing preset with this name.
+    upsertPreset({ ...next, id: duplicateId })
+    setSavePrompt(null)
+    setFormError(null)
+    notify(`Saved “${next.name}”.`)
+  }, [notify, savePrompt])
+
+  const onConfirmSaveNew = useCallback(() => {
+    if (!savePrompt) return
+    const renamed = normalizePreset({ ...savePrompt.next, name: savePrompt.rename })
+    const nameKey = renamed.name.trim().toLowerCase()
+    const stillDup = readCustomPresets().some((p) => p.name.trim().toLowerCase() === nameKey)
+    if (stillDup) {
+      setFormError('That name is already used. Please choose a different name.')
+      return
     }
-  }, [customWordsText, draft, isEditMode, navigate])
+    const v = validateCustomPreset(renamed)
+    if (!v.ok) {
+      setFormError(v.message)
+      return
+    }
+    const newId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : `preset-${Date.now()}`
+    upsertPreset({ ...renamed, id: newId })
+    setSavePrompt(null)
+    setFormError(null)
+    notify(`Saved “${renamed.name}”.`)
+    // When saving new from edit mode, switch to editing the new copy.
+    if (isEditMode) {
+      navigate({ pathname: `/create/edit/${newId}`, search: location.search }, { replace: true })
+    }
+  }, [isEditMode, location.search, navigate, notify, savePrompt])
+
+  useEffect(() => {
+    // Always-on preview: when the selected variant changes, remount the preview.
+    if (selectedVariantId) {
+      setTestPreset(null)
+      setTestVariantId(selectedVariantId)
+      setTestKey((k) => k + 1)
+      return
+    }
+    // Classic/custom preview: validate + normalize, then update after short idle
+    // so typing in the form doesn't restart the preview every keystroke.
+    const t = window.setTimeout(() => {
+      const words = parseCustomWordLines(customWordsText)
+      const next = normalizePreset({ ...draft, customWords: words })
+      const v = validateCustomPreset(next)
+      if (!v.ok) return
+      setTestVariantId(null)
+      setTestPreset(next)
+      setTestKey((k) => k + 1)
+    }, 350)
+    return () => window.clearTimeout(t)
+  }, [customWordsText, draft, selectedVariantId])
 
   const pageTitle = isEditMode ? 'Edit custom game' : 'Create custom game'
 
   const defaultBrowseKey = `browse:lg:${DEFAULT_CREATE_BROWSE_ID_PREFIX}`
 
   const workingAsValue = useMemo(() => {
-    if (isEditMode && presetId) return `custom:${presetId}`
-    if (hubKeyFromUrl) return hubKeyFromUrl
     if (browseKeyFromUrl) return browseKeyFromUrl
     return defaultBrowseKey
-  }, [isEditMode, presetId, hubKeyFromUrl, browseKeyFromUrl, defaultBrowseKey])
+  }, [browseKeyFromUrl, defaultBrowseKey])
 
   const onWorkingPresetChange = useCallback(
     (value: string) => {
-      if (value.startsWith('hub:')) {
-        const id = value.slice(4)
-        navigate(
-          {
-            pathname: '/create',
-            search: new URLSearchParams({ hubPin: id }).toString(),
-          },
-          { replace: true },
-        )
-        return
-      }
       if (value.startsWith('browse:lg:')) {
         const idPrefix = value.slice('browse:lg:'.length)
         navigate(
           {
-            pathname: '/create',
+            pathname: location.pathname,
             search: new URLSearchParams({ browseKind: 'lengthGroup', browseId: idPrefix }).toString(),
           },
           { replace: true },
@@ -176,22 +257,19 @@ export default function CreatePage() {
         const n = value.slice('browse:multi:'.length)
         navigate(
           {
-            pathname: '/create',
+            pathname: location.pathname,
             search: new URLSearchParams({ browseKind: 'multiGrid', browseBoards: n }).toString(),
           },
           { replace: true },
         )
         return
       }
-      if (value.startsWith('custom:')) {
-        navigate({ pathname: `/create/edit/${value.slice(7)}`, search: '' }, { replace: true })
-      }
     },
-    [isEditMode, navigate],
+    [location.pathname, navigate],
   )
 
   return (
-    <div className="my-variants-page create-page">
+    <div className={`my-variants-page create-page${testMinimized ? ' create-page--no-preview' : ''}`}>
       <header className="create-page-header">
         <h1 className="my-variants-page-title">{pageTitle}</h1>
         <p className="my-variants-page-lead">
@@ -200,70 +278,56 @@ export default function CreatePage() {
         </p>
       </header>
 
-      <section className="my-variants-page-section" aria-labelledby="create-working-preset">
-        <h2 id="create-working-preset" className="my-variants-page-h2">
-          Preset
-        </h2>
-        <p className="create-page-template-hint">
-          Defaults to <strong>Classic</strong> (standard Wordle). Pick any <strong>Browse</strong> mode, a saved{' '}
-          <strong>custom game</strong>, or a <strong>hub shortcut</strong>. Use the link below to play the selected browse
-          or hub entry (default 5 letters, ladder off).
-        </p>
-        <label className="my-variants-field create-page-template-select">
-          <span>Which variant</span>
-          <select value={workingAsValue} onChange={(e) => onWorkingPresetChange(e.target.value)}>
-            <optgroup label="Browse (all hub modes)">
-              {browseCatalog.map((entry) => (
-                <option key={browseOptionKey(entry)} value={browseOptionKey(entry)}>
-                  {entry.title}
-                </option>
-              ))}
-            </optgroup>
-            {sortedSaved.length > 0 && (
-              <optgroup label="My custom games (saved)">
-                {sortedSaved.map((p) => (
-                  <option key={p.id} value={`custom:${p.id}`}>
-                    {p.name} — {presetSummary(p)}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-            {sortedHubPins.length > 0 && (
-              <optgroup label="Hub shortcuts (from My hub)">
-                {sortedHubPins.map((pin) => (
-                  <option key={pin.id} value={`hub:${pin.id}`}>
-                    {pin.title}
-                    {pin.kind === 'lengthGroup' ? ` · ${pin.wordLength} letters` : ` · ${pin.boardCount} boards`}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </select>
-        </label>
-        {selectedPlayHref && (
-          <p className="create-page-play-hint">
-            <Link className="my-variants-page-link" to={selectedPlayHref}>
-              Play this variant
-            </Link>{' '}
-            — same default as Browse quick add (5 letters, ladder off). Change length and ladder from My hub after
-            adding a pin.
-          </p>
-        )}
-        {sortedSaved.length === 0 && (
-          <p className="my-variants-page-empty create-page-empty-saved">
-            No custom presets saved yet — fill in the form below and save to My variants when ready.
-          </p>
-        )}
-      </section>
-
       <section className="my-variants-page-section my-variants-page-form-section" aria-labelledby="create-editor">
         <h2 id="create-editor" className="my-variants-page-h2">
           Rules &amp; words
         </h2>
 
+        <button
+          type="button"
+          className="create-page-test-toggle create-page-test-toggle--card"
+          onClick={() => setTestMinimized((m) => !m)}
+          aria-label={testMinimized ? 'Show preview' : 'Hide preview'}
+          title={testMinimized ? 'Show preview' : 'Hide preview'}
+        >
+          {testMinimized ? '▣' : '—'}
+        </button>
+
         {formError && <p className="my-variants-page-error">{formError}</p>}
 
+        <div className="create-page-workspace">
+          <div className="create-page-workspace__form">
         <div className="create-form-layout">
+          <div className="create-page-preset-block" aria-labelledby="create-working-preset">
+            <h3 id="create-working-preset" className="my-variants-page-h2">
+              Preset
+            </h3>
+            <p className="create-page-template-hint">
+              Pick a variant (game mode). The settings below adjust how that mode plays.
+            </p>
+            <label className="my-variants-field create-page-template-select">
+              <span>Which variant</span>
+              <select value={workingAsValue} onChange={(e) => onWorkingPresetChange(e.target.value)}>
+                <optgroup label="Browse (all hub modes)">
+                  {browseCatalog.map((entry) => (
+                    <option key={browseOptionKey(entry)} value={browseOptionKey(entry)}>
+                      {entry.title}
+                    </option>
+                  ))}
+                </optgroup>
+              </select>
+            </label>
+            {selectedPlayHref && (
+              <p className="create-page-play-hint">
+                <Link className="my-variants-page-link" to={selectedPlayHref}>
+                  Play this variant
+                </Link>{' '}
+                — same default as Browse quick add (5 letters, ladder off). Change length and ladder from My hub after
+                adding a pin.
+              </p>
+            )}
+          </div>
+
           <label className="my-variants-field create-form-field-name">
             <span>Name</span>
             <input
@@ -485,12 +549,55 @@ export default function CreatePage() {
           <button type="button" className="my-variants-page-btn my-variants-page-btn--primary" onClick={onSave}>
             Save to My variants
           </button>
-          <Link className="my-variants-page-btn my-variants-page-btn--secondary" to={`/play/my/${draft.id}`}>
-            Play this preset
-          </Link>
           <Link className="my-variants-page-btn my-variants-page-btn--ghost" to="/my-variants">
             Back to saved list
           </Link>
+        </div>
+        {savePrompt && (
+          <div className="create-save-prompt" role="group" aria-label="Save options">
+            <p className="create-save-prompt-text">
+              {savePrompt.mode === 'edit'
+                ? 'Save options for this edited game:'
+                : `A game named "${savePrompt.next.name}" already exists.`}
+            </p>
+            <label className="my-variants-field create-save-prompt-rename">
+              <span>Name for new copy</span>
+              <input
+                type="text"
+                value={savePrompt.rename}
+                onChange={(e) => setSavePrompt((s) => (s ? { ...s, rename: e.target.value } : s))}
+                autoComplete="off"
+              />
+            </label>
+            <div className="my-variants-form-actions create-save-prompt-actions">
+              <button type="button" className="my-variants-page-btn my-variants-page-btn--primary" onClick={onConfirmOverwrite}>
+                Overwrite
+              </button>
+              <button type="button" className="my-variants-page-btn my-variants-page-btn--secondary" onClick={onConfirmSaveNew}>
+                Save new
+              </button>
+              <button type="button" className="my-variants-page-btn my-variants-page-btn--ghost" onClick={() => setSavePrompt(null)}>
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+          </div>
+
+          {!testMinimized && (
+            <aside className="create-page-workspace__test" aria-label="Test play">
+              {testVariantId ? (
+              <VariantPlayView key={`create-test-${testKey}`} variantId={testVariantId} />
+            ) : testPreset ? (
+              <CustomPresetPlayView key={`create-test-${testKey}`} preset={testPreset} variant="embedded" />
+            ) : (
+              <div className="create-page-test-placeholder">
+                <p className="create-page-test-placeholder-title">Preview</p>
+                <p className="create-page-test-placeholder-text">Adjust settings to load the preview.</p>
+              </div>
+              )}
+            </aside>
+          )}
         </div>
       </section>
     </div>

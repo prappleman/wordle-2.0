@@ -1,0 +1,38 @@
+/* Embedded in Create page — sits beside the form */
+.custom-preset-play--embedded {
+  max-width: none;
+  margin: 0;
+  padding: 0.75rem 0.5rem 1rem;
+  text-align: center;
+}
+
+.custom-preset-play--embedded .classic-screen-header {
+  margin-bottom: 0.65rem;
+}
+
+.custom-preset-play--embedded .classic-screen-title {
+  font-size: 1rem;
+}
+
+.custom-preset-play-embedded-label {
+  justify-self: start;
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--shell-label, #71717a);
+}
+
+.custom-preset-play--embedded .classic-screen-new {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.55rem;
+}
+
+.custom-preset-play--embedded .custom-game-screen-meta {
+  margin-bottom: 0.5rem;
+  font-size: 0.8rem;
+}
+
+.custom-preset-play--embedded .classic-screen-banner {
+  font-size: 0.92rem;
+}

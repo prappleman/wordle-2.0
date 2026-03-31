@@ -7,12 +7,17 @@
   background: var(--hub-card, #1a1a1b);
   color: inherit;
   text-decoration: none;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  box-shadow: var(--card-shadow);
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease,
+    box-shadow 0.2s ease;
 }
 
 .variant-card:hover {
   border-color: var(--hub-accent, #6aaa64);
   background: var(--hub-card-hover, #252526);
+  box-shadow: var(--shell-shadow);
 }
 
 .variant-card-title {

@@ -14,6 +14,11 @@ export interface CustomGamePreset {
   name: string
   /** ISO date for display / sort */
   updatedAt: string
+  /**
+   * Optional: if set, playing this “preset” should route to a built-in variant id
+   * (e.g. `word-chain-5`) instead of the custom preset engine.
+   */
+  playVariantId?: string
   wordLength: number
   maxGuesses: number
   wordSource: CustomWordSource
@@ -111,14 +116,7 @@ export function validateCustomPreset(p: CustomGamePreset): PresetValidation {
         return { ok: false, message: 'Each custom word must be 2–12 letters.' }
       }
     }
-    if (!p.ladderEnabled) {
-      if (!p.customWords.some((w) => w.length === p.wordLength)) {
-        return {
-          ok: false,
-          message: `Include at least one word of length ${p.wordLength} (your current word length), or change word length.`,
-        }
-      }
-    } else {
+    if (p.ladderEnabled) {
       const lo = Math.min(p.ladderLo, p.ladderHi)
       const hi = Math.max(p.ladderLo, p.ladderHi)
       for (const L of ladderSpanLengths(lo, hi)) {

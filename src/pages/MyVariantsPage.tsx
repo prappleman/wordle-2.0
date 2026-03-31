@@ -1,5 +1,6 @@
 import { useCallback, useMemo, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { useFeedback } from '../components/FeedbackProvider'
 import { deletePreset, readCustomPresets, upsertPreset } from '../lib/customPresets'
 import { normalizePreset, type CustomGamePreset } from '../variants/customPreset'
 import './MyVariantsPage.css'
@@ -17,6 +18,7 @@ function presetSummary(p: CustomGamePreset): string {
 }
 
 export default function MyVariantsPage() {
+  const { notify } = useFeedback()
   const navigate = useNavigate()
   const [presets, setPresets] = useState(() => readCustomPresets())
 
@@ -42,9 +44,10 @@ export default function MyVariantsPage() {
       })
       upsertPreset(copy)
       refresh()
+      notify(`Duplicated “${copy.name}”.`)
       navigate(`/create/edit/${copy.id}`)
     },
-    [navigate, refresh],
+    [navigate, notify, refresh],
   )
 
   const sorted = useMemo(
