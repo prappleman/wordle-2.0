@@ -1,0 +1,55 @@
+.browse-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 0.5rem;
+}
+
+.browse-page-header {
+  margin-bottom: 1.75rem;
+}
+
+.browse-page-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.browse-page-lead {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.browse-page-lead a {
+  color: var(--hub-accent, #6aaa64);
+  font-weight: 600;
+}
+
+.browse-page-section {
+  margin-bottom: 2rem;
+}
+
+.browse-page-section-title {
+  margin: 0 0 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--shell-label, #71717a);
+}
+
+.browse-page-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.85rem;
+  align-items: stretch;
+}
+
+@media (max-width: 700px) {
+  .browse-page-grid {
+    grid-template-columns: 1fr;
+  }
+}

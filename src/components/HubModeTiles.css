@@ -1,0 +1,136 @@
+/**
+ * Hub card previews — same building blocks as play screens (WordleGrid, Word 500, chain, etc.).
+ * Shrink with .hub-viz scoped overrides; do not redefine game colors (use CSS variables from :root).
+ */
+
+@import '../components/WordleGrid.css';
+@import '../pages/Word500Screen.css';
+@import '../components/WordChainBoard.css';
+@import '../pages/LockedScreen.css';
+
+/* Colorless: same tokens as ColorlessScreen (.wordle-tile--colorless-correct) */
+.hub-viz .wordle-tile--colorless-correct {
+  background: var(--colorless-highlight-bg, #ffffff);
+  border-color: var(--colorless-highlight-border-color, var(--colorless-highlight-bg, #ffffff));
+  color: var(--colorless-highlight-fg, #111111);
+}
+
+/* Unscramble top row: green slots, no glyph */
+.hub-viz .wordle-tile--unscramble-blank {
+  font-size: 0;
+  color: transparent;
+}
+
+.hub-viz {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hub-viz--compact {
+  gap: 3px;
+}
+
+/* Shrink production tiles to hub size */
+.hub-viz .wordle-tile {
+  width: 1.08rem;
+  height: 1.08rem;
+  min-width: 0;
+  min-height: 0;
+  border-width: 1px;
+  border-radius: 3px;
+  font-size: 0;
+  line-height: 0;
+  flex-shrink: 0;
+}
+
+.hub-viz--compact .wordle-tile {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
+.hub-viz .wordle-row {
+  gap: 3px;
+  justify-content: flex-start;
+}
+
+/* Word 500: letter row + G/Y/R counts */
+.hub-viz-word500-row {
+  display: flex;
+  align-items: stretch;
+  gap: 6px;
+  column-gap: 8px;
+}
+
+.hub-viz .word500-tiles {
+  display: flex;
+  gap: 3px;
+}
+
+.hub-viz .word500-tile {
+  width: 1.08rem;
+  height: 1.08rem;
+  min-width: 0;
+  font-size: 0;
+  padding: 0;
+  border-width: 1px;
+}
+
+.hub-viz--compact .word500-tile {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
+.hub-viz .word500-counts {
+  gap: 3px;
+}
+
+.hub-viz .word500-count-cell {
+  width: 1.08rem;
+  height: 1.08rem;
+  border-width: 1px;
+}
+
+.hub-viz--compact .word500-count-cell {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
+.hub-viz .word500-count-num {
+  font-size: 0.55rem;
+}
+
+.hub-viz--compact .word500-count-num {
+  font-size: 0.48rem;
+}
+
+/* Multi: 2×2 boards, each a short Wordle row */
+.hub-viz-multi-boards {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 5px;
+}
+
+.hub-viz-multi-boards .wordle-row {
+  margin: 0;
+}
+
+.hub-viz .locked-tile {
+  width: 1.08rem;
+  height: 1.08rem;
+  min-width: 0;
+  font-size: 0.35rem;
+  border-width: 1px;
+}
+
+.hub-viz--compact .locked-tile {
+  width: 0.92rem;
+  height: 0.92rem;
+}
+
+.hub-viz-locked-row {
+  display: flex;
+  gap: 3px;
+}

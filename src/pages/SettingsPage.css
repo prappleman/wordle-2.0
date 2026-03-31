@@ -1,0 +1,135 @@
+.settings-page {
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+.settings-page-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 800;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.settings-page-lead {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.settings-page-section {
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--hub-card, #1a1a1b);
+}
+
+.settings-page-section + .settings-page-section {
+  margin-top: 1rem;
+}
+
+.settings-page-h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--shell-label, #71717a);
+}
+
+.settings-page-p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.settings-page-p--tight {
+  margin-bottom: 0.75rem;
+}
+
+.settings-preview-caption {
+  margin: 0 0 0.35rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--shell-label, #71717a);
+}
+
+.settings-feedback-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+.settings-swatch {
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 6px;
+  border: 1px solid var(--shell-border, #27272a);
+  box-shadow: inset 0 0 0 1px var(--shell-inset, rgba(0, 0, 0, 0.2));
+}
+
+.settings-colorblind-fieldset {
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.settings-colorblind-legend {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--shell-label, #71717a);
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.settings-colorblind-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.settings-colorblind-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.65rem;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-elevated, #18181b);
+  cursor: pointer;
+}
+
+.settings-colorblind-option:focus-within {
+  outline: 2px solid var(--wordle-present, #d9a527);
+  outline-offset: 2px;
+}
+
+.settings-colorblind-option input {
+  margin-top: 0.2rem;
+  accent-color: var(--wordle-correct, #6aaa64);
+}
+
+.settings-colorblind-option-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.settings-colorblind-option-label {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.settings-colorblind-option-hint {
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--shell-muted, #a1a1aa);
+}

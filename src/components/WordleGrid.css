@@ -35,6 +35,23 @@
   justify-content: center;
 }
 
+.wordle-tile--pick-skip {
+  cursor: pointer;
+}
+
+.wordle-tile--pick-skip:focus-visible {
+  outline: 2px solid var(--wordle-present, #d9a527);
+  outline-offset: 2px;
+}
+
+.wordle-tile--pick-skip:hover {
+  border-color: var(--wordle-border-strong, #565758);
+}
+
+.wordle-tile--pick-skip-selected {
+  box-shadow: 0 0 0 2px var(--wordle-present, #d9a527);
+}
+
 .wordle-tile {
   width: clamp(48px, 12vw, 56px);
   height: clamp(48px, 12vw, 56px);
@@ -46,7 +63,7 @@
   font-weight: 700;
   font-size: clamp(1.1rem, 4vw, 1.35rem);
   text-transform: uppercase;
-  color: var(--wordle-tile-text, #fff);
+  color: var(--wordle-tile-ink, #fff);
   background: var(--wordle-tile-empty, transparent);
   box-sizing: border-box;
 }
@@ -56,18 +73,42 @@
 }
 
 .wordle-tile--correct {
-  background: var(--wordle-correct, #538d4e);
-  border-color: var(--wordle-correct, #538d4e);
+  background: var(--wordle-correct, #6aaa64);
+  border-color: var(--wordle-correct, #6aaa64);
+  color: var(--wordle-tile-text, #fff);
 }
 
 .wordle-tile--present {
-  background: var(--wordle-present, #b59f3b);
-  border-color: var(--wordle-present, #b59f3b);
+  background: var(--wordle-present, #d9a527);
+  border-color: var(--wordle-present, #d9a527);
+  color: var(--wordle-tile-text, #fff);
 }
 
 .wordle-tile--absent {
-  background: var(--wordle-absent, #3a3a3c);
-  border-color: var(--wordle-absent, #3a3a3c);
+  background: var(--wordle-absent, #4a4a4e);
+  border-color: var(--wordle-absent, #4a4a4e);
+  color: var(--wordle-tile-text, #fff);
+}
+
+.wordle-tile--blocked {
+  background: var(--wordle-tile-blocked, #1a1a1b);
+  border-color: var(--wordle-border-muted, #2f2f31);
+  position: relative;
+}
+
+.wordle-tile--blocked::after {
+  content: '';
+  position: absolute;
+  inset: 22%;
+  border-radius: 2px;
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--wordle-border-strong, #565758),
+    var(--wordle-border-strong, #565758) 2px,
+    transparent 2px,
+    transparent 5px
+  );
+  opacity: 0.65;
 }
 
 /* Narrower tiles so seven-letter rows fit small viewports */

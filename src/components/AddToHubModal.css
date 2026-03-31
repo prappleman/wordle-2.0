@@ -1,0 +1,109 @@
+.add-hub-modal-root {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.add-hub-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+  background: var(--shell-scrim-heavy, rgba(0, 0, 0, 0.65));
+  cursor: pointer;
+}
+
+.add-hub-modal-dialog {
+  position: relative;
+  width: 100%;
+  max-width: 420px;
+  max-height: 90vh;
+  overflow: auto;
+  padding: 1.25rem 1.25rem 1rem;
+  border-radius: 12px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-elevated, #18181b);
+  box-shadow: var(--shell-shadow-modal, 0 24px 48px rgba(0, 0, 0, 0.45));
+}
+
+.add-hub-modal-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.1rem;
+  font-weight: 800;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.add-hub-modal-sub {
+  margin: 0 0 0.35rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--hub-accent, #6aaa64);
+}
+
+.add-hub-modal-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.add-hub-modal-meta {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.add-hub-modal-err {
+  margin: 0.5rem 0 0;
+  font-size: 0.8rem;
+  color: #f87171;
+}
+
+.add-hub-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--shell-border, #27272a);
+}
+
+.add-hub-modal-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.add-hub-modal-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.add-hub-modal-btn--ghost {
+  background: transparent;
+  border-color: var(--shell-border, #27272a);
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.add-hub-modal-btn--ghost:hover:not(:disabled) {
+  background: var(--shell-hover, #27272a);
+  color: var(--shell-fg, #e5e7eb);
+}
+
+.add-hub-modal-btn--primary {
+  background: var(--hub-accent, #6aaa64);
+  border-color: var(--hub-accent, #6aaa64);
+  color: #fff;
+}
+
+.add-hub-modal-btn--primary:hover:not(:disabled) {
+  filter: brightness(1.08);
+}

@@ -6,7 +6,7 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
-  background: rgba(0, 0, 0, 0.55);
+  background: var(--shell-scrim);
 }
 
 .word-chain-modal {
@@ -15,9 +15,9 @@
   padding: 1.25rem 1.35rem;
   border-radius: 10px;
   border: 1px solid var(--hub-border, #3a3a3c);
-  background: var(--hub-panel, #121213);
-  color: var(--hub-text, #d7dadc);
-  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+  background: var(--hub-panel);
+  color: var(--shell-fg);
+  box-shadow: var(--shell-shadow-modal);
 }
 
 .word-chain-modal-title {
@@ -51,5 +51,5 @@
 }
 
 .word-chain-modal-close:hover {
-  background: var(--hub-hover, #1a1a1b);
+  background: var(--hub-hover);
 }

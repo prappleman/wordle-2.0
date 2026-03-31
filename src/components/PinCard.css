@@ -1,0 +1,97 @@
+.pin-card {
+  display: block;
+}
+
+.pin-card__inner {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: flex-start;
+}
+
+.pin-card-main {
+  flex: 1;
+  min-width: 0;
+}
+
+.pin-card-title {
+  margin: 0 0 0.25rem;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--hub-heading, #f3f4f6);
+}
+
+.pin-card-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  color: var(--hub-muted, #9ca3af);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.pin-card-chips {
+  list-style: none;
+  margin: 0 0 0.65rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.pin-card-chip {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  background: var(--shell-elevated, #18181b);
+  color: var(--hub-accent, #6aaa64);
+}
+
+.pin-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+}
+
+.pin-card-play {
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  background: var(--hub-accent, #6aaa64);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-decoration: none;
+}
+
+.pin-card-play:hover {
+  filter: brightness(1.08);
+}
+
+.pin-card-secondary {
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: transparent;
+  color: var(--shell-muted, #a1a1aa);
+  font-weight: 600;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.pin-card-secondary:hover {
+  background: var(--shell-hover, #27272a);
+  color: var(--shell-fg, #e5e7eb);
+}
+
+.pin-card-remove:hover {
+  border-color: #7f1d1d;
+  color: #fca5a5;
+}

@@ -1,0 +1,402 @@
+.my-variants-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.my-variants-page-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.35rem, 3vw, 1.75rem);
+  font-weight: 800;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-variants-page-lead {
+  margin: 0 0 1.5rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.my-variants-page-section {
+  padding: 1rem 1.1rem;
+  border-radius: 10px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--hub-card, #1a1a1b);
+}
+
+.my-variants-page-h2 {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--shell-label, #71717a);
+}
+
+.my-variants-page-p {
+  margin: 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.my-variants-page-section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+}
+
+.my-variants-page-empty {
+  margin: 0;
+  font-size: 0.9rem;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.my-variants-preset-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.my-variants-preset-card {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.75rem 0.85rem;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.my-variants-preset-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 0;
+}
+
+.my-variants-preset-name {
+  font-weight: 700;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-variants-preset-meta {
+  font-size: 0.8rem;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.my-variants-preset-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.my-variants-page-link {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #86efac;
+  text-decoration: none;
+}
+
+.my-variants-page-link:hover {
+  text-decoration: underline;
+}
+
+.my-variants-page-btn {
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 6px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--hub-card, #1a1a1b);
+  color: var(--shell-fg, #f4f4f5);
+  cursor: pointer;
+}
+
+.my-variants-page-btn--ghost {
+  background: transparent;
+}
+
+.my-variants-page-btn--danger {
+  border-color: rgba(248, 113, 113, 0.45);
+  color: #fca5a5;
+}
+
+.my-variants-page-btn--primary {
+  background: #22c55e;
+  border-color: #16a34a;
+  color: #052e16;
+}
+
+.my-variants-page-btn--secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  background: transparent;
+  border-color: var(--shell-border, #27272a);
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-variants-page-error {
+  margin: 0 0 0.75rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: 6px;
+  background: rgba(248, 113, 113, 0.12);
+  border: 1px solid rgba(248, 113, 113, 0.35);
+  color: #fecaca;
+  font-size: 0.88rem;
+}
+
+.my-variants-form-section {
+  margin-top: 1.25rem;
+}
+
+.my-variants-form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.85rem 1rem;
+  margin-bottom: 1rem;
+}
+
+.my-variants-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--shell-label, #71717a);
+}
+
+.my-variants-field span:first-child {
+  font-weight: 600;
+}
+
+.my-variants-field input,
+.my-variants-field select {
+  font: inherit;
+  padding: 0.45rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: #09090b;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-variants-field-hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.my-variants-field--full {
+  grid-column: 1 / -1;
+}
+
+.my-variants-textarea {
+  font-family: ui-monospace, monospace;
+  font-size: 0.8rem;
+  line-height: 1.45;
+  resize: vertical;
+  min-height: 140px;
+  padding: 0.5rem 0.6rem;
+  border-radius: 6px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: #09090b;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-variants-fieldset {
+  grid-column: 1 / -1;
+  margin: 0;
+  padding: 0.65rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+}
+
+.my-variants-fieldset legend {
+  padding: 0 0.35rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--shell-label, #71717a);
+}
+
+.my-variants-radio {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.35rem 0 0;
+  font-size: 0.88rem;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-variants-check {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.88rem;
+  color: var(--shell-fg, #f4f4f5);
+  cursor: pointer;
+}
+
+.my-variants-ladder-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.my-variants-form-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+  align-items: center;
+}
+
+.create-page-header {
+  margin-bottom: 0.25rem;
+}
+
+.create-page-template-hint,
+.create-page-edit-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.create-page-edit-hint a {
+  color: #86efac;
+}
+
+.create-page-template-select select {
+  max-width: 100%;
+}
+
+.create-page-empty-saved {
+  margin-top: 0.5rem;
+}
+
+.create-page-play-hint {
+  margin: 0.65rem 0 0;
+  font-size: 0.88rem;
+  line-height: 1.45;
+  color: var(--hub-muted, #9ca3af);
+}
+
+/* Create page: grouped form layout */
+.create-form-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.create-form-field-name {
+  max-width: 28rem;
+}
+
+.create-form-fieldset {
+  margin: 0;
+}
+
+.create-form-fieldset--words .create-form-words-top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(140px, 0.9fr);
+  gap: 1rem 1.25rem;
+  align-items: start;
+}
+
+@media (max-width: 640px) {
+  .create-form-fieldset--words .create-form-words-top {
+    grid-template-columns: 1fr;
+  }
+}
+
+.create-form-inline-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--shell-label, #71717a);
+  margin-bottom: 0.35rem;
+}
+
+.create-form-word-source .my-variants-radio {
+  margin-top: 0.25rem;
+}
+
+.create-form-word-source .my-variants-radio:first-of-type {
+  margin-top: 0.5rem;
+}
+
+.create-form-ladder-block {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--shell-border, #27272a);
+}
+
+.create-form-ladder-toggle {
+  margin: 0;
+}
+
+.create-form-fieldset-inner {
+  padding: 0.5rem 0.65rem;
+  margin: 0 0 0.75rem;
+  border-radius: 6px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.create-form-fieldset-inner legend {
+  font-size: 0.72rem;
+}
+
+.create-form-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.85rem 1.25rem;
+}
+
+@media (max-width: 520px) {
+  .create-form-pair {
+    grid-template-columns: 1fr;
+  }
+}
+
+.create-form-time-field {
+  max-width: 16rem;
+}
+
+.create-form-restrictions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.create-form-restrictions .my-variants-check {
+  margin: 0;
+}
+
+.create-form-layout .my-variants-field input:disabled,
+.create-form-layout .my-variants-field select:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.my-variants-page-btn--link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}

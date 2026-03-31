@@ -4,9 +4,13 @@ export const HUB_PLAY_LENGTHS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] as const
 /** @deprecated use HUB_PLAY_LENGTHS */
 export const HUB_WORD_LENGTHS = HUB_PLAY_LENGTHS
 
-const CAT_CLASSIC = 'Classic'
-const CAT_MULTI = 'Multi'
-const CAT_VARIANTS = 'Variants'
+export const HUB_CATEGORY_CLASSIC = 'Classic'
+export const HUB_CATEGORY_MULTI = 'Multi'
+export const HUB_CATEGORY_VARIANTS = 'Variants'
+
+const CAT_CLASSIC = HUB_CATEGORY_CLASSIC
+const CAT_MULTI = HUB_CATEGORY_MULTI
+const CAT_VARIANTS = HUB_CATEGORY_VARIANTS
 
 export type HubItem =
   | { kind: 'single'; id: string }
@@ -35,7 +39,31 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Classic',
         description:
           'Standard Wordle scoring—green, yellow, gray. Pick a word length, then play with six guesses.',
-        tags: ['2–12 letters', 'classic'],
+        tags: ['5 letters', 'classic'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'streak',
+        title: 'Streak',
+        description:
+          'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
+        tags: ['streak', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'zen',
+        title: 'Zen',
+        description:
+          'Unlimited guesses, scrolling six-row board, no loss. Solve to move to the next word.',
+        tags: ['zen', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'zen-infinite',
+        title: 'Zen Infinite',
+        description:
+          'Like Zen, but wins chain instantly with no pause—endless relaxed practice.',
+        tags: ['zen', 'endless', '5 letters'],
       },
     ],
   },
@@ -48,7 +76,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Colorless',
         description:
           'No tile colors—white tiles show letters that are in the word (green/yellow are both white), gray tiles are absent.',
-        tags: ['letters', '2–12'],
+        tags: ['5 letters', 'colorless'],
       },
       {
         kind: 'lengthGroup',
@@ -56,7 +84,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Unscramble',
         description:
           'Green row shows word length only; letters not in the answer are dimmed on the keyboard. Three guesses.',
-        tags: ['unscramble', '2–12'],
+        tags: ['unscramble', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -64,15 +92,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Word chain',
         description:
           'Reach a goal word by changing one letter at a time; only dictionary words, no dead ends. Guessed tiles use green only vs the goal (no yellow). Optimal guess count is computed for each puzzle.',
-        tags: ['chain', '2–12'],
-      },
-      {
-        kind: 'lengthGroup',
-        idPrefix: 'streak',
-        title: 'Streak',
-        description:
-          'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
-        tags: ['streak', '2–12'],
+        tags: ['chain', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -80,23 +100,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Misleading Tile',
         description:
           'Exactly one wrong tile per guess. Keyboard matches those colors; conflicting green/grey for a letter leaves the key blank. Ten guesses.',
-        tags: ['hard', '2–12'],
-      },
-      {
-        kind: 'lengthGroup',
-        idPrefix: 'zen',
-        title: 'Zen',
-        description:
-          'Unlimited guesses, scrolling six-row board, no loss. Solve to move to the next word.',
-        tags: ['zen', '3–7'],
-      },
-      {
-        kind: 'lengthGroup',
-        idPrefix: 'zen-infinite',
-        title: 'Zen Infinite',
-        description:
-          'Like Zen, but wins chain instantly with no pause—endless relaxed practice.',
-        tags: ['zen', 'endless', '2–12'],
+        tags: ['hard', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -104,7 +108,7 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Infinite',
         description:
           'Sliding answers. Guess up to six times per round; when you solve, the last two guesses slide away and a new answer appears.',
-        tags: ['endless', '2–12'],
+        tags: ['endless', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -112,22 +116,92 @@ export const HUB_SECTIONS: HubSection[] = [
         title: 'Word 500',
         description:
           'You see green/yellow/red feedback and counts, and you can tap tiles to add your own notes. No exact per-tile positions.',
-        tags: ['notes', '2–12'],
+        tags: ['notes', '5 letters'],
       },
-    ],
-  },
-  {
-    category: CAT_MULTI,
-    items: [
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'banned',
+        title: 'Banned',
+        description:
+          'Normal Wordle with one banned common letter per guess (except the last). Bans avoid letters in the answer.',
+        tags: ['ban', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'memory-colors',
+        title: 'Memory colors',
+        description:
+          'Colors flash briefly after each guess—remember the feedback. Six guesses.',
+        tags: ['memory', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'memory-letters',
+        title: 'Memory letters',
+        description:
+          'Tile colors stay visible; only the letters in past guesses are hidden. Plain keyboard until the round ends.',
+        tags: ['memory', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'locked',
+        title: 'Locked',
+        description:
+          'One letter locked to one position; infinite tries until the timer ends. Score vs total possible words.',
+        tags: ['timer', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'reverse',
+        title: 'Reverse',
+        description:
+          'Answer is known. Match any open row’s pattern to clear it; clock runs—beat your time.',
+        tags: ['puzzle', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'blocked',
+        title: 'Blocked',
+        description:
+          'One wildcard tile per row—type the rest; any dictionary word that fits is a valid guess.',
+        tags: ['blocked', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'spaces',
+        title: 'Spaces',
+        description:
+          'Wildcard column on early rows; each skip adds a bonus row (two fixed blocks) before your final guess.',
+        tags: ['bonus', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'forced-letter',
+        title: 'Forced letter',
+        description:
+          'Each guess (except the last) must include a random letter anywhere; the letter changes after every guess (white key).',
+        tags: ['constraint', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'doubles',
+        title: 'Doubles',
+        description:
+          'Target and every guess must use at least one letter twice (pools, snags, …). Length 2–12 (not 1).',
+        tags: ['repeat', '5 letters'],
+      },
       {
         kind: 'lengthGroup',
         idPrefix: 'alternating-duet',
         title: 'Alternating',
         description:
           'One board, two hidden words. Odd guesses score Word A, even score Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
-        tags: ['dual', '2–12'],
+        tags: ['dual', '5 letters'],
       },
-      { kind: 'multiGrid' },
     ],
+  },
+  {
+    category: CAT_MULTI,
+    items: [{ kind: 'multiGrid' }],
   },
 ]

@@ -48,7 +48,7 @@ export function ClassicWordleScreen({ title, config }: ClassicWordleScreenProps)
           ← Hub
         </Link>
         <h1 className="classic-screen-title">{title}</h1>
-        <button type="button" className="classic-screen-new" onClick={game.newGame}>
+        <button type="button" className="classic-screen-new" onClick={() => game.newGame()}>
           New word
         </button>
       </header>

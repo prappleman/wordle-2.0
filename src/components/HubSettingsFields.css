@@ -1,0 +1,112 @@
+.hub-settings-fields {
+  margin-top: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  border-radius: 10px;
+  border: 1px solid var(--hub-border, #3a3a3c);
+  background: var(--hub-card, #1a1a1b);
+}
+
+.hub-settings-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-top: 0.5rem;
+}
+
+.hub-settings-row:first-child {
+  margin-top: 0;
+}
+
+.hub-settings-row--toggle {
+  margin-bottom: 0.25rem;
+}
+
+.hub-settings-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--hub-muted, #9ca3af);
+  min-width: 5.5rem;
+}
+
+.hub-settings-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.hub-settings-btn {
+  min-width: 2rem;
+  padding: 0.35rem 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--hub-border, #3a3a3c);
+  background: var(--shell-bg, #121213);
+  color: var(--hub-heading, #f3f4f6);
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.hub-settings-btn:hover {
+  background: var(--hub-card-hover, #252526);
+}
+
+.hub-settings-btn--selected {
+  border-color: var(--hub-accent, #6aaa64);
+  background: rgba(106, 170, 100, 0.15);
+  color: var(--hub-accent, #6aaa64);
+}
+
+.hub-settings-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0;
+  border: none;
+  background: none;
+  color: inherit;
+  cursor: pointer;
+  font: inherit;
+}
+
+.hub-settings-switch-track {
+  width: 2.5rem;
+  height: 1.35rem;
+  border-radius: 999px;
+  background: var(--hub-border, #3a3a3c);
+  position: relative;
+  flex-shrink: 0;
+}
+
+.hub-settings-switch[aria-checked='true'] .hub-settings-switch-track {
+  background: var(--hub-accent, #6aaa64);
+}
+
+.hub-settings-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: calc(1.35rem - 4px);
+  height: calc(1.35rem - 4px);
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.hub-settings-switch[aria-checked='true'] .hub-settings-switch-thumb {
+  transform: translateX(1.15rem);
+}
+
+.hub-settings-switch-text {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.hub-settings-warning {
+  margin: 0.65rem 0 0;
+  font-size: 0.8rem;
+  color: #f59e0b;
+  line-height: 1.4;
+}

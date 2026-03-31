@@ -1,0 +1,80 @@
+.locked-start-wrap {
+  margin: 1rem 0 1.25rem;
+}
+
+.locked-start-btn {
+  padding: 0.65rem 1.25rem;
+  border-radius: 8px;
+  border: 2px solid var(--hub-accent, #6aaa64);
+  background: var(--hub-accent, #6aaa64);
+  color: #fff;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.locked-start-btn:hover {
+  filter: brightness(1.08);
+}
+
+.locked-typing-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin: 0 auto 1.25rem;
+  width: fit-content;
+}
+
+.locked-typing-row--shake {
+  animation: locked-shake 0.45s ease;
+}
+
+@keyframes locked-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.locked-tile {
+  width: clamp(48px, 12vw, 56px);
+  height: clamp(48px, 12vw, 56px);
+  border: 2px solid var(--wordle-border, #3a3a3c);
+  border-radius: var(--wordle-tile-radius, 4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: clamp(1.1rem, 4vw, 1.35rem);
+  text-transform: uppercase;
+  color: var(--wordle-tile-ink, #fff);
+  background: var(--wordle-tile-empty, transparent);
+  box-sizing: border-box;
+}
+
+.locked-tile--filled {
+  border-color: var(--wordle-border-strong, #565758);
+}
+
+.locked-tile--cursor {
+  outline: 2px solid var(--hub-accent, #6aaa64);
+  outline-offset: 2px;
+  border-color: var(--hub-accent, #6aaa64);
+}
+
+.locked-tile--lock-hint {
+  color: var(--hub-muted, #9ca3af);
+  font-style: italic;
+}

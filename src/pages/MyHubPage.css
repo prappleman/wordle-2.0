@@ -1,0 +1,66 @@
+.my-hub-page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+.my-hub-page-header {
+  margin-bottom: 1.5rem;
+}
+
+.my-hub-page-title {
+  margin: 0 0 0.5rem;
+  font-size: clamp(1.5rem, 4vw, 2rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.my-hub-page-lead {
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.my-hub-page-lead a {
+  color: var(--hub-accent, #6aaa64);
+  font-weight: 600;
+}
+
+.my-hub-page-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+}
+
+.my-hub-page-empty {
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  border-radius: 12px;
+  border: 1px dashed var(--shell-border, #27272a);
+  background: var(--shell-elevated, #18181b);
+}
+
+.my-hub-page-empty-text {
+  margin: 0 0 1rem;
+  font-size: 1rem;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.my-hub-page-empty-cta {
+  display: inline-block;
+  padding: 0.55rem 1.25rem;
+  border-radius: 8px;
+  background: var(--hub-accent, #6aaa64);
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  text-decoration: none;
+}
+
+.my-hub-page-empty-cta:hover {
+  filter: brightness(1.08);
+}

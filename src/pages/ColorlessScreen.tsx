@@ -53,7 +53,7 @@ export default function ColorlessScreen() {
 
     const hints = new Map<string, LetterFeedback>()
     for (const L of inWord) {
-      // Use "correct" to trigger the key's green styling; `ColorlessScreen.css` overrides it to white.
+      // Use "correct" to trigger the key's green styling; `ColorlessScreen.css` overrides to colorless tokens.
       hints.set(L, 'correct')
     }
 

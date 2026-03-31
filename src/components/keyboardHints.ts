@@ -10,9 +10,34 @@ const rank: Record<LetterFeedback, number> = {
 export function keyboardLetterHints(guesses: GuessRow[]): Map<string, LetterFeedback> {
   const m = new Map<string, LetterFeedback>()
   for (const row of guesses) {
-    for (let i = 0; i < row.letters.length; i++) {
-      const L = row.letters[i]!
+    const blocked =
+      row.rowBlockedIndices && row.rowBlockedIndices.length > 0
+        ? new Set(row.rowBlockedIndices)
+        : row.rowBlockedIndex != null
+          ? new Set([row.rowBlockedIndex])
+          : null
+    if (!blocked) {
+      for (let i = 0; i < row.letters.length; i++) {
+        const L = row.letters[i]!
+        const fb = row.feedback[i]!
+        const prev = m.get(L)
+        if (prev === undefined) {
+          m.set(L, fb)
+        } else if (rank[fb] > rank[prev]) {
+          m.set(L, fb)
+        }
+      }
+      continue
+    }
+
+    // Masked rows: `letters` is short; `feedback` is full-length. Skip wildcard columns.
+    let li = 0
+    for (let i = 0; i < row.feedback.length; i++) {
+      if (blocked.has(i)) continue
+      const L = row.letters[li]
+      if (!L) break
       const fb = row.feedback[i]!
+      li++
       const prev = m.get(L)
       if (prev === undefined) {
         m.set(L, fb)

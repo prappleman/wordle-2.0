@@ -43,7 +43,7 @@
 }
 
 .classic-screen-new:hover {
-  background: var(--hub-card-hover, rgba(255, 255, 255, 0.06));
+  background: var(--shell-hover, var(--hub-card-hover));
 }
 
 .classic-screen-banner {

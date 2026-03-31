@@ -1,0 +1,20 @@
+.custom-game-screen-meta {
+  margin: 0 0 0.75rem;
+  font-size: 0.88rem;
+  color: var(--hub-muted, #9ca3af);
+  text-align: center;
+}
+
+.custom-game-screen-missing {
+  margin: 0 0 1rem;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.custom-game-screen-timer {
+  margin: 0 0 0.5rem;
+  font-size: 1.1rem;
+  font-variant-numeric: tabular-nums;
+  font-weight: 700;
+  text-align: center;
+  color: var(--shell-fg, #f4f4f5);
+}

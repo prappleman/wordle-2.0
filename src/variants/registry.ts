@@ -38,6 +38,15 @@ const ZenScreen = lazy(() => import('../pages/ZenScreen'))
 const UnscrambleScreen = lazy(() => import('../pages/UnscrambleScreen'))
 const WordChainScreen = lazy(() => import('../pages/WordChainScreen'))
 const LadderWordChainScreen = lazy(() => import('../pages/LadderWordChainScreen'))
+const BannedWordleScreen = lazy(() => import('../pages/BannedWordleScreen'))
+const MemoryColorsScreen = lazy(() => import('../pages/MemoryColorsScreen'))
+const MemoryLettersScreen = lazy(() => import('../pages/MemoryLettersScreen'))
+const LockedScreen = lazy(() => import('../pages/LockedScreen'))
+const ReverseScreen = lazy(() => import('../pages/ReverseScreen'))
+const BlockedWordleScreen = lazy(() => import('../pages/BlockedWordleScreen'))
+const SpacesWordleScreen = lazy(() => import('../pages/SpacesWordleScreen'))
+const ForcedLetterScreen = lazy(() => import('../pages/ForcedLetterScreen'))
+const DoublesOnlyScreen = lazy(() => import('../pages/DoublesOnlyScreen'))
 
 const CAT_CLASSIC = 'Classic'
 const CAT_MULTI = 'Multi-board & special'
@@ -218,6 +227,100 @@ export const VARIANTS: VariantDefinition[] = [
         category: CAT_NEW,
         screen: ZenScreen,
       },
+      {
+        kind: 'custom' as const,
+        id: `banned-${n}`,
+        title: 'Banned',
+        description:
+          'Normal Wordle, but each guess bans one common letter (not in the answer) until your final guess.',
+        tags: [lenLabel, 'ban', '6 guesses'],
+        category: CAT_NEW,
+        screen: BannedWordleScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `memory-colors-${n}`,
+        title: 'Memory colors',
+        description:
+          'After each guess, tile colors only stay visible briefly—remember the pattern.',
+        tags: [lenLabel, 'memory', '6 guesses'],
+        category: CAT_NEW,
+        screen: MemoryColorsScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `memory-letters-${n}`,
+        title: 'Memory letters',
+        description:
+          'Green/yellow/gray stay on the grid; letters in past guesses are hidden. On-screen keyboard stays plain during play.',
+        tags: [lenLabel, 'memory', '6 guesses'],
+        category: CAT_NEW,
+        screen: MemoryLettersScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `locked-${n}`,
+        title: 'Locked',
+        description:
+          'One fixed letter at one position. Enter as many valid words as you can before the timer ends; see how many were possible.',
+        tags: [lenLabel, 'timer', 'infinite tries'],
+        category: CAT_NEW,
+        screen: LockedScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `reverse-${n}`,
+        title: 'Reverse',
+        description:
+          'Answer is shown. Six color patterns—submit words that match any open row to clear it; timed (faster is better).',
+        tags: [lenLabel, '6 rows', 'puzzle'],
+        category: CAT_NEW,
+        screen: ReverseScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `blocked-${n}`,
+        title: 'Blocked',
+        description:
+          'Wildcard slot per row—fill the rest so some valid word fits; Wordle scoring on your letters vs the answer.',
+        tags: [lenLabel, 'blocked', '6 guesses'],
+        category: CAT_NEW,
+        screen: BlockedWordleScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `spaces-${n}`,
+        title: 'Spaces',
+        description:
+          'Wildcard column on early rows; bonus rows (two fixed blocked tiles each) appear before your final guess.',
+        tags: [lenLabel, 'bonus', '6 guesses'],
+        category: CAT_NEW,
+        screen: SpacesWordleScreen,
+      },
+      {
+        kind: 'custom' as const,
+        id: `forced-letter-${n}`,
+        title: 'Forced letter',
+        description:
+          'Each guess (except your last) must contain a random required letter anywhere; the letter changes every guess. White key highlight.',
+        tags: [lenLabel, 'constraint', '6 guesses'],
+        category: CAT_NEW,
+        screen: ForcedLetterScreen,
+      },
+      ...(n >= 2
+        ? [
+            {
+              kind: 'custom' as const,
+              id: `doubles-${n}`,
+              title: 'Doubles',
+              description:
+                'Answer and every guess must include at least one letter twice (e.g. POOLS, SNAGS). Valid words only.',
+              tags: [lenLabel, 'repeat', '6 guesses'],
+              category: CAT_NEW,
+              screen: DoublesOnlyScreen,
+            },
+          ]
+        : []),
     ]
   }),
   ...LADDER_PICK_LENGTHS.flatMap((n) => [

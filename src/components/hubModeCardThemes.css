@@ -1,0 +1,91 @@
+/**
+ * Hub cards: only game palette (green / yellow / “red” / white) via CSS variables.
+ * Accent class rotates for variety; borders + hover shine use the same tokens.
+ */
+
+.hub-mode-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 10px;
+  background: var(--shell-elevated, #18181b);
+  transition: box-shadow 0.2s ease;
+}
+
+.hub-mode-card__shine {
+  position: absolute;
+  inset: -48%;
+  border-radius: inherit;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateX(-18%) scale(1.28);
+  transform-origin: 15% 50%;
+  transition:
+    opacity 0.36s ease,
+    transform 0.48s cubic-bezier(0.22, 1, 0.36, 1);
+  background: var(--hub-mode-shine, var(--hub-shine-gradient));
+  filter: blur(32px);
+  z-index: 0;
+  will-change: opacity, transform;
+}
+
+.hub-mode-card:hover .hub-mode-card__shine {
+  opacity: 1;
+  transform: translateX(0) scale(1.28);
+}
+
+.hub-mode-card:hover {
+  box-shadow: var(--shell-shadow);
+}
+
+.hub-mode-card__inner {
+  position: relative;
+  z-index: 1;
+}
+
+.hub-mode-card[class*='hub-mode-card--accent-'] {
+  border-width: 1.5px;
+}
+
+/* Green — correct */
+.hub-mode-card--accent-g {
+  border: 1.5px solid var(--wordle-correct);
+  --hub-mode-shine: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--wordle-correct) 52%, transparent) 0%,
+    color-mix(in srgb, var(--wordle-correct) 16%, transparent) 52%,
+    transparent 94%
+  );
+}
+
+/* Yellow — present */
+.hub-mode-card--accent-y {
+  border: 1.5px solid var(--wordle-present);
+  --hub-mode-shine: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--wordle-present) 52%, transparent) 0%,
+    color-mix(in srgb, var(--wordle-present) 16%, transparent) 52%,
+    transparent 94%
+  );
+}
+
+/* Red — wrong / danger (Word 500 column, etc.) */
+.hub-mode-card--accent-r {
+  border: 1.5px solid var(--word500-red);
+  --hub-mode-shine: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--word500-red) 52%, transparent) 0%,
+    color-mix(in srgb, var(--word500-red) 16%, transparent) 52%,
+    transparent 94%
+  );
+}
+
+/* White — tile face / high-contrast outline */
+.hub-mode-card--accent-w {
+  border: 1.5px solid color-mix(in srgb, var(--wordle-tile-text) 78%, transparent);
+  --hub-mode-shine: linear-gradient(
+    105deg,
+    color-mix(in srgb, var(--wordle-tile-text) 22%, transparent) 0%,
+    color-mix(in srgb, var(--wordle-tile-text) 7%, transparent) 52%,
+    transparent 94%
+  );
+}

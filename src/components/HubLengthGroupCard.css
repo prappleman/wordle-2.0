@@ -81,7 +81,7 @@
   padding: 0.35rem 0.5rem;
   border-radius: 6px;
   border: 1px solid var(--hub-border, #3a3a3c);
-  background: rgba(255, 255, 255, 0.04);
+  background: var(--hub-ghost);
   color: var(--hub-heading, #f3f4f6);
   font-weight: 700;
   font-size: 0.95rem;

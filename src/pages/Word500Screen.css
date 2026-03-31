@@ -44,7 +44,7 @@
 }
 
 .word500-new:hover {
-  background: var(--hub-card-hover, rgba(255, 255, 255, 0.06));
+  background: var(--hub-card-hover);
 }
 
 .word500-hint {
@@ -128,7 +128,7 @@
   font-weight: 700;
   font-size: clamp(1.1rem, 4vw, 1.35rem);
   text-transform: uppercase;
-  color: var(--wordle-tile-text, #fff);
+  color: var(--wordle-tile-ink, #fff);
   background: var(--wordle-tile-empty, transparent);
   box-sizing: border-box;
   padding: 0;
@@ -143,8 +143,9 @@
 
 /* After submit: solid tile until user sets a note color */
 .word500-tile--submitted {
-  background: var(--wordle-absent, #3a3a3c);
-  border-color: var(--wordle-absent, #3a3a3c);
+  background: var(--wordle-absent, #4a4a4e);
+  border-color: var(--wordle-absent, #4a4a4e);
+  color: var(--wordle-tile-text, #fff);
 }
 
 button.word500-tile {
@@ -152,24 +153,28 @@ button.word500-tile {
 }
 
 .word500-tile--note-green {
-  background: var(--wordle-correct, #538d4e);
-  border-color: var(--wordle-correct, #538d4e);
+  background: var(--wordle-correct, #6aaa64);
+  border-color: var(--wordle-correct, #6aaa64);
+  color: var(--wordle-tile-text, #fff);
 }
 
 .word500-tile--note-yellow {
-  background: var(--wordle-present, #b59f3b);
-  border-color: var(--wordle-present, #b59f3b);
+  background: var(--wordle-present, #d9a527);
+  border-color: var(--wordle-present, #d9a527);
+  color: var(--wordle-tile-text, #fff);
 }
 
 .word500-tile--note-red {
-  background: var(--word500-red, #a35656);
-  border-color: var(--word500-red, #a35656);
+  background: var(--word500-red, #e05555);
+  border-color: var(--word500-red, #e05555);
+  color: var(--wordle-tile-text, #fff);
 }
 
 /* Letter ruled out by an all-red guess (also on keyboard as gray) */
 .word500-tile--inferred-red {
-  background: var(--word500-red, #a35656);
-  border-color: var(--word500-red, #a35656);
+  background: var(--word500-red, #e05555);
+  border-color: var(--word500-red, #e05555);
+  color: var(--wordle-tile-text, #fff);
 }
 
 .word500-counts {
@@ -192,18 +197,18 @@ button.word500-tile {
 }
 
 .word500-count-cell--green {
-  background: var(--wordle-correct, #538d4e);
-  border-color: var(--wordle-correct, #538d4e);
+  background: var(--wordle-correct, #6aaa64);
+  border-color: var(--wordle-correct, #6aaa64);
 }
 
 .word500-count-cell--yellow {
-  background: var(--wordle-present, #b59f3b);
-  border-color: var(--wordle-present, #b59f3b);
+  background: var(--wordle-present, #d9a527);
+  border-color: var(--wordle-present, #d9a527);
 }
 
 .word500-count-cell--red {
-  background: var(--word500-red, #a35656);
-  border-color: var(--word500-red, #a35656);
+  background: var(--word500-red, #e05555);
+  border-color: var(--word500-red, #e05555);
 }
 
 .word500-count-num {

@@ -1,0 +1,126 @@
+.browse-card {
+  display: block;
+}
+
+.browse-card__inner {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: flex-start;
+}
+
+.browse-card-body {
+  flex: 1;
+  min-width: 0;
+}
+
+.browse-card-title {
+  margin: 0 0 0.35rem;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--hub-heading, #f3f4f6);
+}
+
+.browse-card-desc {
+  margin: 0 0 0.5rem;
+  font-size: 0.85rem;
+  line-height: 1.45;
+  color: var(--hub-muted, #9ca3af);
+}
+
+.browse-card-tags {
+  list-style: none;
+  margin: 0 0 0.65rem;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.browse-card-tag {
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 0.2rem 0.45rem;
+  border-radius: 4px;
+  background: var(--shell-elevated, #18181b);
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.browse-card-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  position: relative;
+  z-index: 2;
+}
+
+.browse-card-icon {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
+.browse-card-icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.35rem;
+  height: 2.35rem;
+  padding: 0;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-elevated, #18181b);
+  color: var(--shell-muted, #a1a1aa);
+  cursor: pointer;
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.browse-card-icon-btn:hover {
+  background: var(--shell-hover, #27272a);
+  color: var(--shell-fg, #e5e7eb);
+}
+
+.browse-card-icon-btn:focus-visible {
+  outline: 2px solid var(--wordle-present, #d9a527);
+  outline-offset: 2px;
+}
+
+/* Plus: section accent (matches hub-mode-card--accent-*) */
+.hub-mode-card--accent-g .browse-card-icon-btn--add {
+  border-color: var(--wordle-correct, #6aaa64);
+  color: var(--wordle-correct, #6aaa64);
+  background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 14%, var(--shell-elevated, #18181b));
+}
+
+.hub-mode-card--accent-g .browse-card-icon-btn--add:hover {
+  background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 26%, var(--shell-elevated, #18181b));
+  color: var(--wordle-correct, #6aaa64);
+}
+
+.hub-mode-card--accent-y .browse-card-icon-btn--add {
+  border-color: var(--wordle-present, #d9a527);
+  color: var(--wordle-present, #d9a527);
+  background: color-mix(in srgb, var(--wordle-present, #d9a527) 14%, var(--shell-elevated, #18181b));
+}
+
+.hub-mode-card--accent-y .browse-card-icon-btn--add:hover {
+  background: color-mix(in srgb, var(--wordle-present, #d9a527) 26%, var(--shell-elevated, #18181b));
+  color: var(--wordle-present, #d9a527);
+}
+
+.hub-mode-card--accent-r .browse-card-icon-btn--add {
+  border-color: var(--word500-red, #e05555);
+  color: var(--word500-red, #e05555);
+  background: color-mix(in srgb, var(--word500-red, #e05555) 14%, var(--shell-elevated, #18181b));
+}
+
+.hub-mode-card--accent-r .browse-card-icon-btn--add:hover {
+  background: color-mix(in srgb, var(--word500-red, #e05555) 26%, var(--shell-elevated, #18181b));
+  color: var(--word500-red, #e05555);
+}

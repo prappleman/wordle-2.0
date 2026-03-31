@@ -16,6 +16,12 @@ interface WordleKeyboardProps {
   letterHints?: Map<string, LetterFeedback>
   /** Extra keys to show as absent (gray), e.g. Word 500 letters ruled out by an all-red guess. */
   absentKeys?: Iterable<string>
+  /** Banned letter (cannot be used this guess); key is disabled and highlighted. */
+  bannedKey?: string | null
+  /** Letters in this word get a white outline (e.g. answer letters); use with `plain` for no score colors. */
+  wordLetterOutline?: string | null
+  /** One key filled white (e.g. forced-letter mode). Takes precedence over score colors for that key. */
+  forcedHighlightKey?: string | null
 }
 
 export function WordleKeyboard({
@@ -25,6 +31,9 @@ export function WordleKeyboard({
   plain,
   letterHints,
   absentKeys,
+  bannedKey,
+  wordLetterOutline,
+  forcedHighlightKey,
 }: WordleKeyboardProps) {
   const hints: Map<string, LetterFeedback> = useMemo(() => {
     const m = plain
@@ -43,6 +52,15 @@ export function WordleKeyboard({
     return m
   }, [plain, guesses, letterHints, absentKeys])
 
+  const outlineSet = useMemo(() => {
+    if (!wordLetterOutline) return null
+    const s = new Set<string>()
+    for (const ch of wordLetterOutline.toUpperCase()) {
+      if (/[A-Z]/.test(ch)) s.add(ch)
+    }
+    return s
+  }, [wordLetterOutline])
+
   return (
     <div className="wordle-keyboard" aria-label="On-screen keyboard">
       {ROWS.map((row, i) => (
@@ -59,14 +77,20 @@ export function WordleKeyboard({
           )}
           {row.split('').map((ch) => {
             const fb = hints.get(ch)
+            const forced =
+              forcedHighlightKey && ch.toUpperCase() === forcedHighlightKey.toUpperCase()
             const cls = ['wordle-key']
-            if (fb) cls.push(`wordle-key--${fb}`)
+            if (forced) cls.push('wordle-key--forced-white')
+            else if (fb) cls.push(`wordle-key--${fb}`)
+            const ban = bannedKey && ch.toUpperCase() === bannedKey.toUpperCase()
+            if (ban) cls.push('wordle-key--banned')
+            if (outlineSet?.has(ch.toUpperCase())) cls.push('wordle-key--word-outline')
             return (
               <button
                 key={ch}
                 type="button"
                 className={cls.join(' ')}
-                disabled={disabled}
+                disabled={disabled || Boolean(ban)}
                 onClick={() => onKey(ch)}
               >
                 {ch}

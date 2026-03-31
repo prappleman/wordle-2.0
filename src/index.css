@@ -1,33 +1,163 @@
 :root {
+  /* Deepest layer: page canvas behind cards */
+  --shell-bg: #121213;
+  --shell-fg: #e5e7eb;
+  --shell-muted: #a1a1aa;
+  /* Caps / section labels — one step quieter than body */
+  --shell-label: #71717a;
+  --shell-border: #27272a;
+  --shell-border-subtle: #1f1f22;
+  /* Shared “card” panel — lighter than shell-bg; header & sidebar use this */
+  --hub-card: #1a1a1b;
+  --shell-header-bg: var(--hub-card);
+  --shell-aside-bg: var(--hub-card);
+  --shell-elevated: var(--hub-card);
+  --shell-hover: #27272a;
+  --shell-active: #2a2a2e;
+  --shell-sidebar-width: 260px;
+  --shell-shadow: 0 10px 32px rgba(0, 0, 0, 0.35);
+  --shell-shadow-modal: 0 24px 48px rgba(0, 0, 0, 0.45);
+  --shell-shadow-sidebar: 8px 0 24px rgba(0, 0, 0, 0.35);
+  --shell-scrim: rgba(0, 0, 0, 0.55);
+  --shell-scrim-heavy: rgba(0, 0, 0, 0.65);
+  --shell-inset: rgba(0, 0, 0, 0.22);
+
   --hub-heading: #f3f4f6;
   --hub-muted: #9ca3af;
   --hub-border: #3a3a3c;
-  --hub-card: #1a1a1b;
   --hub-card-hover: #252526;
-  --hub-accent: #6aaa64;
+  /* Row / chip hover, nested panels */
+  --hub-hover: #252526;
+  --hub-panel: var(--hub-card);
+  --hub-ghost: rgba(255, 255, 255, 0.04);
+  --hub-shine-gradient: linear-gradient(
+    105deg,
+    rgba(60, 60, 60, 0.5) 0%,
+    rgba(60, 60, 60, 0.12) 62%,
+    rgba(60, 60, 60, 0.02) 88%,
+    transparent 98%
+  );
+  --hub-accent: var(--wordle-correct);
   --hub-code-bg: #2d2d2f;
+  /* Inline banners (e.g. Word chain win/lose) */
+  --hub-bubble-win: color-mix(in srgb, var(--wordle-correct) 22%, transparent);
+  --hub-bubble-lose: color-mix(in srgb, var(--shell-muted) 28%, transparent);
 
   --wordle-border: #3a3a3c;
   --wordle-border-strong: #565758;
+  --wordle-border-muted: #2f2f31;
   --wordle-tile-text: #fff;
+  /* Empty / typing letters (feedback tiles force --wordle-tile-text) */
+  --wordle-tile-ink: #fff;
   --wordle-tile-empty: transparent;
-  --wordle-correct: #538d4e;
-  --wordle-present: #b59f3b;
-  --wordle-absent: #3a3a3c;
-  --wordle-key-bg: #818384;
+  /* Saturated but balanced — readable on #121213 */
+  --wordle-correct: #6aaa64;
+  --wordle-present: #d9a527;
+  --wordle-absent: #4a4a4e;
+  --wordle-key-bg: #8e9196;
+  --wordle-key-absent: #2f2f33;
+  --wordle-key-absent-text: rgba(255, 255, 255, 0.58);
+  --wordle-tile-blocked: #1a1a1b;
   --wordle-tile-radius: 4px;
   /* Word 500: third column (wrong-letter count) + note tint */
-  --word500-red: #a35656;
+  --word500-red: #e05555;
+  /* Colorless: white in-word tiles; border matches fill (invisible on dark) */
+  --colorless-highlight-bg: #ffffff;
+  --colorless-highlight-fg: #111111;
+  --colorless-highlight-border-color: #ffffff;
+  --colorless-key-ring: none;
 
   font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
   line-height: 1.5;
   font-weight: 400;
   color: var(--hub-muted);
-  background-color: #121213;
+  background-color: var(--shell-bg);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+:root[data-theme='light'] {
+  /* Page canvas — lightest; cards sit one step darker (not pure white) */
+  --shell-bg: #f4f4f5;
+  --shell-fg: #18181b;
+  --shell-muted: #52525b;
+  --shell-label: #71717a;
+  --shell-border: #d4d4d8;
+  --shell-border-subtle: #e4e4e7;
+  --hub-card: #e8e8ea;
+  --shell-header-bg: var(--hub-card);
+  --shell-aside-bg: var(--hub-card);
+  --shell-elevated: var(--hub-card);
+  --shell-hover: #dedee2;
+  --shell-active: #d4d4d8;
+  --shell-shadow: 0 10px 32px rgba(15, 23, 42, 0.08);
+  --shell-shadow-modal: 0 24px 48px rgba(15, 23, 42, 0.12);
+  --shell-shadow-sidebar: 8px 0 24px rgba(15, 23, 42, 0.1);
+  --shell-scrim: rgba(15, 23, 42, 0.35);
+  --shell-scrim-heavy: rgba(15, 23, 42, 0.45);
+  --shell-inset: rgba(0, 0, 0, 0.06);
+
+  --hub-heading: #18181b;
+  --hub-muted: #52525b;
+  --hub-border: #c9cad1;
+  --hub-card-hover: #dedee2;
+  --hub-hover: #dedee2;
+  --hub-panel: var(--hub-card);
+  --hub-ghost: rgba(0, 0, 0, 0.03);
+  --hub-shine-gradient: linear-gradient(
+    105deg,
+    rgba(100, 116, 139, 0.22) 0%,
+    rgba(148, 163, 184, 0.1) 62%,
+    rgba(241, 245, 249, 0.35) 88%,
+    transparent 98%
+  );
+  --hub-code-bg: #e0e0e4;
+  --hub-bubble-win: color-mix(in srgb, var(--wordle-correct) 18%, transparent);
+  --hub-bubble-lose: color-mix(in srgb, var(--hub-muted) 14%, var(--hub-card));
+
+  --wordle-border: #d4d4d8;
+  --wordle-border-strong: #a1a1aa;
+  --wordle-border-muted: #d4d4d8;
+  --wordle-tile-text: #fff;
+  --wordle-tile-ink: #18181b;
+  --wordle-correct: #5a9f5a;
+  --wordle-present: #d9a527;
+  --wordle-absent: #787c7e;
+  /* Slightly darker than #d3d6da / #8b8e8f for label contrast */
+  --wordle-key-bg: #c9ced4;
+  --wordle-key-absent: #878c94;
+  --wordle-key-absent-text: rgba(255, 255, 255, 0.78);
+  --wordle-tile-blocked: #e5e7eb;
+  --word500-red: #dc2626;
+  /* Colorless: same white tiles; hub-border edge so they read on light page */
+  --colorless-highlight-bg: #ffffff;
+  --colorless-highlight-fg: #111111;
+  --colorless-highlight-border-color: var(--hub-border);
+  --colorless-key-ring: inset 0 0 0 1px var(--hub-border);
+
+  color: var(--hub-muted);
+  background-color: var(--shell-bg);
+}
+
+/* Protanopia & deuteranopia (dark UI): correct → vivid blue; gold present; cool gray absent */
+:root:not([data-theme='light'])[data-colorblind='red-green'] {
+  --wordle-correct: #3b82f6;
+  --wordle-present: #d9a527;
+  --wordle-absent: #6b7280;
+  --wordle-key-bg: #8e9196;
+  --wordle-key-absent: #3a3d42;
+  --word500-red: #ef4444;
+}
+
+:root[data-theme='light'][data-colorblind='red-green'] {
+  --wordle-correct: #2563eb;
+  --wordle-present: #b45309;
+  --wordle-absent: #64748b;
+  --wordle-key-bg: #c6d1e0;
+  --wordle-key-absent: #90a0b4;
+  --word500-red: #ef4444;
 }
 
 *,

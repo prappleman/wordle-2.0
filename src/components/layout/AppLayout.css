@@ -1,0 +1,234 @@
+.app-layout {
+  min-height: 100svh;
+  height: 100svh;
+  max-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--shell-bg, #121213);
+  color: var(--shell-fg, #e5e7eb);
+}
+
+.app-layout-header {
+  flex-shrink: 0;
+  border-bottom: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-header-bg, var(--hub-card, #1a1a1b));
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.app-layout-header-inner {
+  width: 100%;
+  padding: 0.65rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.app-layout-menu-btn {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--shell-border, #27272a);
+  border-radius: 8px;
+  background: var(--shell-elevated, #18181b);
+  color: inherit;
+  cursor: pointer;
+}
+
+.app-layout-menu-btn:hover {
+  background: var(--shell-hover, #27272a);
+}
+
+.app-layout-menu-icon {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.app-layout-brand {
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: -0.03em;
+  color: var(--shell-fg, #f4f4f5);
+  text-decoration: none;
+  margin-right: auto;
+}
+
+.app-layout-brand:hover {
+  color: var(--hub-accent, #6aaa64);
+}
+
+.app-layout-nav {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.app-layout-nav a {
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--shell-muted, #a1a1aa);
+  text-decoration: none;
+}
+
+.app-layout-nav a:hover {
+  color: var(--shell-fg, #e5e7eb);
+  background: var(--shell-hover, #27272a);
+}
+
+.app-layout-nav a.active {
+  color: var(--shell-fg, #fafafa);
+  background: var(--shell-active, #27272a);
+}
+
+.app-layout-body {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+}
+
+.app-layout-sidebar {
+  width: var(--shell-sidebar-width, 260px);
+  flex-shrink: 0;
+  align-self: stretch;
+  border-right: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-aside-bg, #121213);
+  padding: 1rem 0.85rem;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.app-layout-sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.app-layout-sidebar-nav a {
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--shell-muted, #a1a1aa);
+  text-decoration: none;
+}
+
+.app-layout-sidebar-nav a:hover {
+  color: var(--shell-fg, #e5e7eb);
+  background: var(--shell-hover, #27272a);
+}
+
+.app-layout-sidebar-nav a.active {
+  color: var(--shell-fg, #fafafa);
+  background: var(--shell-active, #27272a);
+}
+
+.app-layout-sidebar-divider {
+  height: 1px;
+  margin: 0.65rem 0;
+  background: var(--shell-border, #27272a);
+}
+
+.app-layout-sidebar-placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.55rem 0.75rem;
+  font-size: 0.85rem;
+  color: var(--shell-label, #71717a);
+  cursor: not-allowed;
+}
+
+.app-layout-soon {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+  background: var(--shell-elevated, #18181b);
+  color: var(--shell-label, #71717a);
+}
+
+.app-layout-backdrop {
+  display: none;
+}
+
+.app-layout-main {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  padding: 1.25rem 1rem 2.5rem;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .app-layout {
+    /* Let page scroll normally on small viewports (address bar, drawer overlay) */
+    height: auto;
+    max-height: none;
+    min-height: 100svh;
+    overflow: visible;
+  }
+
+  .app-layout-body {
+    overflow: visible;
+  }
+
+  .app-layout-main {
+    overflow: visible;
+    min-height: 0;
+  }
+
+  .app-layout-menu-btn {
+    display: flex;
+  }
+
+  .app-layout-nav {
+    display: none;
+  }
+
+  .app-layout-sidebar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    z-index: 50;
+    width: min(var(--shell-sidebar-width, 260px), 88vw);
+    transform: translateX(-100%);
+    transition: transform 0.2s ease;
+    box-shadow: var(--shell-shadow-sidebar, 8px 0 24px rgba(0, 0, 0, 0.35));
+  }
+
+  .app-layout-sidebar--open {
+    transform: translateX(0);
+  }
+
+  .app-layout-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 45;
+    border: none;
+    padding: 0;
+    margin: 0;
+    background: var(--shell-scrim, rgba(0, 0, 0, 0.55));
+    cursor: pointer;
+  }
+
+  .app-layout-body {
+    max-width: none;
+  }
+}
