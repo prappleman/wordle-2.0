@@ -2,6 +2,7 @@ import { useEffect, useMemo } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useColorlessGame } from '../game/useColorlessGame'
+import { useBrowsePlayConfig } from '../play/useBrowsePlayConfig'
 import type { LetterFeedback } from '../variants/types'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
 import './ColorlessScreen.css'
@@ -10,10 +11,11 @@ export default function ColorlessScreen() {
   const { variantId = '' } = useParams<{ variantId: string }>()
   const wordLength = wordLengthFromVariantId(variantId)
   const words = wordsForLength(wordLength)
+  const browse = useBrowsePlayConfig()
   const game = useColorlessGame({
     words,
     wordLength,
-    maxGuesses: 8,
+    maxGuesses: browse.maxGuesses ?? 8,
   })
   const { onPhysicalKey } = game
 

@@ -1,3 +1,4 @@
+import { appendGameExtrasToPlayHref } from '../play/browsePlayQuery'
 import { ladderRangeQuery } from '../variants/ladderRange'
 import type { HubPin } from './types'
 
@@ -45,7 +46,8 @@ export function playHrefFromPin(pin: HubPin): string {
       pin.ladderStart,
       pin.ladderEnd,
     )
-    return `/play/${variantId}${search}`
+    const base = `/play/${variantId}${search}`
+    return appendGameExtrasToPlayHref(base, pin.gameExtras)
   }
   const variantId = computeVariantId(
     pin.idPrefix,
@@ -54,5 +56,6 @@ export function playHrefFromPin(pin: HubPin): string {
     pin.ladderStart,
   )
   const search = pin.ladderMode ? ladderSearchString(pin.ladderStart, pin.ladderEnd) : ''
-  return `/play/${variantId}${search}`
+  const base = `/play/${variantId}${search}`
+  return appendGameExtrasToPlayHref(base, pin.gameExtras)
 }

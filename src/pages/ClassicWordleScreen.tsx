@@ -1,8 +1,10 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useWordleGame } from '../game/useWordleGame'
+import { useCountdown } from '../hooks/useCountdown'
+import { useBrowsePlayConfig } from '../play/useBrowsePlayConfig'
 import type { ClassicGameConfig } from '../variants/types'
 import './ClassicWordleScreen.css'
 
@@ -12,8 +14,29 @@ interface ClassicWordleScreenProps {
 }
 
 export function ClassicWordleScreen({ title, config }: ClassicWordleScreenProps) {
-  const game = useWordleGame(config)
+  const browse = useBrowsePlayConfig()
+  const mergedConfig = useMemo(
+    () => ({
+      ...config,
+      maxGuesses: browse.maxGuesses ?? config.maxGuesses,
+    }),
+    [config, browse.maxGuesses],
+  )
+  const game = useWordleGame(mergedConfig, {
+    allowNonDictionary: browse.allowNonDictionary,
+    lockRevealedGreens: browse.lockRevealedGreens,
+    forbidAbsentLetters: browse.forbidAbsentLetters,
+  })
   const { onPhysicalKey } = game
+
+  const secondsLeft = useCountdown(
+    browse.timeLimitSeconds != null ? browse.timeLimitSeconds : null,
+    {
+      active: game.phase === 'playing',
+      resetKey: `${game.target}-${game.phase}`,
+      onExpire: () => game.forceLoss(),
+    },
+  )
 
   useEffect(() => {
     const onKeyDown = (e: KeyboardEvent) => {
@@ -59,6 +82,11 @@ export function ClassicWordleScreen({ title, config }: ClassicWordleScreenProps)
       {game.phase === 'lost' && (
         <p className="classic-screen-banner classic-screen-banner--lose">
           The word was <strong>{game.target}</strong>
+        </p>
+      )}
+      {secondsLeft != null && game.phase === 'playing' && (
+        <p className="custom-game-screen-timer" aria-live="polite">
+          {secondsLeft}s
         </p>
       )}
 

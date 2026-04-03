@@ -3,6 +3,7 @@ import { Link, Navigate, useParams } from 'react-router-dom'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useMultiWordleGame } from '../game/useMultiWordleGame'
+import { useBrowsePlayConfig } from '../play/useBrowsePlayConfig'
 import { multiMaxGuesses, parseMultiVariantId, wordsForMultiLength } from '../variants/multiVariant'
 import './MultiWordleScreen.css'
 
@@ -13,14 +14,15 @@ function MultiWordlePlay({
   wordLength: number
   boardCount: number
 }) {
+  const browse = useBrowsePlayConfig()
   const config = useMemo(
     () => ({
       words: wordsForMultiLength(wordLength),
       wordLength,
-      maxGuesses: multiMaxGuesses(boardCount),
+      maxGuesses: browse.maxGuesses ?? multiMaxGuesses(boardCount),
       boardCount,
     }),
-    [wordLength, boardCount],
+    [wordLength, boardCount, browse.maxGuesses],
   )
 
   const game = useMultiWordleGame(config)

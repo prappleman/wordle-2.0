@@ -1,6 +1,11 @@
-import { defaultHubSettings } from '../components/HubSettingsFields'
 import { playHrefFromPin } from '../hub/resolvePlayTarget'
 import type { HubPin } from '../hub/types'
+import {
+  mergeBrowseGameSettings,
+  mergedBrowseGameToHubSettings,
+  mergedBrowseGameToPinExtras,
+  type MergedBrowseGame,
+} from './browseGameMerge'
 import { HUB_SECTIONS } from './hubConfig'
 import { MULTI_BOARD_COUNTS, multiMaxGuesses } from './multiVariant'
 
@@ -45,8 +50,9 @@ export function browseOptionKey(entry: BrowseCatalogEntry): string {
   return `browse:multi:${entry.boardCount}`
 }
 
-export function playHrefFromBrowseEntry(entry: BrowseCatalogEntry): string {
-  const s = defaultHubSettings()
+export function playHrefFromMergedBrowse(entry: BrowseCatalogEntry, merged: MergedBrowseGame): string {
+  const hub = mergedBrowseGameToHubSettings(merged)
+  const extras = mergedBrowseGameToPinExtras(merged)
   if (entry.kind === 'lengthGroup') {
     const pin: HubPin = {
       id: 'temp',
@@ -54,10 +60,11 @@ export function playHrefFromBrowseEntry(entry: BrowseCatalogEntry): string {
       idPrefix: entry.idPrefix,
       title: entry.title,
       description: entry.description,
-      wordLength: s.wordLength,
-      ladderMode: s.ladderMode,
-      ladderStart: s.ladderStart,
-      ladderEnd: s.ladderEnd,
+      wordLength: hub.wordLength,
+      ladderMode: hub.ladderMode,
+      ladderStart: hub.ladderStart,
+      ladderEnd: hub.ladderEnd,
+      gameExtras: extras,
     }
     return playHrefFromPin(pin)
   }
@@ -67,12 +74,17 @@ export function playHrefFromBrowseEntry(entry: BrowseCatalogEntry): string {
     title: entry.title,
     description: entry.description,
     boardCount: entry.boardCount,
-    wordLength: s.wordLength,
-    ladderMode: s.ladderMode,
-    ladderStart: s.ladderStart,
-    ladderEnd: s.ladderEnd,
+    wordLength: hub.wordLength,
+    ladderMode: hub.ladderMode,
+    ladderStart: hub.ladderStart,
+    ladderEnd: hub.ladderEnd,
+    gameExtras: extras,
   }
   return playHrefFromPin(pin)
+}
+
+export function playHrefFromBrowseEntry(entry: BrowseCatalogEntry): string {
+  return playHrefFromMergedBrowse(entry, mergeBrowseGameSettings(undefined, undefined, undefined))
 }
 
 export function findBrowseEntryByOptionKey(key: string): BrowseCatalogEntry | undefined {

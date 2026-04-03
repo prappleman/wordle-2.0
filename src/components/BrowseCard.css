@@ -1,41 +1,64 @@
 .browse-card {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
 }
 
 .browse-card__inner {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
   padding: 1rem;
-  align-items: flex-start;
+  gap: 0.65rem;
 }
 
 .browse-card-body {
   flex: 1;
+  min-height: 0;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .browse-card-title {
-  margin: 0 0 0.35rem;
+  margin: 0;
+  flex-shrink: 0;
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.02em;
   color: var(--hub-heading, #f3f4f6);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .browse-card-desc {
-  margin: 0 0 0.5rem;
+  margin: 0;
+  flex: 1;
+  min-height: 0;
   font-size: 0.85rem;
   line-height: 1.45;
   color: var(--hub-muted, #9ca3af);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
+  line-clamp: 5;
 }
 
 .browse-card-tags {
   list-style: none;
-  margin: 0 0 0.65rem;
+  margin: 0;
   padding: 0;
+  flex-shrink: 0;
   display: flex;
   flex-wrap: wrap;
   gap: 0.35rem;
+  max-height: calc(2 * 1.35em + 0.35rem);
+  overflow: hidden;
 }
 
 .browse-card-tag {
@@ -47,12 +70,17 @@
   border-radius: 4px;
   background: var(--shell-elevated, #18181b);
   color: var(--shell-muted, #a1a1aa);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 100%;
 }
 
 .browse-card-actions {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  flex-shrink: 0;
   position: relative;
   z-index: 2;
 }
@@ -75,6 +103,8 @@
   background: var(--shell-elevated, #18181b);
   color: var(--shell-muted, #a1a1aa);
   cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
   transition:
     background 0.15s ease,
     border-color 0.15s ease,
@@ -91,35 +121,41 @@
   outline-offset: 2px;
 }
 
-/* Plus: section accent (matches hub-mode-card--accent-*) */
+/* Play + add: section accent (matches hub-mode-card--accent-*) */
+.hub-mode-card--accent-g .browse-card-icon-btn--play,
 .hub-mode-card--accent-g .browse-card-icon-btn--add {
   border-color: var(--wordle-correct, #6aaa64);
   color: var(--wordle-correct, #6aaa64);
   background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 14%, var(--shell-elevated, #18181b));
 }
 
+.hub-mode-card--accent-g .browse-card-icon-btn--play:hover,
 .hub-mode-card--accent-g .browse-card-icon-btn--add:hover {
   background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 26%, var(--shell-elevated, #18181b));
   color: var(--wordle-correct, #6aaa64);
 }
 
+.hub-mode-card--accent-y .browse-card-icon-btn--play,
 .hub-mode-card--accent-y .browse-card-icon-btn--add {
   border-color: var(--wordle-present, #d9a527);
   color: var(--wordle-present, #d9a527);
   background: color-mix(in srgb, var(--wordle-present, #d9a527) 14%, var(--shell-elevated, #18181b));
 }
 
+.hub-mode-card--accent-y .browse-card-icon-btn--play:hover,
 .hub-mode-card--accent-y .browse-card-icon-btn--add:hover {
   background: color-mix(in srgb, var(--wordle-present, #d9a527) 26%, var(--shell-elevated, #18181b));
   color: var(--wordle-present, #d9a527);
 }
 
+.hub-mode-card--accent-r .browse-card-icon-btn--play,
 .hub-mode-card--accent-r .browse-card-icon-btn--add {
   border-color: var(--word500-red, #e05555);
   color: var(--word500-red, #e05555);
   background: color-mix(in srgb, var(--word500-red, #e05555) 14%, var(--shell-elevated, #18181b));
 }
 
+.hub-mode-card--accent-r .browse-card-icon-btn--play:hover,
 .hub-mode-card--accent-r .browse-card-icon-btn--add:hover {
   background: color-mix(in srgb, var(--word500-red, #e05555) 26%, var(--shell-elevated, #18181b));
   color: var(--word500-red, #e05555);

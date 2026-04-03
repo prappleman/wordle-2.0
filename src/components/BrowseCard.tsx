@@ -1,5 +1,5 @@
-import { getHubModeTheme, type HubAccent } from './hubModeThemes'
-import { HubModeTiles } from './HubModeTiles'
+import { Link } from 'react-router-dom'
+import type { HubAccent } from './hubModeThemes'
 import './hubModeCardThemes.css'
 import './BrowseCard.css'
 
@@ -10,6 +10,14 @@ function IconPlus() {
         fill="currentColor"
         d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6v-2z"
       />
+    </svg>
+  )
+}
+
+function IconPlay() {
+  return (
+    <svg className="browse-card-icon" viewBox="0 0 24 24" aria-hidden>
+      <path fill="currentColor" d="M8 5v14l11-7L8 5z" />
     </svg>
   )
 }
@@ -26,13 +34,15 @@ function IconGear() {
 }
 
 type BrowseCardProps = {
-  /** Variant idPrefix (e.g. `colorless`) or `multi` for multi-board. */
-  modeKey: string
   /** Section accent: Classic = green, Variants = yellow, Multi = red */
   accent: HubAccent
   title: string
   description: string
   tags?: string[]
+  /** Built-in play URL (with query overlays when set in browse JSON). */
+  playHref: string
+  /** Custom session play (custom words, timer, multi-round, ladder wrap). Overrides `playHref`. */
+  onPlay?: () => void
   /** Add with default letter count and ladder settings (no modal). */
   onAddQuick: () => void
   /** Open settings (word length, ladder) then add from modal. */
@@ -40,20 +50,19 @@ type BrowseCardProps = {
 }
 
 export function BrowseCard({
-  modeKey,
   accent,
   title,
   description,
   tags,
+  playHref,
+  onPlay,
   onAddQuick,
   onConfigure,
 }: BrowseCardProps) {
-  const theme = getHubModeTheme(modeKey, accent)
   return (
-    <article className={`browse-card hub-mode-card hub-mode-card--accent-${theme.accent}`}>
+    <article className={`browse-card hub-mode-card hub-mode-card--accent-${accent}`}>
       <div className="hub-mode-card__shine" aria-hidden />
       <div className="hub-mode-card__inner browse-card__inner">
-        <HubModeTiles preset={theme.tilePreset} />
         <div className="browse-card-body">
           <h3 className="browse-card-title">{title}</h3>
           <p className="browse-card-desc">{description}</p>
@@ -67,6 +76,24 @@ export function BrowseCard({
             </ul>
           )}
           <div className="browse-card-actions">
+            {onPlay ? (
+              <button
+                type="button"
+                className="browse-card-icon-btn browse-card-icon-btn--play"
+                onClick={onPlay}
+                aria-label={`Play ${title}`}
+              >
+                <IconPlay />
+              </button>
+            ) : (
+              <Link
+                to={playHref}
+                className="browse-card-icon-btn browse-card-icon-btn--play"
+                aria-label={`Play ${title}`}
+              >
+                <IconPlay />
+              </Link>
+            )}
             <button
               type="button"
               className="browse-card-icon-btn browse-card-icon-btn--add"

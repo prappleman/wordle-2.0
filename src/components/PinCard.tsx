@@ -1,6 +1,10 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
+import { useFeedback } from './FeedbackProvider'
 import type { HubPin } from '../hub/types'
 import { playHrefFromPin } from '../hub/resolvePlayTarget'
+import { hubPinNeedsBrowseSessionPlay, hubPinToBrowseSessionPreset } from '../variants/browseGameMerge'
+import { validateCustomPreset } from '../variants/customPreset'
+import { BROWSE_SESSION_PRESET_KEY } from '../play/browseSessionStorage'
 import { getHubModeTheme } from './hubModeThemes'
 import { HubModeTiles } from './HubModeTiles'
 import './hubModeCardThemes.css'
@@ -24,7 +28,10 @@ type PinCardProps = {
 }
 
 export function PinCard({ pin, onEdit, onRemove }: PinCardProps) {
+  const navigate = useNavigate()
+  const { notify } = useFeedback()
   const to = playHrefFromPin(pin)
+  const sessionPlay = hubPinNeedsBrowseSessionPlay(pin)
   const chips = pinChips(pin)
   const modeKey = pin.kind === 'lengthGroup' ? pin.idPrefix : 'multi'
   const theme = getHubModeTheme(modeKey)
@@ -45,9 +52,34 @@ export function PinCard({ pin, onEdit, onRemove }: PinCardProps) {
             ))}
           </ul>
           <div className="pin-card-actions">
-            <Link to={to} className="pin-card-play">
-              Play
-            </Link>
+            {sessionPlay ? (
+              <button
+                type="button"
+                className="pin-card-play"
+                onClick={() => {
+                  const preset = hubPinToBrowseSessionPreset(pin)
+                  if (!preset) return
+                  const v = validateCustomPreset(preset)
+                  if (!v.ok) {
+                    notify(v.message)
+                    return
+                  }
+                  try {
+                    sessionStorage.setItem(BROWSE_SESSION_PRESET_KEY, JSON.stringify(preset))
+                  } catch {
+                    notify('Could not start session (storage blocked).')
+                    return
+                  }
+                  navigate('/play/browse-session')
+                }}
+              >
+                Play
+              </button>
+            ) : (
+              <Link to={to} className="pin-card-play">
+                Play
+              </Link>
+            )}
             <button type="button" className="pin-card-secondary" onClick={onEdit}>
               Edit
             </button>

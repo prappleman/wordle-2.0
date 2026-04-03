@@ -1,12 +1,25 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { BrowseCard } from '../components/BrowseCard'
 import { useFeedback } from '../components/FeedbackProvider'
 import { useHubPins } from '../hub/useHubPins'
-import type { HubPin, HubPinLengthGroup, HubPinMultiGrid } from '../hub/types'
-import { HUB_SECTIONS } from '../variants/hubConfig'
-import { hubAccentForSectionCategory } from '../components/hubModeThemes'
-import { MULTI_BOARD_COUNTS, multiMaxGuesses } from '../variants/multiVariant'
-import { defaultHubSettings, type HubSettingsState } from '../components/HubSettingsFields'
+import type { HubPin, HubPinGameExtras, HubPinLengthGroup, HubPinMultiGrid } from '../hub/types'
+import { hubAccentForBrowseCategory } from '../components/hubModeThemes'
+import {
+  BROWSE_PAGE_SECTIONS,
+  mergedBrowseGameForEntry,
+  type BrowsePageEntry,
+} from '../data/browseGames'
+import type { HubSettingsState } from '../components/HubSettingsFields'
+import { playHrefFromMergedBrowse, type BrowseCatalogEntry } from '../variants/browseCatalog'
+import {
+  browseGameNeedsCustomSessionPlay,
+  mergedBrowseGameToCustomPreset,
+  mergedBrowseGameToHubSettings,
+  mergedBrowseGameToPinExtras,
+} from '../variants/browseGameMerge'
+import { buildCreateSearchFromMerged } from '../variants/browseCreateHydrate'
+import { validateCustomPreset } from '../variants/customPreset'
+import { BROWSE_SESSION_PRESET_KEY, CREATE_BROWSE_WORDS_KEY } from '../play/browseSessionStorage'
 import './BrowsePage.css'
 
 type ModalOpen =
@@ -24,58 +37,106 @@ type ModalOpen =
       description: string
     }
 
+function sectionHeadingId(category: string): string {
+  return `browse-${category.replace(/\s+/g, '-').toLowerCase()}`
+}
+
+function toCatalogEntry(entry: BrowsePageEntry): BrowseCatalogEntry {
+  if (entry.kind === 'multiGrid') {
+    return {
+      kind: 'multiGrid',
+      boardCount: entry.boardCount,
+      title: entry.title,
+      description: entry.description,
+    }
+  }
+  return {
+    kind: 'lengthGroup',
+    idPrefix: entry.idPrefix,
+    title: entry.title,
+    description: entry.description,
+    tags: entry.tags,
+  }
+}
+
+function pinFromSettings(
+  modal: ModalOpen,
+  settings: HubSettingsState,
+  gameExtras?: HubPinGameExtras,
+): Omit<HubPin, 'id'> {
+  if (modal.kind === 'lengthGroup') {
+    const pin: Omit<HubPinLengthGroup, 'id'> = {
+      kind: 'lengthGroup',
+      idPrefix: modal.idPrefix,
+      title: modal.title,
+      description: modal.description,
+      wordLength: settings.wordLength,
+      ladderMode: settings.ladderMode,
+      ladderStart: settings.ladderStart,
+      ladderEnd: settings.ladderEnd,
+      gameExtras,
+    }
+    return pin
+  }
+  const pin: Omit<HubPinMultiGrid, 'id'> = {
+    kind: 'multiGrid',
+    title: modal.title,
+    description: modal.description,
+    boardCount: modal.boardCount,
+    wordLength: settings.wordLength,
+    ladderMode: settings.ladderMode,
+    ladderStart: settings.ladderStart,
+    ladderEnd: settings.ladderEnd,
+    gameExtras,
+  }
+  return pin
+}
+
 export default function BrowsePage() {
   const navigate = useNavigate()
   const { notify } = useFeedback()
   const { addPin } = useHubPins()
 
-  function pinFromSettings(modal: ModalOpen, settings: HubSettingsState): Omit<HubPin, 'id'> {
+  function quickAdd(modal: ModalOpen, merged: ReturnType<typeof mergedBrowseGameForEntry>) {
+    const hub = mergedBrowseGameToHubSettings(merged)
+    const extras = mergedBrowseGameToPinExtras(merged)
+    addPin(pinFromSettings(modal, hub, extras))
+    notify(`Added “${modal.title}” to My hub.`)
+  }
+
+  function openInCreate(modal: ModalOpen, merged: ReturnType<typeof mergedBrowseGameForEntry>) {
+    const base = new URLSearchParams()
     if (modal.kind === 'lengthGroup') {
-      const pin: Omit<HubPinLengthGroup, 'id'> = {
-        kind: 'lengthGroup',
-        idPrefix: modal.idPrefix,
-        title: modal.title,
-        description: modal.description,
-        wordLength: settings.wordLength,
-        ladderMode: settings.ladderMode,
-        ladderStart: settings.ladderStart,
-        ladderEnd: settings.ladderEnd,
+      base.set('browseKind', 'lengthGroup')
+      base.set('browseId', modal.idPrefix)
+    } else {
+      base.set('browseKind', 'multiGrid')
+      base.set('browseBoards', String(modal.boardCount))
+    }
+    if (merged.wordSource === 'custom') {
+      try {
+        sessionStorage.setItem(CREATE_BROWSE_WORDS_KEY, JSON.stringify(merged.customWords))
+      } catch {
+        /* ignore */
       }
-      return pin
     }
-    const pin: Omit<HubPinMultiGrid, 'id'> = {
-      kind: 'multiGrid',
-      title: modal.title,
-      description: modal.description,
-      boardCount: modal.boardCount,
-      wordLength: settings.wordLength,
-      ladderMode: settings.ladderMode,
-      ladderStart: settings.ladderStart,
-      ladderEnd: settings.ladderEnd,
-    }
-    return pin
+    navigate({ pathname: '/create', search: buildCreateSearchFromMerged(base, merged) })
   }
 
-  function quickAdd(nextModal: ModalOpen) {
-    const s = defaultHubSettings()
-    addPin(pinFromSettings(nextModal, s))
-    notify(`Added “${nextModal.title}” to My hub.`)
-  }
-
-  function openInCreate(modal: ModalOpen) {
-    if (modal.kind === 'lengthGroup') {
-      const sp = new URLSearchParams({
-        browseKind: 'lengthGroup',
-        browseId: modal.idPrefix,
-      })
-      navigate({ pathname: '/create', search: sp.toString() })
+  function playBrowseSession(merged: ReturnType<typeof mergedBrowseGameForEntry>, title: string) {
+    const preset = mergedBrowseGameToCustomPreset({ merged, title })
+    const v = validateCustomPreset(preset)
+    if (!v.ok) {
+      notify(v.message)
       return
     }
-    const sp = new URLSearchParams({
-      browseKind: 'multiGrid',
-      browseBoards: String(modal.boardCount),
-    })
-    navigate({ pathname: '/create', search: sp.toString() })
+    try {
+      sessionStorage.setItem(BROWSE_SESSION_PRESET_KEY, JSON.stringify(preset))
+    } catch {
+      notify('Could not start session (storage blocked).')
+      return
+    }
+    navigate('/play/browse-session')
   }
 
   return (
@@ -83,68 +144,73 @@ export default function BrowsePage() {
       <header className="browse-page-header">
         <h1 className="browse-page-title">Browse variants</h1>
         <p className="browse-page-lead">
-          The plus button adds a shortcut with default letter count (5) and ladder off. The gear opens{' '}
-          <strong>Create</strong> with that variant selected so you can tune settings or jump to play from there. Open{' '}
-          <Link to="/">My hub</Link> to play your shortcuts.
+          Optional <strong>defaults</strong> / per-card <strong>game</strong> in <code>browseGames.json</code> mirror
+          Create (letters, ladder, guesses, timer, custom lists, restrictions). <strong>Play</strong> uses those rules;
+          custom lists and timers use the session player. The plus saves a hub pin with the same settings; the gear opens{' '}
+          <strong>Create</strong> with everything filled in.
         </p>
       </header>
 
-      {HUB_SECTIONS.map((section) => {
-        const sectionAccent = hubAccentForSectionCategory(section.category)
+      {BROWSE_PAGE_SECTIONS.map((section) => {
+        const sectionAccent = hubAccentForBrowseCategory(section.category)
+        const headingId = sectionHeadingId(section.category)
         return (
-          <section key={section.category} className="browse-page-section" aria-labelledby={`browse-${section.category}`}>
-            <h2 id={`browse-${section.category}`} className="browse-page-section-title">
+          <section key={section.category} className="browse-page-section" aria-labelledby={headingId}>
+            <h2 id={headingId} className="browse-page-section-title">
               {section.category}
             </h2>
-            <div className="browse-page-grid">
-              {section.items.flatMap((item) => {
-                if (item.kind === 'multiGrid') {
-                  return MULTI_BOARD_COUNTS.map((boardCount) => {
-                    const maxG = multiMaxGuesses(boardCount)
-                    const title = `Multi (${boardCount})`
-                    const description = `Several hidden words at once. Each guess fills every unsolved grid. Solve up to ${maxG} times before losing.`
-                    const multiModal: ModalOpen = {
-                      kind: 'multiGrid',
-                      boardCount,
-                      title,
-                      description,
-                    }
-                    return (
-                      <BrowseCard
-                        key={`multi-${boardCount}`}
-                        modeKey="multi"
-                        accent={sectionAccent}
-                        title={title}
-                        description={description}
-                        tags={[`${boardCount} boards`, '5 letters', `${maxG} guesses`]}
-                        onAddQuick={() => quickAdd(multiModal)}
-                        onConfigure={() => openInCreate(multiModal)}
-                      />
-                    )
-                  })
-                }
-                if (item.kind === 'lengthGroup') {
-                  const lengthModal: ModalOpen = {
-                    kind: 'lengthGroup',
-                    idPrefix: item.idPrefix,
-                    title: item.title,
-                    description: item.description,
-                    tags: item.tags,
+            <div className="browse-page-row">
+              {section.entries.map((entry) => {
+                const merged = mergedBrowseGameForEntry(section, entry)
+                const catalogEntry = toCatalogEntry(entry)
+                const playHref = playHrefFromMergedBrowse(catalogEntry, merged)
+                const needSession =
+                  entry.kind === 'lengthGroup' && browseGameNeedsCustomSessionPlay(merged)
+
+                if (entry.kind === 'multiGrid') {
+                  const { boardCount, title, description, tags } = entry
+                  const multiModal: ModalOpen = {
+                    kind: 'multiGrid',
+                    boardCount,
+                    title,
+                    description,
                   }
-                  return [
+                  return (
                     <BrowseCard
-                      key={item.idPrefix}
-                      modeKey={item.idPrefix}
+                      key={`multi-${boardCount}`}
                       accent={sectionAccent}
-                      title={item.title}
-                      description={item.description}
-                      tags={item.tags}
-                      onAddQuick={() => quickAdd(lengthModal)}
-                      onConfigure={() => openInCreate(lengthModal)}
-                    />,
-                  ]
+                      title={title}
+                      description={description}
+                      tags={tags}
+                      playHref={playHref}
+                      onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}
+                      onAddQuick={() => quickAdd(multiModal, merged)}
+                      onConfigure={() => openInCreate(multiModal, merged)}
+                    />
+                  )
                 }
-                return []
+
+                const { idPrefix, title, description, tags } = entry
+                const lengthModal: ModalOpen = {
+                  kind: 'lengthGroup',
+                  idPrefix,
+                  title,
+                  description,
+                  tags,
+                }
+                return (
+                  <BrowseCard
+                    key={idPrefix}
+                    accent={sectionAccent}
+                    title={title}
+                    description={description}
+                    tags={tags}
+                    playHref={playHref}
+                    onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}
+                    onAddQuick={() => quickAdd(lengthModal, merged)}
+                    onConfigure={() => openInCreate(lengthModal, merged)}
+                  />
+                )
               })}
             </div>
           </section>

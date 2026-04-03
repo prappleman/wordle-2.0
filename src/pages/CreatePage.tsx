@@ -17,8 +17,13 @@ import {
   DEFAULT_CREATE_BROWSE_ID_PREFIX,
   findBrowseEntryByOptionKey,
   getBrowseCatalog,
-  playHrefFromBrowseEntry,
+  playHrefFromMergedBrowse,
 } from '../variants/browseCatalog'
+import {
+  browseGameNeedsCustomSessionPlay,
+  mergeBrowseGameSettings,
+} from '../variants/browseGameMerge'
+import { CREATE_BROWSE_WORDS_KEY } from '../play/browseSessionStorage'
 import './MyVariantsPage.css'
 
 function browseSearchForVariantId(variantId: string): string | null {
@@ -82,12 +87,30 @@ export default function CreatePage() {
   }, [searchParams])
 
   const selectedPlayHref = useMemo(() => {
-    if (browseKeyFromUrl) {
-      const e = findBrowseEntryByOptionKey(browseKeyFromUrl)
-      return e ? playHrefFromBrowseEntry(e) : null
+    if (!browseKeyFromUrl) return null
+    const e = findBrowseEntryByOptionKey(browseKeyFromUrl)
+    if (!e) return null
+    const merged = mergeBrowseGameSettings(undefined, undefined, {
+      wordLength: draft.wordLength,
+      ladderEnabled: draft.ladderEnabled,
+      ladderLo: draft.ladderLo,
+      ladderHi: draft.ladderHi,
+      ladderAdvance: draft.ladderMode,
+      maxGuesses: draft.maxGuesses,
+      wordSource: draft.wordSource,
+      customWords: draft.customWords,
+      customWordOrder: draft.customWordOrder,
+      allowNonDictionary: draft.allowNonDictionary,
+      maxSessionRounds: draft.maxSessionRounds,
+      timeLimitSeconds: draft.timeLimitSeconds,
+      lockRevealedGreens: draft.lockRevealedGreens,
+      forbidAbsentLetters: draft.forbidAbsentLetters,
+    })
+    if (e.kind === 'lengthGroup' && browseGameNeedsCustomSessionPlay(merged)) {
+      return null
     }
-    return null
-  }, [browseKeyFromUrl])
+    return playHrefFromMergedBrowse(e, merged)
+  }, [browseKeyFromUrl, draft])
 
   const selectedVariantId = useMemo(() => {
     if (!browseKeyFromUrl) return null
@@ -116,6 +139,76 @@ export default function CreatePage() {
     if (searchParams.toString() !== '') return
     navigate({ pathname: '/create', search: defaultBrowseSearch }, { replace: true })
   }, [isEditMode, searchParams, navigate, defaultBrowseSearch])
+
+  /** Apply rules from Browse “Configure” (`fromBrowse=1` + query). */
+  useEffect(() => {
+    if (isEditMode) return
+    if (searchParams.get('fromBrowse') !== '1') return
+
+    const num = (k: string, min: number, max: number, fallback: number) => {
+      const v = Number(searchParams.get(k))
+      return Number.isFinite(v) && v >= min && v <= max ? v : fallback
+    }
+
+    const wl = num('wl', 2, 12, 5)
+    const ladderEnabled = searchParams.get('ld') === '1'
+    const ladderLo = num('lo', 2, 12, 3)
+    const ladderHi = num('hi', 2, 12, 7)
+    const ladderMode = searchParams.get('ladv') === 'wrap' ? 'wrap' : 'stop'
+    const maxGuesses = num('mg', 1, 99, 6)
+    const maxSessionRounds = num('msr', 1, 999, 1)
+    const tlRaw = searchParams.get('tl')
+    const timeLimitSeconds =
+      tlRaw != null && tlRaw !== ''
+        ? num('tl', 5, 3600, 60)
+        : null
+    const wordSource = searchParams.get('ws') === 'custom' ? 'custom' : 'dictionary'
+    const customWordOrder = searchParams.get('co') === 'sequential' ? 'sequential' : 'random'
+    const allowNonDictionary = searchParams.get('nd') === '1'
+    const lockRevealedGreens = searchParams.get('lock') === '1'
+    const forbidAbsentLetters = searchParams.get('fab') === '1'
+
+    setDraft((d) => ({
+      ...d,
+      wordLength: wl,
+      ladderEnabled,
+      ladderLo,
+      ladderHi,
+      ladderMode,
+      maxGuesses,
+      maxSessionRounds,
+      timeLimitSeconds,
+      wordSource,
+      customWordOrder,
+      allowNonDictionary,
+      lockRevealedGreens,
+      forbidAbsentLetters,
+    }))
+
+    if (wordSource === 'custom') {
+      try {
+        const raw = sessionStorage.getItem(CREATE_BROWSE_WORDS_KEY)
+        if (raw) {
+          const arr = JSON.parse(raw) as unknown
+          if (Array.isArray(arr)) {
+            setCustomWordsText(arr.map((x) => String(x)).join('\n'))
+          }
+          sessionStorage.removeItem(CREATE_BROWSE_WORDS_KEY)
+        }
+      } catch {
+        /* ignore */
+      }
+    }
+
+    const next = new URLSearchParams()
+    const kind = searchParams.get('browseKind')
+    if (kind) next.set('browseKind', kind)
+    const bid = searchParams.get('browseId')
+    if (bid) next.set('browseId', bid)
+    const bb = searchParams.get('browseBoards')
+    if (bb != null && bb !== '') next.set('browseBoards', bb)
+    navigate({ pathname: location.pathname, search: next.toString() }, { replace: true })
+  }, [isEditMode, searchParams, location.pathname, navigate])
 
   useEffect(() => {
     if (!isEditMode) {
@@ -317,14 +410,21 @@ export default function CreatePage() {
                 </optgroup>
               </select>
             </label>
-            {selectedPlayHref && (
+            {selectedPlayHref ? (
               <p className="create-page-play-hint">
                 <Link className="my-variants-page-link" to={selectedPlayHref}>
                   Play this variant
                 </Link>{' '}
-                — same default as Browse quick add (5 letters, ladder off). Change length and ladder from My hub after
-                adding a pin.
+                — uses the rules above (letters, ladder, guesses, restrictions). Custom lists / timer / multi-round use
+                Browse <strong>Play</strong> or a hub pin.
               </p>
+            ) : (
+              browseKeyFromUrl && (
+                <p className="create-page-play-hint">
+                  This combo uses the session player (custom list, timer, multi-round, or ladder wrap). Use{' '}
+                  <strong>Play</strong> on Browse or play from <Link to="/">My hub</Link>.
+                </p>
+              )
             )}
           </div>
 

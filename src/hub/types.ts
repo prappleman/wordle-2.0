@@ -1,3 +1,21 @@
+import type { CustomWordOrder, CustomWordSource } from '../variants/customPreset'
+import type { LadderAdvanceMode } from '../variants/ladderRange'
+
+/** Extra rules saved from Browse JSON (mirrors Create / custom preset). */
+export type HubPinGameExtras = {
+  maxGuesses?: number
+  maxSessionRounds?: number
+  timeLimitSeconds?: number | null
+  wordSource?: CustomWordSource
+  customWordOrder?: CustomWordOrder
+  customWords?: string[]
+  allowNonDictionary?: boolean
+  lockRevealedGreens?: boolean
+  forbidAbsentLetters?: boolean
+  /** Ladder wrap vs stop when pin ladder is on (not the same as `ladderMode` on/off). */
+  ladderAdvance?: LadderAdvanceMode
+}
+
 /** Persisted hub shortcut (localStorage). */
 export type HubPinSettingsBase = {
   ladderMode: boolean
@@ -12,6 +30,7 @@ export type HubPinLengthGroup = {
   title: string
   description: string
   wordLength: number
+  gameExtras?: HubPinGameExtras
 } & HubPinSettingsBase
 
 export type HubPinMultiGrid = {
@@ -22,6 +41,7 @@ export type HubPinMultiGrid = {
   boardCount: number
   /** Word length when not in ladder mode (multi-${n}-${boards}). */
   wordLength: number
+  gameExtras?: HubPinGameExtras
 } & HubPinSettingsBase
 
 export type HubPin = HubPinLengthGroup | HubPinMultiGrid

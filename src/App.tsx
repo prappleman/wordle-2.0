@@ -8,6 +8,7 @@ import CreatePage from './pages/CreatePage'
 import MyHubPage from './pages/MyHubPage'
 import SettingsPage from './pages/SettingsPage'
 import { PlayPage } from './pages/PlayPage'
+import BrowseSessionPlayPage from './pages/BrowseSessionPlayPage'
 import CustomGameScreen from './pages/CustomGameScreen'
 import './App.css'
 
@@ -27,6 +28,7 @@ export default function App() {
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
           <Route path="/play/my/:presetId" element={<CustomGameScreen />} />
+          <Route path="/play/browse-session" element={<BrowseSessionPlayPage />} />
           <Route path="/play/:variantId" element={<PlayPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

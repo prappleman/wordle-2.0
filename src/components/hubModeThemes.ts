@@ -77,6 +77,20 @@ export function hubAccentForSectionCategory(category: string): HubAccent {
   return 'y'
 }
 
+/** Browse page section headings → card border accent */
+const BROWSE_PAGE_CATEGORY_ACCENT: Record<string, HubAccent> = {
+  Classic: 'g',
+  Visibility: 'y',
+  Constraints: 'y',
+  'Board Mods': 'y',
+  Puzzle: 'y',
+  Multi: 'r',
+}
+
+export function hubAccentForBrowseCategory(category: string): HubAccent {
+  return BROWSE_PAGE_CATEGORY_ACCENT[category] ?? 'y'
+}
+
 export function getHubModeTheme(modeKey: string, accent?: HubAccent): HubModeTheme {
   const tilePreset = MAP[modeKey] ?? 'wordle'
   const acc = accent ?? hubAccentForIdPrefix(modeKey)
