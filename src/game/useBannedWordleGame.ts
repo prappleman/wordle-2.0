@@ -126,15 +126,9 @@ export function useBannedWordleGame(config: ClassicGameConfig) {
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
-      const ban = guesses.length < maxGuesses - 1 ? bannedLetter : ''
-      if (ban && c === ban) {
-        setShake(true)
-        window.setTimeout(() => setShake(false), 450)
-        return
-      }
       setBuffer((b) => b + c)
     },
-    [bannedLetter, buffer.length, guesses.length, maxGuesses, phase, wordLength],
+    [buffer.length, phase, wordLength],
   )
 
   const backspace = useCallback(() => {

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { PlayScreenBackLink } from './PlayScreenBackLink'
 import { WordleGrid } from './WordleGrid'
 import { WordleKeyboard } from './WordleKeyboard'
 import { useWordleGame, type GamePhase } from '../game/useWordleGame'
@@ -223,9 +223,7 @@ export function CustomPresetPlayView({ preset, variant = 'page' }: CustomPresetP
             Test
           </span>
         ) : (
-          <Link to="/my-variants" className="classic-screen-back">
-            ← My variants
-          </Link>
+          <PlayScreenBackLink className="classic-screen-back" />
         )}
         <h1 className="classic-screen-title">{preset.name}</h1>
         <button type="button" className="classic-screen-new" onClick={resetSession}>

@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, Navigate, useParams } from 'react-router-dom'
+import { Navigate, useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
@@ -69,9 +70,7 @@ function LadderMultiRound({
   return (
     <div className="multi-wordle" data-boards={String(boardCount)}>
       <header className="multi-wordle-header">
-        <Link to="/" className="multi-wordle-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="multi-wordle-back" />
         <h1 className="multi-wordle-title">{title}</h1>
         <button
           type="button"

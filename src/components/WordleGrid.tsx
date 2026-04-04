@@ -1,6 +1,16 @@
+import type { CSSProperties } from 'react'
 import type { GuessRow } from '../game/useWordleGame'
 import type { LetterFeedback } from '../variants/types'
 import './WordleGrid.css'
+
+function misleadingTileColumn(g: GuessRow | undefined): number | null {
+  if (g?.misleadingTileIndex != null) return g.misleadingTileIndex
+  if (!g?.displayFeedback) return null
+  for (let idx = 0; idx < g.feedback.length; idx++) {
+    if (g.displayFeedback[idx] !== g.feedback[idx]) return idx
+  }
+  return null
+}
 
 function tileClass(
   feedback: LetterFeedback | undefined,
@@ -110,6 +120,19 @@ export interface WordleGridProps {
    * When set for the active row, used instead of `buffer` + expandBlockedMulti.
    */
   typingRowCellsOverride?: string | null
+  /** Banned Wordle: red border on typing-row tiles that contain this letter. */
+  typingRowBannedLetter?: string | null
+  /** Forced letter: green border on typing-row tiles that contain this letter. */
+  typingRowForcedLetter?: string | null
+  /**
+   * Locked letter: required letter at a fixed column on the typing row (hint until typed).
+   * When set, do not pass `typingRowForcedLetter` for the same row.
+   */
+  typingRowForcedSlot?: { index: number; letter: string } | null
+  /** Misleading tile mode: show an × on the one lying tile per submitted row. */
+  misleadingTileMarker?: boolean
+  /** When set, that guess row’s tiles play a short left-to-right reveal (e.g. misleading mode). */
+  staggerFeedbackRevealRowIndex?: number | null
 }
 
 export function WordleGrid({
@@ -133,6 +156,11 @@ export function WordleGrid({
   pickSkipSelection = null,
   pickSkipMaxRowExclusive,
   typingRowCellsOverride = null,
+  typingRowBannedLetter = null,
+  typingRowForcedLetter = null,
+  typingRowForcedSlot = null,
+  misleadingTileMarker = false,
+  staggerFeedbackRevealRowIndex = null,
 }: WordleGridProps) {
   const slotReverse = reverseSlots != null && reverseSlots.length > 0
   const slotCount = slotReverse ? reverseSlots!.length : 0
@@ -248,6 +276,17 @@ export function WordleGrid({
       }
     }
 
+  const bannedLetterUpper =
+    typingRowBannedLetter && typingRowBannedLetter.length === 1
+      ? typingRowBannedLetter.toUpperCase()
+      : ''
+  const forcedLetterUpper =
+    typingRowForcedLetter && typingRowForcedLetter.length === 1
+      ? typingRowForcedLetter.toUpperCase()
+      : ''
+
+  const typingRowActive = phase === 'playing' && !slotReverse
+
   return (
     <div
       className={`wordle-grid ${shake ? 'wordle-grid--shake' : ''}`}
@@ -258,9 +297,29 @@ export function WordleGrid({
       {rows.map((row, ri) => (
         <div key={ri} className="wordle-row" role="row">
           {Array.from({ length: row.colCount }, (_, i) => {
-            const ch = row.cells[i] ?? ' '
+            let ch = row.cells[i] ?? ' '
             const blockedSet = row.blockedIndices ? new Set(row.blockedIndices) : null
             const isBlocked = blockedSet ? blockedSet.has(i) : false
+            let forcedSlotHint = false
+            if (
+              typingRowForcedSlot &&
+              typingRowActive &&
+              ri === currentRow &&
+              (!row.blockedIndices || row.blockedIndices.length === 0) &&
+              i === typingRowForcedSlot.index
+            ) {
+              const fi = typingRowForcedSlot.index
+              const fl = typingRowForcedSlot.letter.toUpperCase()
+              const typedAt = fi < buffer.length ? buffer[fi]!.toUpperCase() : ''
+              if (typedAt) {
+                ch = typedAt
+              } else if (buffer.length <= fi) {
+                ch = fl
+                forcedSlotHint = true
+              } else {
+                ch = ' '
+              }
+            }
             const filled = ch.trim().length > 0
             let fb = row.feedback?.[i]
             if (hideFeedbackForRow?.(ri)) {
@@ -281,8 +340,37 @@ export function WordleGrid({
               neutralSubmittedTiles && rowIsFilledGuess && row.feedback !== undefined
             const hideLetter =
               hideLettersForSubmittedRows && rowIsFilledGuess && row.feedback !== undefined
+            const chLetter = filled ? ch.trim().toUpperCase() : ''
+            const banHighlight =
+              Boolean(bannedLetterUpper) &&
+              phase === 'playing' &&
+              ri === currentRow &&
+              filled &&
+              chLetter === bannedLetterUpper
+            let forcedHighlight = false
+            if (
+              typingRowForcedSlot &&
+              typingRowActive &&
+              ri === currentRow &&
+              i === typingRowForcedSlot.index
+            ) {
+              const fl = typingRowForcedSlot.letter.toUpperCase()
+              const fi = typingRowForcedSlot.index
+              const typedAt = fi < buffer.length ? buffer[fi]!.toUpperCase() : ''
+              forcedHighlight = forcedSlotHint || typedAt === fl
+            } else {
+              forcedHighlight =
+                Boolean(forcedLetterUpper) &&
+                phase === 'playing' &&
+                ri === currentRow &&
+                filled &&
+                chLetter === forcedLetterUpper
+            }
             const tileCls = [
               tileClass(fb, filled, useNeutral, isBlocked),
+              banHighlight ? 'wordle-tile--banned-reject' : '',
+              forcedHighlight ? 'wordle-tile--forced-letter' : '',
+              forcedSlotHint ? 'wordle-tile--forced-slot-hint' : '',
               isPickSkipRow && ri === currentRow && i < wordLength ? 'wordle-tile--pick-skip' : '',
               isPickSkipRow &&
               ri === currentRow &&
@@ -294,12 +382,39 @@ export function WordleGrid({
               .filter(Boolean)
               .join(' ')
             const showPick = isPickSkipRow && ri === currentRow && i < wordLength
-            const inner = hideLetter ? '' : filled ? ch : ''
+            const inner = hideLetter ? '' : filled ? ch.trim() : ''
+            const misCol =
+              misleadingTileMarker &&
+              !slotReverse &&
+              rowIsFilledGuess &&
+              ri < guesses.length
+                ? misleadingTileColumn(guesses[ri])
+                : null
+            const showMisleadingX = misCol === i && !isBlocked
+            const feedbackRevealStagger =
+              staggerFeedbackRevealRowIndex != null &&
+              ri === staggerFeedbackRevealRowIndex &&
+              rowIsFilledGuess &&
+              fb !== undefined &&
+              !isBlocked &&
+              !hideFeedbackForRow?.(ri) &&
+              !useNeutral
+            const staggerStyle: CSSProperties | undefined = feedbackRevealStagger
+              ? { animationDelay: `${i * 75}ms` }
+              : undefined
+            const tileClsWithMis = [
+              tileCls,
+              showMisleadingX ? 'wordle-tile--misleading-overlay' : '',
+              feedbackRevealStagger ? 'wordle-tile--feedback-reveal-stagger' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')
             if (showPick && pickSkipColumn) {
               return (
                 <div
                   key={i}
-                  className={tileCls}
+                  className={tileClsWithMis}
+                  style={staggerStyle}
                   role="button"
                   aria-label={
                     pickSkipSelection === i
@@ -314,12 +429,32 @@ export function WordleGrid({
                   onClick={() => pickSkipColumn(i)}
                 >
                   {inner}
+                  {showMisleadingX ? (
+                    <span className="wordle-tile-misleading-x" aria-hidden>
+                      ×
+                    </span>
+                  ) : null}
                 </div>
               )
             }
             return (
-              <div key={i} className={tileCls} role="gridcell">
+              <div
+                key={i}
+                className={tileClsWithMis}
+                style={staggerStyle}
+                role="gridcell"
+                aria-label={
+                  showMisleadingX
+                    ? `Column ${i + 1}: letter ${filled ? ch.trim().toUpperCase() : 'empty'}. Color may be wrong (marked with ×).`
+                    : undefined
+                }
+              >
                 {inner}
+                {showMisleadingX ? (
+                  <span className="wordle-tile-misleading-x" aria-hidden>
+                    ×
+                  </span>
+                ) : null}
               </div>
             )
           })}

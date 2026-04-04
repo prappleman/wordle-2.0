@@ -1,31 +1,9 @@
 import { useCallback, useMemo, useState } from 'react'
-import { useWinRevealTimer } from './useWinRevealTimer'
 import { scoreGuess } from './engine'
-import type { GuessRow } from './useWordleGame'
 import type { ClassicGameConfig } from '../variants/types'
+import type { GuessRow } from './useWordleGame'
 
-export function streakBestStorageKey(variantId: string): string {
-  return `wordle-hub-streak-best-${variantId}`
-}
-
-function readBest(key: string): number {
-  try {
-    const v = localStorage.getItem(key)
-    if (v === null) return 0
-    const n = Number.parseInt(v, 10)
-    return Number.isFinite(n) ? n : 0
-  } catch {
-    return 0
-  }
-}
-
-function writeBest(key: string, n: number) {
-  try {
-    localStorage.setItem(key, String(n))
-  } catch {
-    /* ignore */
-  }
-}
+export type LockedLetterPhase = 'playing' | 'won' | 'lost'
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -35,9 +13,16 @@ function pickTarget(words: readonly string[], wordLength: number): string {
   return pool[Math.floor(Math.random() * pool.length)]!.toUpperCase()
 }
 
-export function useStreakGame(config: ClassicGameConfig & { variantId: string }) {
-  const { words, wordLength, maxGuesses, variantId } = config
-  const bestKey = streakBestStorageKey(variantId)
+/** Random (index, letter) from a random valid word—guarantees some word matches that slot. */
+function pickForcedSlot(validSet: ReadonlySet<string>, wordLength: number): { index: number; letter: string } {
+  const arr = [...validSet]
+  const w = arr[Math.floor(Math.random() * arr.length)]!.toUpperCase()
+  const index = Math.floor(Math.random() * wordLength)
+  return { index, letter: w[index]! }
+}
+
+export function useLockedLetterGame(config: ClassicGameConfig) {
+  const { words, wordLength, maxGuesses } = config
 
   const validSet = useMemo(() => {
     const s = new Set<string>()
@@ -50,31 +35,37 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
   }, [words, wordLength])
 
   const [target, setTarget] = useState(() => pickTarget(words, wordLength))
-  const [guesses, setGuesses] = useState<GuessRow[]>([])
   const [buffer, setBuffer] = useState('')
-  const [phase, setPhase] = useState<'playing' | 'won' | 'lost'>('playing')
+  const [guesses, setGuesses] = useState<GuessRow[]>([])
+  const [phase, setPhase] = useState<LockedLetterPhase>('playing')
   const [shake, setShake] = useState(false)
-  const [streak, setStreak] = useState(0)
-  const [best, setBest] = useState(() => readBest(bestKey))
-  const [revealLock, setRevealLock] = useState(false)
-  const { schedule: scheduleWinReveal, clear: clearWinReveal } = useWinRevealTimer()
+  const [forcedSlot, setForcedSlot] = useState<{ index: number; letter: string } | null>(() =>
+    maxGuesses <= 1 ? null : pickForcedSlot(validSet, wordLength),
+  )
 
-  const newRun = useCallback(() => {
-    clearWinReveal()
-    setRevealLock(false)
+  const newGame = useCallback(() => {
     setTarget(pickTarget(words, wordLength))
-    setGuesses([])
     setBuffer('')
+    setGuesses([])
     setPhase('playing')
     setShake(false)
-    setStreak(0)
-  }, [clearWinReveal, words, wordLength])
+    setForcedSlot(maxGuesses <= 1 ? null : pickForcedSlot(validSet, wordLength))
+  }, [words, wordLength, maxGuesses, validSet])
+
+  const currentRow = guesses.length
+  const needsForcedSlot = currentRow < maxGuesses - 1
 
   const submit = useCallback(() => {
-    if (phase !== 'playing' || revealLock) return
+    if (phase !== 'playing') return
     const g = buffer.toUpperCase()
     if (g.length !== wordLength) return
     if (!validSet.has(g)) {
+      setShake(true)
+      window.setTimeout(() => setShake(false), 450)
+      return
+    }
+    const bypassForced = !needsForcedSlot || g === target
+    if (!bypassForced && forcedSlot && g[forcedSlot.index] !== forcedSlot.letter) {
       setShake(true)
       window.setTimeout(() => setShake(false), 450)
       return
@@ -87,47 +78,46 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
     setBuffer('')
 
     if (g === target) {
-      setRevealLock(true)
-      scheduleWinReveal(() => {
-        setStreak((s) => {
-          const ns = s + 1
-          setBest((b) => {
-            if (ns > b) {
-              writeBest(bestKey, ns)
-              return ns
-            }
-            return b
-          })
-          return ns
-        })
-        setTarget(pickTarget(words, wordLength))
-        setGuesses([])
-        setPhase('playing')
-        setRevealLock(false)
-      })
+      setPhase('won')
       return
     }
-
     if (next.length >= maxGuesses) {
       setPhase('lost')
+      return
     }
-  }, [buffer, guesses, maxGuesses, phase, target, validSet, wordLength, words, bestKey])
+    const nextRow = next.length
+    if (nextRow < maxGuesses - 1) {
+      setForcedSlot(pickForcedSlot(validSet, wordLength))
+    } else {
+      setForcedSlot(null)
+    }
+  }, [
+    buffer,
+    forcedSlot,
+    guesses,
+    maxGuesses,
+    needsForcedSlot,
+    phase,
+    target,
+    validSet,
+    wordLength,
+  ])
 
   const addLetter = useCallback(
     (ch: string) => {
-      if (phase !== 'playing' || revealLock) return
+      if (phase !== 'playing') return
       const c = ch.toUpperCase()
       if (!/^[A-Z]$/.test(c)) return
       if (buffer.length >= wordLength) return
       setBuffer((b) => b + c)
     },
-    [buffer.length, phase, revealLock, wordLength],
+    [buffer.length, phase, wordLength],
   )
 
   const backspace = useCallback(() => {
-    if (phase !== 'playing' || revealLock) return
+    if (phase !== 'playing') return
     setBuffer((b) => b.slice(0, -1))
-  }, [phase, revealLock])
+  }, [phase])
 
   const onPhysicalKey = useCallback(
     (key: string) => {
@@ -146,23 +136,22 @@ export function useStreakGame(config: ClassicGameConfig & { variantId: string })
     [addLetter, backspace, submit],
   )
 
-  const inputLocked = phase !== 'playing' || revealLock
-
   return {
     target,
     guesses,
     buffer,
     phase,
     shake,
-    inputLocked,
-    streak,
-    best,
-    newRun,
+    inputLocked: phase !== 'playing',
+    newGame,
     submit,
     addLetter,
     backspace,
     onPhysicalKey,
     wordLength,
     maxGuesses,
+    forcedSlot,
+    forcedHighlightKey:
+      needsForcedSlot && forcedSlot ? forcedSlot.letter : null,
   }
 }

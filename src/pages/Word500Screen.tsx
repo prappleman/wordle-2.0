@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useWord500Game, type TileNote } from '../game/useWord500Game'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
@@ -98,9 +99,7 @@ export default function Word500Screen() {
   return (
     <div className="word500">
       <header className="word500-header">
-        <Link to="/" className="word500-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="word500-back" />
         <h1 className="word500-title">Word 500 ({wordLength})</h1>
         <button type="button" className="word500-new" onClick={game.newGame}>
           New word

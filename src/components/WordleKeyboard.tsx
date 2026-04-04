@@ -16,11 +16,11 @@ interface WordleKeyboardProps {
   letterHints?: Map<string, LetterFeedback>
   /** Extra keys to show as absent (gray), e.g. Word 500 letters ruled out by an all-red guess. */
   absentKeys?: Iterable<string>
-  /** Banned letter (cannot be used this guess); key is disabled and highlighted. */
+  /** Banned letter this round: gray key + red outline; guess can’t include it on Enter. */
   bannedKey?: string | null
   /** Letters in this word get a white outline (e.g. answer letters); use with `plain` for no score colors. */
   wordLetterOutline?: string | null
-  /** One key filled white (e.g. forced-letter mode). Takes precedence over score colors for that key. */
+  /** Forced-letter mode: this key gets an extra outline; fill still follows score colors. */
   forcedHighlightKey?: string | null
 }
 
@@ -79,18 +79,18 @@ export function WordleKeyboard({
             const fb = hints.get(ch)
             const forced =
               forcedHighlightKey && ch.toUpperCase() === forcedHighlightKey.toUpperCase()
+            const ban = Boolean(bannedKey && ch.toUpperCase() === bannedKey.toUpperCase())
             const cls = ['wordle-key']
-            if (forced) cls.push('wordle-key--forced-white')
+            if (ban) cls.push('wordle-key--absent', 'wordle-key--banned')
             else if (fb) cls.push(`wordle-key--${fb}`)
-            const ban = bannedKey && ch.toUpperCase() === bannedKey.toUpperCase()
-            if (ban) cls.push('wordle-key--banned')
+            if (forced) cls.push('wordle-key--forced-outline')
             if (outlineSet?.has(ch.toUpperCase())) cls.push('wordle-key--word-outline')
             return (
               <button
                 key={ch}
                 type="button"
                 className={cls.join(' ')}
-                disabled={disabled || Boolean(ban)}
+                disabled={disabled}
                 onClick={() => onKey(ch)}
               >
                 {ch}

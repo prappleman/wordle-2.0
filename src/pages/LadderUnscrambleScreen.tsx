@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
@@ -58,9 +59,7 @@ function UnscrambleRound({
   return (
     <div className="unscramble-screen">
       <header className="unscramble-screen-header">
-        <Link to="/" className="unscramble-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="unscramble-screen-back" />
         <h1 className="unscramble-screen-title">Unscramble ({length}) · Ladder</h1>
         <button
           type="button"

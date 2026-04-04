@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useUnscrambleGame } from '../game/useUnscrambleGame'
@@ -56,9 +57,7 @@ export default function UnscrambleScreen() {
   return (
     <div className="unscramble-screen">
       <header className="unscramble-screen-header">
-        <Link to="/" className="unscramble-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="unscramble-screen-back" />
         <h1 className="unscramble-screen-title">Unscramble ({wordLength})</h1>
         <button type="button" className="unscramble-screen-new" onClick={game.newGame}>
           New word

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordChainBoard } from '../components/WordChainBoard'
 import { WordChainOptimalModal } from '../components/WordChainOptimalModal'
 import { WordleKeyboard } from '../components/WordleKeyboard'
@@ -55,9 +56,7 @@ function WordChainRound({
   return (
     <div className="word-chain-screen">
       <header className="word-chain-screen-header">
-        <Link to="/" className="word-chain-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="word-chain-screen-back" />
         <h1 className="word-chain-screen-title">Word chain ({length}) · Ladder</h1>
         <button
           type="button"

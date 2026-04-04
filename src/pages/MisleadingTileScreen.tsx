@@ -1,8 +1,9 @@
 import { useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
-import { keyboardLetterHintsMisleading } from '../components/keyboardHints'
+import { keyboardLetterHints } from '../components/keyboardHints'
 import { useMisleadingTileGame } from '../game/useMisleadingTileGame'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
 import './MisleadingTileScreen.css'
@@ -32,10 +33,7 @@ export default function MisleadingTileScreen() {
 
   const keyboardDisabled = game.inputLocked
 
-  const keyboardHints = useMemo(
-    () => keyboardLetterHintsMisleading(game.guesses),
-    [game.guesses],
-  )
+  const keyboardHints = useMemo(() => keyboardLetterHints(game.guesses), [game.guesses])
 
   const onScreenKey = (key: string) => {
     if (key === 'Enter') {
@@ -52,9 +50,7 @@ export default function MisleadingTileScreen() {
   return (
     <div className="misleading-screen">
       <header className="misleading-screen-header">
-        <Link to="/" className="misleading-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="misleading-screen-back" />
         <h1 className="misleading-screen-title">Misleading Tile ({wordLength})</h1>
         <button type="button" className="misleading-screen-new" onClick={game.newGame}>
           New word
@@ -62,8 +58,9 @@ export default function MisleadingTileScreen() {
       </header>
 
       <p className="misleading-screen-hint">
-        One tile per guess lies about its color. The keyboard matches those tile colors; if a letter
-        shows both green and grey across the board, that key stays uncolored.
+        One tile per guess lies about its color. Early guesses try to lie on green, yellow, and gray at least
+        once when possible. The keyboard uses true Wordle hints (same as classic). Compare each letter’s tile to
+        its key—when they disagree, that tile is the misleading one.
       </p>
 
       {game.phase === 'won' && (
@@ -82,6 +79,7 @@ export default function MisleadingTileScreen() {
         buffer={game.buffer}
         phase={game.phase}
         shake={game.shake}
+        staggerFeedbackRevealRowIndex={game.revealStaggerRowIndex}
       />
 
       <WordleKeyboard

@@ -66,10 +66,26 @@
   color: var(--wordle-tile-ink, #fff);
   background: var(--wordle-tile-empty, transparent);
   box-sizing: border-box;
+  box-shadow: none;
+  outline: none;
 }
 
 .wordle-tile--typing {
   border-color: var(--wordle-border-strong, #565758);
+}
+
+/* Red border only (no outer box-shadow — extra ring left a thin line after backspace in some browsers). */
+.wordle-tile--banned-reject {
+  border-color: var(--word500-red, #e05555);
+}
+
+.wordle-tile--forced-letter {
+  border-color: var(--wordle-correct, #6aaa64);
+}
+
+.wordle-tile--forced-slot-hint {
+  color: var(--hub-muted, #9ca3af);
+  font-style: italic;
 }
 
 .wordle-tile--correct {
@@ -109,6 +125,47 @@
     transparent 5px
   );
   opacity: 0.65;
+}
+
+/* Staggered reveal for newest guess row (misleading mode): colors pop in left-to-right */
+@keyframes wordle-tile-feedback-reveal {
+  0% {
+    filter: brightness(0.42) saturate(0.8);
+    transform: scale(0.93);
+  }
+  55% {
+    filter: brightness(1.08) saturate(1.02);
+  }
+  100% {
+    filter: brightness(1) saturate(1);
+    transform: scale(1);
+  }
+}
+
+.wordle-tile--feedback-reveal-stagger {
+  animation: wordle-tile-feedback-reveal 0.42s ease both;
+}
+
+/* Misleading tile: × marks the one wrong color per row; contrast on green / yellow / gray */
+.wordle-tile--misleading-overlay {
+  position: relative;
+}
+
+.wordle-tile-misleading-x {
+  position: absolute;
+  top: 2px;
+  right: 3px;
+  font-weight: 900;
+  font-size: clamp(0.78rem, 3vw, 1.05rem);
+  line-height: 1;
+  color: #f6f6f7;
+  text-shadow:
+    0 0 2px #121213,
+    0 1px 2px #121213,
+    1px 0 1px #121213,
+    -1px 0 1px #121213;
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Narrower tiles so seven-letter rows fit small viewports */

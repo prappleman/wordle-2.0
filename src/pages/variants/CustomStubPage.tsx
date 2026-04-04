@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { PlayScreenBackLink } from '../../components/PlayScreenBackLink'
 import './CustomStubPage.css'
 
 export default function CustomStubPage() {
@@ -9,9 +9,7 @@ export default function CustomStubPage() {
         This route is a stub for modes that do not use the classic grid. Replace this screen with
         your own component and keep the entry in <code>variants/registry.ts</code>.
       </p>
-      <Link to="/" className="custom-stub-link">
-        ← Back to hub
-      </Link>
+      <PlayScreenBackLink className="custom-stub-link" />
     </div>
   )
 }

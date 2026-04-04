@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
 import { LadderRoundMeta } from '../components/LadderRoundMeta'
@@ -117,9 +118,7 @@ function Word500Round({
   return (
     <div className="word500">
       <header className="word500-header">
-        <Link to="/" className="word500-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="word500-back" />
         <h1 className="word500-title">Word 500 ({wordLength}) · Ladder</h1>
         <button
           type="button"

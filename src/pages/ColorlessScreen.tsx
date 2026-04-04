@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useColorlessGame } from '../game/useColorlessGame'
 import { useBrowsePlayConfig } from '../play/useBrowsePlayConfig'
@@ -77,9 +78,7 @@ export default function ColorlessScreen() {
   return (
     <div className="colorless-screen">
       <header className="colorless-screen-header">
-        <Link to="/" className="colorless-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="colorless-screen-back" />
         <h1 className="colorless-screen-title">Colorless ({wordLength})</h1>
         <button type="button" className="colorless-screen-new" onClick={game.newGame}>
           New word

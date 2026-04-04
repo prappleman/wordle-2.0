@@ -7,10 +7,12 @@ export const HUB_WORD_LENGTHS = HUB_PLAY_LENGTHS
 export const HUB_CATEGORY_CLASSIC = 'Classic'
 export const HUB_CATEGORY_MULTI = 'Multi'
 export const HUB_CATEGORY_VARIANTS = 'Variants'
+export const HUB_CATEGORY_SWAP = 'Swap'
 
 const CAT_CLASSIC = HUB_CATEGORY_CLASSIC
 const CAT_MULTI = HUB_CATEGORY_MULTI
 const CAT_VARIANTS = HUB_CATEGORY_VARIANTS
+const CAT_SWAP = HUB_CATEGORY_SWAP
 
 export type HubItem =
   | { kind: 'single'; id: string }
@@ -43,14 +45,6 @@ export const HUB_SECTIONS: HubSection[] = [
       },
       {
         kind: 'lengthGroup',
-        idPrefix: 'streak',
-        title: 'Streak',
-        description:
-          'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
-        tags: ['streak', '5 letters'],
-      },
-      {
-        kind: 'lengthGroup',
         idPrefix: 'zen',
         title: 'Zen',
         description:
@@ -64,6 +58,14 @@ export const HUB_SECTIONS: HubSection[] = [
         description:
           'Like Zen, but wins chain instantly with no pause—endless relaxed practice.',
         tags: ['zen', 'endless', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'infinite',
+        title: 'Infinite',
+        description:
+          'Sliding answers. Guess up to six times per round; when you solve, the last two guesses slide away and a new answer appears.',
+        tags: ['endless', '5 letters'],
       },
     ],
   },
@@ -80,11 +82,11 @@ export const HUB_SECTIONS: HubSection[] = [
       },
       {
         kind: 'lengthGroup',
-        idPrefix: 'unscramble',
-        title: 'Unscramble',
+        idPrefix: 'reverse',
+        title: 'Reverse',
         description:
-          'Green row shows word length only; letters not in the answer are dimmed on the keyboard. Three guesses.',
-        tags: ['unscramble', '5 letters'],
+          'Answer is known. Match any open row’s pattern to clear it; beat the timer as you finish the board.',
+        tags: ['puzzle', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -96,19 +98,19 @@ export const HUB_SECTIONS: HubSection[] = [
       },
       {
         kind: 'lengthGroup',
-        idPrefix: 'misleading',
-        title: 'Misleading Tile',
+        idPrefix: 'unscramble',
+        title: 'Unscramble',
         description:
-          'Exactly one wrong tile per guess. Keyboard matches those colors; conflicting green/grey for a letter leaves the key blank. Ten guesses.',
-        tags: ['hard', '5 letters'],
+          'Green row shows word length only; letters not in the answer are dimmed on the keyboard. Three guesses.',
+        tags: ['unscramble', '5 letters'],
       },
       {
         kind: 'lengthGroup',
-        idPrefix: 'infinite',
-        title: 'Infinite',
+        idPrefix: 'alternating-duet',
+        title: 'Alternating',
         description:
-          'Sliding answers. Guess up to six times per round; when you solve, the last two guesses slide away and a new answer appears.',
-        tags: ['endless', '5 letters'],
+          'One board, two hidden words. Odd guesses score Word A, even score Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
+        tags: ['dual', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -123,7 +125,7 @@ export const HUB_SECTIONS: HubSection[] = [
         idPrefix: 'banned',
         title: 'Banned',
         description:
-          'Normal Wordle with one banned common letter per guess (except the last). Bans avoid letters in the answer.',
+          'Normal Wordle with one banned common letter per guess (except the last). The ban shows gray on the keyboard (like a letter not in the word); tiles with the ban get a red outline as you type. Enter won’t submit until it’s gone.',
         tags: ['ban', '5 letters'],
       },
       {
@@ -144,27 +146,11 @@ export const HUB_SECTIONS: HubSection[] = [
       },
       {
         kind: 'lengthGroup',
-        idPrefix: 'locked',
-        title: 'Locked',
-        description:
-          'One letter locked to one position; infinite tries until the timer ends. Score vs total possible words.',
-        tags: ['timer', '5 letters'],
-      },
-      {
-        kind: 'lengthGroup',
-        idPrefix: 'reverse',
-        title: 'Reverse',
-        description:
-          'Answer is known. Match any open row’s pattern to clear it; clock runs—beat your time.',
-        tags: ['puzzle', '5 letters'],
-      },
-      {
-        kind: 'lengthGroup',
-        idPrefix: 'blocked',
-        title: 'Blocked',
+        idPrefix: 'wildcard',
+        title: 'Wildcard',
         description:
           'One wildcard tile per row—type the rest; any dictionary word that fits is a valid guess.',
-        tags: ['blocked', '5 letters'],
+        tags: ['wildcard', '5 letters'],
       },
       {
         kind: 'lengthGroup',
@@ -176,10 +162,34 @@ export const HUB_SECTIONS: HubSection[] = [
       },
       {
         kind: 'lengthGroup',
+        idPrefix: 'misleading',
+        title: 'Misleading Tile',
+        description:
+          'Exactly one wrong tile per guess. Keyboard matches those colors; conflicting green/grey for a letter leaves the key blank. Ten guesses.',
+        tags: ['hard', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'repeat',
+        title: 'Repeat',
+        description:
+          'Same letter in the same position every guess; infinite tries until the timer ends. Score vs total possible words.',
+        tags: ['timer', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
         idPrefix: 'forced-letter',
         title: 'Forced letter',
         description:
           'Each guess (except the last) must include a random letter anywhere; the letter changes after every guess (white key).',
+        tags: ['constraint', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'locked-letter',
+        title: 'Locked letter',
+        description:
+          'Like forced letter, but the required letter must sit in a random column each guess (green slot on the board and key).',
         tags: ['constraint', '5 letters'],
       },
       {
@@ -190,13 +200,42 @@ export const HUB_SECTIONS: HubSection[] = [
           'Target and every guess must use at least one letter twice (pools, snags, …). Length 2–12 (not 1).',
         tags: ['repeat', '5 letters'],
       },
+    ],
+  },
+  {
+    category: CAT_SWAP,
+    items: [
       {
         kind: 'lengthGroup',
-        idPrefix: 'alternating-duet',
-        title: 'Alternating',
+        idPrefix: 'square',
+        title: 'Square',
         description:
-          'One board, two hidden words. Odd guesses score Word A, even score Word B until one is solved—then normal Wordle on the other. Twelve guesses total.',
-        tags: ['dual', '5 letters'],
+          '5×5 border: four words share corners. Scrambled letters with Wordle-style colors; swap to solve within a swap limit. Five letters only.',
+        tags: ['swap', 'grid', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'waffle',
+        title: 'Waffle',
+        description:
+          'Border plus middle row and column—six five-letter words, same swap rules and colors as Square. Five letters only.',
+        tags: ['swap', 'grid', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'plus',
+        title: 'Plus',
+        description:
+          'Middle row and column only—two words sharing the center. Scrambled letters, Wordle colors per line, limited swaps. Five letters only.',
+        tags: ['swap', 'grid', '5 letters'],
+      },
+      {
+        kind: 'lengthGroup',
+        idPrefix: 'cross',
+        title: 'Cross',
+        description:
+          'Crossword-style: five five-letter words (three across, two down) with black squares. Same swap rules. Five letters only.',
+        tags: ['swap', 'grid', '5 letters'],
       },
     ],
   },

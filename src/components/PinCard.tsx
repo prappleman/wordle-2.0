@@ -7,6 +7,7 @@ import { validateCustomPreset } from '../variants/customPreset'
 import { BROWSE_SESSION_PRESET_KEY } from '../play/browseSessionStorage'
 import { getHubModeTheme } from './hubModeThemes'
 import { HubModeTiles } from './HubModeTiles'
+import { TimerModeIcon } from './TimerModeIcon'
 import './hubModeCardThemes.css'
 import './PinCard.css'
 
@@ -35,14 +36,22 @@ export function PinCard({ pin, onEdit, onRemove }: PinCardProps) {
   const chips = pinChips(pin)
   const modeKey = pin.kind === 'lengthGroup' ? pin.idPrefix : 'multi'
   const theme = getHubModeTheme(modeKey)
+  const showTimer =
+    pin.kind === 'lengthGroup' && (pin.idPrefix === 'repeat' || pin.idPrefix === 'reverse')
 
   return (
     <article className={`pin-card hub-mode-card hub-mode-card--accent-${theme.accent}`}>
-      <div className="hub-mode-card__shine" aria-hidden />
       <div className="hub-mode-card__inner pin-card__inner">
-        <HubModeTiles preset={theme.tilePreset} compact />
+        <HubModeTiles
+          preset={theme.tilePreset}
+          compact
+          boardCount={pin.kind === 'multiGrid' ? pin.boardCount : undefined}
+        />
         <div className="pin-card-main">
-          <h3 className="pin-card-title">{pin.title}</h3>
+          <div className="pin-card-title-row">
+            <h3 className="pin-card-title">{pin.title}</h3>
+            {showTimer ? <TimerModeIcon className="pin-card-timer-icon" /> : null}
+          </div>
           <p className="pin-card-desc">{pin.description}</p>
           <ul className="pin-card-chips">
             {chips.map((c) => (

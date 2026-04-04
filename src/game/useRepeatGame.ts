@@ -3,7 +3,7 @@ import type { ClassicGameConfig } from '../variants/types'
 
 const DEFAULT_SECONDS = 60
 
-export type LockedPhase = 'pre' | 'playing' | 'ended'
+export type RepeatPhase = 'pre' | 'playing' | 'ended'
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -23,12 +23,10 @@ function buildRound(words: readonly string[], wordLength: number) {
       count++
     }
   }
-  return { lockPos: pos, lockLetter: letter, totalPossible: count }
+  return { lockPos: pos, lockLetter: letter, totalPossible: count, target: t }
 }
 
-export function useLockedGame(
-  config: ClassicGameConfig & { timerSeconds?: number },
-) {
+export function useRepeatGame(config: ClassicGameConfig & { timerSeconds?: number }) {
   const { words, wordLength, timerSeconds = DEFAULT_SECONDS } = config
 
   const validSet = useMemo(() => {
@@ -44,7 +42,7 @@ export function useLockedGame(
   const [round, setRound] = useState(() => buildRound(words, wordLength))
   const [submitted, setSubmitted] = useState<Set<string>>(new Set())
   const [buffer, setBuffer] = useState('')
-  const [phase, setPhase] = useState<LockedPhase>('pre')
+  const [phase, setPhase] = useState<RepeatPhase>('pre')
   const [shake, setShake] = useState(false)
   const [secondsLeft, setSecondsLeft] = useState(timerSeconds)
 
@@ -142,6 +140,7 @@ export function useLockedGame(
   const inputLocked = phase !== 'playing'
 
   return {
+    target: round.target,
     lockPos: round.lockPos,
     lockLetter: round.lockLetter,
     totalPossible: round.totalPossible,

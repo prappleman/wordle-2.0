@@ -1,10 +1,11 @@
 import { useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
 import { LadderRoundMeta } from '../components/LadderRoundMeta'
-import { keyboardLetterHintsMisleading } from '../components/keyboardHints'
+import { keyboardLetterHints } from '../components/keyboardHints'
 import { useMisleadingTileGame } from '../game/useMisleadingTileGame'
 import { useLadderRange } from '../hooks/useLadderRange'
 import { useLadderSession } from '../hooks/useLadderSession'
@@ -39,10 +40,7 @@ function MisleadingRound({
   }, [game.phase, onAdvance])
 
   const keyboardDisabled = game.inputLocked
-  const keyboardHints = useMemo(
-    () => keyboardLetterHintsMisleading(game.guesses),
-    [game.guesses],
-  )
+  const keyboardHints = useMemo(() => keyboardLetterHints(game.guesses), [game.guesses])
 
   const onScreenKey = (key: string) => {
     if (key === 'Enter') return game.submit()
@@ -53,9 +51,7 @@ function MisleadingRound({
   return (
     <div className="misleading-screen">
       <header className="misleading-screen-header">
-        <Link to="/" className="misleading-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="misleading-screen-back" />
         <h1 className="misleading-screen-title">Misleading Tile ({length}) · Ladder</h1>
         <button
           type="button"
@@ -67,8 +63,9 @@ function MisleadingRound({
       </header>
 
       <p className="misleading-screen-hint">
-        One tile per guess lies about its color. The keyboard matches those tile colors; if a letter
-        shows both green and grey across the board, that key stays uncolored.
+        One tile per guess lies about its color. Early guesses try to lie on green, yellow, and gray at least
+        once when possible. The keyboard uses true Wordle hints (classic rules). Compare each letter’s tile to
+        its key—when they disagree, that tile is misleading.
       </p>
 
       {game.phase === 'won' && (
@@ -87,6 +84,7 @@ function MisleadingRound({
         buffer={game.buffer}
         phase={game.phase}
         shake={game.shake}
+        staggerFeedbackRevealRowIndex={game.revealStaggerRowIndex}
       />
 
       <WordleKeyboard

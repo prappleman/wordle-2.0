@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
@@ -61,9 +62,7 @@ function InfiniteRound({
   return (
     <div className="infinite-screen">
       <header className="infinite-screen-header">
-        <Link to="/" className="infinite-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="infinite-screen-back" />
         <h1 className="infinite-screen-title">Infinite ({length}) · Ladder</h1>
         <button
           type="button"

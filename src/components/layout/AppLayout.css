@@ -50,41 +50,75 @@
 }
 
 .app-layout-brand {
+  margin-right: auto;
+  padding: 0;
+  border: none;
+  background: none;
+  font: inherit;
   font-weight: 800;
   font-size: 1.1rem;
   letter-spacing: -0.03em;
   color: var(--shell-fg, #f4f4f5);
   text-decoration: none;
-  margin-right: auto;
+  text-align: left;
+  cursor: pointer;
 }
 
 .app-layout-brand:hover {
   color: var(--hub-accent, #6aaa64);
 }
 
-.app-layout-nav {
+.app-layout-brand:focus-visible {
+  outline: 2px solid var(--hub-accent, #6aaa64);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+.app-layout-header-actions {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
-.app-layout-nav a {
-  padding: 0.45rem 0.85rem;
+.app-layout-theme-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border: 1px solid var(--shell-border, #27272a);
   border-radius: 8px;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--shell-muted, #a1a1aa);
-  text-decoration: none;
+  background: var(--shell-elevated, #18181b);
+  color: var(--shell-fg, #e5e7eb);
+  cursor: pointer;
+  font-size: 1.15rem;
+  line-height: 1;
 }
 
-.app-layout-nav a:hover {
-  color: var(--shell-fg, #e5e7eb);
+.app-layout-theme-btn:hover {
   background: var(--shell-hover, #27272a);
 }
 
-.app-layout-nav a.active {
-  color: var(--shell-fg, #fafafa);
-  background: var(--shell-active, #27272a);
+.app-layout-theme-btn:focus-visible {
+  outline: 2px solid var(--hub-accent, #6aaa64);
+  outline-offset: 2px;
+}
+
+.app-layout-theme-icon {
+  position: relative;
+  top: 1px;
+}
+
+.app-layout-profile-placeholder {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px dashed var(--shell-border, #3f3f46);
+  background: var(--shell-elevated, #18181b);
+  box-sizing: border-box;
 }
 
 .app-layout-body {
@@ -194,10 +228,6 @@
 
   .app-layout-menu-btn {
     display: flex;
-  }
-
-  .app-layout-nav {
-    display: none;
   }
 
   .app-layout-sidebar {

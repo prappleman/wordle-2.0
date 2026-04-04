@@ -4,15 +4,18 @@
 import {
   HUB_CATEGORY_CLASSIC,
   HUB_CATEGORY_MULTI,
+  HUB_CATEGORY_SWAP,
   HUB_CATEGORY_VARIANTS,
 } from '../variants/hubConfig'
 
 export type HubTilePreset =
   | 'wordle'
+  | 'square'
+  | 'waffle'
+  | 'plus'
   | 'colorless'
   | 'dim'
   | 'chain'
-  | 'streak'
   | 'misleading'
   | 'zen'
   | 'infinite'
@@ -20,11 +23,12 @@ export type HubTilePreset =
   | 'banned'
   | 'memoryFlash'
   | 'memoryHide'
-  | 'locked'
+  | 'repeat'
   | 'reverse'
-  | 'blocked'
+  | 'wildcard'
   | 'spaces'
   | 'forced'
+  | 'lockedLetter'
   | 'doubles'
   | 'dual'
   | 'multi'
@@ -39,10 +43,12 @@ export type HubModeTheme = {
 
 const MAP: Record<string, HubTilePreset> = {
   classic: 'wordle',
+  square: 'square',
+  waffle: 'waffle',
+  plus: 'plus',
   colorless: 'colorless',
   unscramble: 'dim',
   'word-chain': 'chain',
-  streak: 'streak',
   misleading: 'misleading',
   zen: 'zen',
   'zen-infinite': 'infinite',
@@ -51,17 +57,18 @@ const MAP: Record<string, HubTilePreset> = {
   banned: 'banned',
   'memory-colors': 'memoryFlash',
   'memory-letters': 'memoryHide',
-  locked: 'locked',
+  repeat: 'repeat',
   reverse: 'reverse',
-  blocked: 'blocked',
+  wildcard: 'wildcard',
   spaces: 'spaces',
   'forced-letter': 'forced',
+  'locked-letter': 'lockedLetter',
   doubles: 'doubles',
   'alternating-duet': 'dual',
   multi: 'multi',
 }
 
-const CLASSIC_PREFIXES = new Set(['classic', 'streak', 'zen', 'zen-infinite'])
+const CLASSIC_PREFIXES = new Set(['classic', 'zen', 'zen-infinite', 'infinite'])
 
 /** Pins / fallback: derive accent from variant id prefix when section is unknown */
 export function hubAccentForIdPrefix(idPrefix: string): HubAccent {
@@ -73,7 +80,8 @@ export function hubAccentForIdPrefix(idPrefix: string): HubAccent {
 export function hubAccentForSectionCategory(category: string): HubAccent {
   if (category === HUB_CATEGORY_CLASSIC) return 'g'
   if (category === HUB_CATEGORY_MULTI) return 'r'
-  if (category === HUB_CATEGORY_VARIANTS) return 'y'
+  if (category === HUB_CATEGORY_VARIANTS || category === HUB_CATEGORY_SWAP)
+    return 'y'
   return 'y'
 }
 
@@ -84,6 +92,7 @@ const BROWSE_PAGE_CATEGORY_ACCENT: Record<string, HubAccent> = {
   Constraints: 'y',
   'Board Mods': 'y',
   Puzzle: 'y',
+  Swap: 'y',
   Multi: 'r',
 }
 

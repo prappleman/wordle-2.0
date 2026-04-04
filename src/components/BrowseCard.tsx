@@ -1,23 +1,18 @@
+import { useEffect, useId, useState } from 'react'
 import { Link } from 'react-router-dom'
-import type { HubAccent } from './hubModeThemes'
+import type { HubAccent, HubTilePreset } from './hubModeThemes'
+import { HubModeTiles } from './HubModeTiles'
+import { TimerModeIcon } from './TimerModeIcon'
 import './hubModeCardThemes.css'
 import './BrowseCard.css'
 
 function IconPlus() {
   return (
-    <svg className="browse-card-icon" viewBox="0 0 24 24" aria-hidden>
+    <svg className="browse-card-icon browse-card-add-btn-icon" viewBox="0 0 24 24" aria-hidden>
       <path
         fill="currentColor"
         d="M19 11h-6V5h-2v6H5v2h6v6h2v-6h6v-2z"
       />
-    </svg>
-  )
-}
-
-function IconPlay() {
-  return (
-    <svg className="browse-card-icon" viewBox="0 0 24 24" aria-hidden>
-      <path fill="currentColor" d="M8 5v14l11-7L8 5z" />
     </svg>
   )
 }
@@ -36,9 +31,15 @@ function IconGear() {
 type BrowseCardProps = {
   /** Section accent: Classic = green, Variants = yellow, Multi = red */
   accent: HubAccent
+  /** Mini grid preview (variant identity). */
+  tilePreset: HubTilePreset
+  /** Multi-board browse entries: one preview row per board. */
+  boardCount?: number
   title: string
   description: string
   tags?: string[]
+  /** Show a clock icon (timed modes: Repeat, Reverse). */
+  showTimer?: boolean
   /** Built-in play URL (with query overlays when set in browse JSON). */
   playHref: string
   /** Custom session play (custom words, timer, multi-round, ladder wrap). Overrides `playHref`. */
@@ -51,65 +52,121 @@ type BrowseCardProps = {
 
 export function BrowseCard({
   accent,
+  tilePreset,
+  boardCount,
   title,
   description,
   tags,
+  showTimer,
   playHref,
   onPlay,
   onAddQuick,
   onConfigure,
 }: BrowseCardProps) {
+  const descId = useId()
+  const [descExpanded, setDescExpanded] = useState(false)
+  const [isMobileBrowse, setIsMobileBrowse] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 900px)').matches,
+  )
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 900px)')
+    const sync = () => {
+      setIsMobileBrowse(mq.matches)
+      if (!mq.matches) setDescExpanded(false)
+    }
+    sync()
+    mq.addEventListener('change', sync)
+    return () => mq.removeEventListener('change', sync)
+  }, [])
+
   return (
-    <article className={`browse-card hub-mode-card hub-mode-card--accent-${accent}`}>
-      <div className="hub-mode-card__shine" aria-hidden />
+    <article
+      className={`browse-card hub-mode-card hub-mode-card--accent-${accent}${descExpanded ? ' browse-card--desc-expanded' : ''}`}
+      onClick={
+        isMobileBrowse
+          ? (e) => {
+              const t = e.target as HTMLElement
+              if (t.closest('button, a[href], .browse-card-footer-actions')) return
+              setDescExpanded((v) => !v)
+            }
+          : undefined
+      }
+      aria-expanded={isMobileBrowse ? descExpanded : undefined}
+    >
       <div className="hub-mode-card__inner browse-card__inner">
-        <div className="browse-card-body">
-          <h3 className="browse-card-title">{title}</h3>
-          <p className="browse-card-desc">{description}</p>
-          {tags && tags.length > 0 && (
-            <ul className="browse-card-tags">
-              {tags.map((t) => (
-                <li key={t} className="browse-card-tag">
-                  {t}
-                </li>
-              ))}
-            </ul>
-          )}
-          <div className="browse-card-actions">
-            {onPlay ? (
-              <button
-                type="button"
-                className="browse-card-icon-btn browse-card-icon-btn--play"
-                onClick={onPlay}
-                aria-label={`Play ${title}`}
-              >
-                <IconPlay />
-              </button>
-            ) : (
-              <Link
-                to={playHref}
-                className="browse-card-icon-btn browse-card-icon-btn--play"
-                aria-label={`Play ${title}`}
-              >
-                <IconPlay />
-              </Link>
-            )}
-            <button
-              type="button"
-              className="browse-card-icon-btn browse-card-icon-btn--add"
-              onClick={onAddQuick}
-              aria-label={`Add ${title} to My hub with default settings`}
-            >
-              <IconPlus />
-            </button>
+        <div className="browse-card-top-bar">
+          <div className="browse-card-top-left">
+            {showTimer ? <TimerModeIcon className="browse-card-timer-icon" /> : null}
+          </div>
+          <div className="browse-card-top-right">
             <button
               type="button"
               className="browse-card-icon-btn browse-card-icon-btn--gear"
-              onClick={onConfigure}
+              onClick={(e) => {
+                e.stopPropagation()
+                onConfigure()
+              }}
               aria-label={`Open Create with ${title} selected`}
             >
               <IconGear />
             </button>
+          </div>
+        </div>
+        <div className="browse-card-body">
+          <div className="browse-card-title-row">
+            <h3 className="browse-card-title">{title}</h3>
+          </div>
+          <div className="browse-card-main">
+            <div className="browse-card-two-col">
+              <div className="browse-card-viz" aria-hidden>
+                <HubModeTiles preset={tilePreset} boardCount={boardCount} />
+              </div>
+              <div className="browse-card-right">
+                <p id={descId} className="browse-card-desc">
+                  {description}
+                </p>
+                {tags && tags.length > 0 && (
+                  <ul className="browse-card-tags">
+                    {tags.map((t) => (
+                      <li key={t} className="browse-card-tag">
+                        {t}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+          <div
+            className="browse-card-footer-actions"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              type="button"
+              className="browse-card-text-btn browse-card-add-btn"
+              onClick={onAddQuick}
+              aria-label={`Add ${title} to My hub with default settings`}
+            >
+              <IconPlus />
+              <span className="browse-card-add-btn-label">Add to hub</span>
+            </button>
+            {onPlay ? (
+              <button
+                type="button"
+                className="browse-card-text-btn browse-card-play-btn"
+                onClick={onPlay}
+              >
+                Play
+              </button>
+            ) : (
+              <Link
+                to={playHref}
+                className="browse-card-text-btn browse-card-play-btn"
+              >
+                Play
+              </Link>
+            )}
           </div>
         </div>
       </div>

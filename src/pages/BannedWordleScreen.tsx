@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useBannedWordleGame } from '../game/useBannedWordleGame'
@@ -40,9 +41,7 @@ export default function BannedWordleScreen() {
   return (
     <div className="classic-screen">
       <header className="classic-screen-header">
-        <Link to="/" className="classic-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="classic-screen-back" />
         <h1 className="classic-screen-title">Banned ({wordLength})</h1>
         <button type="button" className="classic-screen-new" onClick={game.newGame}>
           New word
@@ -54,7 +53,8 @@ export default function BannedWordleScreen() {
           <p className="classic-screen-banner">
             {game.bannedLetter ? (
               <>
-                Cannot use: <strong>{game.bannedLetter}</strong>
+                Round ban: <strong>{game.bannedLetter}</strong> — gray on the keyboard (like “not in word”); red outline
+                on the board wherever it appears. Enter won’t submit until it’s gone from the guess.
               </>
             ) : (
               <>No ban this guess—every common letter is already ruled out or in the answer.</>
@@ -80,6 +80,7 @@ export default function BannedWordleScreen() {
         buffer={game.buffer}
         phase={game.phase}
         shake={game.shake}
+        typingRowBannedLetter={game.bannedLetter || null}
       />
 
       <WordleKeyboard

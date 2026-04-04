@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
 import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { WordleGrid } from '../components/WordleGrid'
@@ -58,9 +59,7 @@ function AlternatingRound({
   return (
     <div className="duet-screen">
       <header className="duet-screen-header">
-        <Link to="/" className="duet-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="duet-screen-back" />
         <h1 className="duet-screen-title">Alternating ({length}) · Ladder</h1>
         <button
           type="button"

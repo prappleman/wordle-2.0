@@ -1,16 +1,20 @@
-import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleKeyboard } from '../components/WordleKeyboard'
-import { useLockedGame } from '../game/useLockedGame'
+import { scoreGuess } from '../game/engine'
+import { useRepeatGame } from '../game/useRepeatGame'
+import type { GuessRow } from '../game/useWordleGame'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
+import '../components/WordleGrid.css'
 import './ClassicWordleScreen.css'
-import './LockedScreen.css'
+import './RepeatScreen.css'
 
-export default function LockedScreen() {
-  const { variantId = 'locked-5' } = useParams<{ variantId: string }>()
+export default function RepeatScreen() {
+  const { variantId = 'repeat-5' } = useParams<{ variantId: string }>()
   const wordLength = wordLengthFromVariantId(variantId)
   const words = wordsForLength(wordLength)
-  const game = useLockedGame({ words, wordLength, maxGuesses: 6 })
+  const game = useRepeatGame({ words, wordLength, maxGuesses: 6 })
   const { onPhysicalKey } = game
 
   useEffect(() => {
@@ -39,15 +43,23 @@ export default function LockedScreen() {
     game.addLetter(key)
   }
 
-  const { buffer, lockPos, lockLetter, wordLength: n, cursorIndex } = game
+  const { buffer, lockPos, lockLetter, wordLength: n, cursorIndex, target } = game
+
+  const keyboardGuesses = useMemo((): GuessRow[] => {
+    return game.submittedList.map((letters) => ({
+      letters,
+      feedback: scoreGuess(target, letters),
+    }))
+  }, [game.submittedList, target])
+
+  const rowPreviewFeedback =
+    game.phase === 'playing' && buffer.length === n ? scoreGuess(target, buffer) : null
 
   return (
     <div className="classic-screen">
       <header className="classic-screen-header">
-        <Link to="/" className="classic-screen-back">
-          ← Hub
-        </Link>
-        <h1 className="classic-screen-title">Locked ({wordLength})</h1>
+        <PlayScreenBackLink className="classic-screen-back" />
+        <h1 className="classic-screen-title">Repeat ({wordLength})</h1>
         <button type="button" className="classic-screen-new" onClick={game.newGame}>
           New round
         </button>
@@ -90,7 +102,7 @@ export default function LockedScreen() {
 
       {game.phase !== 'pre' && (
         <div
-          className={`locked-typing-row ${game.shake ? 'locked-typing-row--shake' : ''}`}
+          className={`repeat-typing-row ${game.shake ? 'repeat-typing-row--shake' : ''}`}
           role="group"
           aria-label="Current word"
         >
@@ -102,17 +114,20 @@ export default function LockedScreen() {
             const filled = typed.trim().length > 0
             const isCursor = game.phase === 'playing' && cursorIndex === i
             const isLockHint = showFixedLock && !typed
+            const fb = rowPreviewFeedback?.[i]
+            const tileCls = [
+              'wordle-tile',
+              fb ? `wordle-tile--${fb}` : '',
+              !fb && (filled || isLockHint) ? 'wordle-tile--typing' : '',
+              !fb && isLockHint ? 'repeat-tile--lock-hint' : '',
+              !fb && isCursor ? 'repeat-tile--cursor' : '',
+            ]
+              .filter(Boolean)
+              .join(' ')
             return (
               <div
                 key={i}
-                className={[
-                  'locked-tile',
-                  isCursor ? 'locked-tile--cursor' : '',
-                  isLockHint ? 'locked-tile--lock-hint' : '',
-                  filled ? 'locked-tile--filled' : '',
-                ]
-                  .filter(Boolean)
-                  .join(' ')}
+                className={tileCls}
                 aria-current={isCursor ? 'true' : undefined}
               >
                 {display}
@@ -123,22 +138,27 @@ export default function LockedScreen() {
       )}
 
       {game.phase !== 'pre' && game.submittedList.length > 0 && (
-        <ul
-          style={{ textAlign: 'left', maxWidth: 360, margin: '0 auto 1rem', paddingLeft: '1.25rem' }}
-        >
-          {game.submittedList.map((w) => (
-            <li key={w}>{w}</li>
-          ))}
+        <ul className="repeat-submitted-list" aria-label="Submitted words">
+          {game.submittedList.map((w) => {
+            const fb = scoreGuess(target, w)
+            return (
+              <li key={w} className="repeat-submitted-row">
+                {w.split('').map((ch, i) => (
+                  <span
+                    key={i}
+                    className={`wordle-tile wordle-tile--${fb[i]!}`}
+                  >
+                    {ch}
+                  </span>
+                ))}
+              </li>
+            )
+          })}
         </ul>
       )}
 
       {game.phase !== 'pre' && (
-        <WordleKeyboard
-          guesses={[]}
-          disabled={game.inputLocked}
-          onKey={onScreenKey}
-          plain
-        />
+        <WordleKeyboard guesses={keyboardGuesses} disabled={game.inputLocked} onKey={onScreenKey} />
       )}
     </div>
   )

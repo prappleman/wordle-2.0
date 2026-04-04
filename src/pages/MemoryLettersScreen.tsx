@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useWordleGame } from '../game/useWordleGame'
@@ -40,9 +41,7 @@ export default function MemoryLettersScreen() {
   return (
     <div className="classic-screen">
       <header className="classic-screen-header">
-        <Link to="/" className="classic-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="classic-screen-back" />
         <h1 className="classic-screen-title">Memory letters ({wordLength})</h1>
         <button type="button" className="classic-screen-new" onClick={() => game.newGame()}>
           New word

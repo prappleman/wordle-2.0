@@ -3,7 +3,7 @@ import { isValidWildcardGuess, matchesWildcardPattern, scoreGuessMasked } from '
 import type { ClassicGameConfig } from '../variants/types'
 import type { GuessRow } from './useWordleGame'
 
-export type GamePhase = 'playing' | 'won' | 'lost'
+export type WildcardGamePhase = 'playing' | 'won' | 'lost'
 
 function pickTarget(words: readonly string[], wordLength: number): string {
   const pool = words.filter((w) => w.length === wordLength)
@@ -13,13 +13,11 @@ function pickTarget(words: readonly string[], wordLength: number): string {
   return pool[Math.floor(Math.random() * pool.length)]!.toUpperCase()
 }
 
-function randomBlockedIndices(maxGuesses: number, wordLength: number): number[] {
-  return Array.from({ length: maxGuesses }, () =>
-    Math.floor(Math.random() * wordLength),
-  )
+function randomWildcardColumnIndices(maxGuesses: number, wordLength: number): number[] {
+  return Array.from({ length: maxGuesses }, () => Math.floor(Math.random() * wordLength))
 }
 
-export function useBlockedWordleGame(config: ClassicGameConfig) {
+export function useWildcardWordleGame(config: ClassicGameConfig) {
   const { words, wordLength, maxGuesses } = config
 
   const validSet = useMemo(() => {
@@ -33,17 +31,17 @@ export function useBlockedWordleGame(config: ClassicGameConfig) {
   }, [words, wordLength])
 
   const [target, setTarget] = useState(() => pickTarget(words, wordLength))
-  const [blockedByRow, setBlockedByRow] = useState(() =>
-    randomBlockedIndices(maxGuesses, wordLength),
+  const [wildcardColumnByRow, setWildcardColumnByRow] = useState(() =>
+    randomWildcardColumnIndices(maxGuesses, wordLength),
   )
   const [guesses, setGuesses] = useState<GuessRow[]>([])
   const [buffer, setBuffer] = useState('')
-  const [phase, setPhase] = useState<GamePhase>('playing')
+  const [phase, setPhase] = useState<WildcardGamePhase>('playing')
   const [shake, setShake] = useState(false)
 
   const newGame = useCallback(() => {
     setTarget(pickTarget(words, wordLength))
-    setBlockedByRow(randomBlockedIndices(maxGuesses, wordLength))
+    setWildcardColumnByRow(randomWildcardColumnIndices(maxGuesses, wordLength))
     setGuesses([])
     setBuffer('')
     setPhase('playing')
@@ -53,28 +51,28 @@ export function useBlockedWordleGame(config: ClassicGameConfig) {
   const submit = useCallback(() => {
     if (phase !== 'playing') return
     const row = guesses.length
-    const blocked = blockedByRow[row] ?? 0
+    const wildcardCol = wildcardColumnByRow[row] ?? 0
     const needLen = wordLength - 1
     const g = buffer.toUpperCase()
     if (g.length !== needLen) return
-    if (!isValidWildcardGuess(g, blocked, validSet)) {
+    if (!isValidWildcardGuess(g, wildcardCol, validSet)) {
       setShake(true)
       window.setTimeout(() => setShake(false), 450)
       return
     }
 
-    const feedback = scoreGuessMasked(target, g, blocked)
+    const feedback = scoreGuessMasked(target, g, wildcardCol)
     const nextRow: GuessRow = { letters: g, feedback }
     const next = [...guesses, nextRow]
     setGuesses(next)
     setBuffer('')
 
-    if (matchesWildcardPattern(g, target, blocked)) {
+    if (matchesWildcardPattern(g, target, wildcardCol)) {
       setPhase('won')
     } else if (next.length >= maxGuesses) {
       setPhase('lost')
     }
-  }, [buffer, blockedByRow, guesses, maxGuesses, phase, target, validSet, wordLength])
+  }, [buffer, guesses, maxGuesses, phase, target, validSet, wildcardColumnByRow, wordLength])
 
   const addLetter = useCallback(
     (ch: string) => {
@@ -113,8 +111,8 @@ export function useBlockedWordleGame(config: ClassicGameConfig) {
   const inputLocked = phase !== 'playing'
 
   const blockedCellByRow = useMemo(
-    () => blockedByRow.map((b) => b) as (number | null)[],
-    [blockedByRow],
+    () => wildcardColumnByRow.map((b) => b) as (number | null)[],
+    [wildcardColumnByRow],
   )
 
   return {

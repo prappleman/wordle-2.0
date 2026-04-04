@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useAlternatingDuetGame } from '../game/useAlternatingDuetGame'
@@ -58,9 +59,7 @@ export default function AlternatingDuetScreen() {
   return (
     <div className="duet-screen">
       <header className="duet-screen-header">
-        <Link to="/" className="duet-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="duet-screen-back" />
         <h1 className="duet-screen-title">Alternating ({wordLength})</h1>
         <button type="button" className="duet-screen-new" onClick={game.newGame}>
           New game

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useZenGame } from '../game/useZenGame'
@@ -50,9 +51,7 @@ function ZenRound({
   return (
     <div className="zen-screen">
       <header className="zen-screen-header">
-        <Link to="/" className="zen-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="zen-screen-back" />
         <h1 className="zen-screen-title">Zen ({length}) · Ladder</h1>
         <button type="button" className="zen-screen-new" onClick={game.newGame}>
           Reset

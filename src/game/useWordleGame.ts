@@ -10,6 +10,8 @@ export interface GuessRow {
   feedback: LetterFeedback[]
   /** Misleading tile mode: tiles and keyboard hints use this; win uses true `feedback`. */
   displayFeedback?: LetterFeedback[]
+  /** Misleading tile mode: column index of the tile whose `displayFeedback` differs from `feedback`. */
+  misleadingTileIndex?: number
   /** Alternating duet: which hidden word (0 = A, 1 = B) this row was scored against. */
   scoredTarget?: 0 | 1
   /** Spaces mode: skipped column index for this row (masked guess). */

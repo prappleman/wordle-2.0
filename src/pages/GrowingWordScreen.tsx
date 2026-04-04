@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import {
@@ -77,9 +78,7 @@ export default function GrowingWordScreen() {
   return (
     <div className="growing-screen">
       <header className="growing-screen-header">
-        <Link to="/" className="growing-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="growing-screen-back" />
         <h1 className="growing-screen-title">Growing Word</h1>
         <button type="button" className="growing-screen-new" onClick={game.newGame}>
           {game.phase === 'lost' && game.lastLostTarget ? 'Start new run' : 'Reset run'}

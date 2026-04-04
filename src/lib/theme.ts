@@ -12,6 +12,9 @@ export function readStoredTheme(): ThemeMode {
   return 'dark'
 }
 
+export const THEME_CHANGE_EVENT = 'wordle-theme-change'
+
 export function applyTheme(mode: ThemeMode): void {
   document.documentElement.dataset.theme = mode
+  window.dispatchEvent(new CustomEvent<ThemeMode>(THEME_CHANGE_EVENT, { detail: mode }))
 }

@@ -1,5 +1,6 @@
 import { useEffect, useMemo } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { LadderCompleteBanner } from '../components/LadderCompleteBanner'
 import { LadderRoundMeta } from '../components/LadderRoundMeta'
 import { WordleKeyboard } from '../components/WordleKeyboard'
@@ -69,9 +70,7 @@ function ColorlessRound({
   return (
     <div className="colorless-screen">
       <header className="colorless-screen-header">
-        <Link to="/" className="colorless-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="colorless-screen-back" />
         <h1 className="colorless-screen-title">Colorless ({length}) · Ladder</h1>
         <button
           type="button"

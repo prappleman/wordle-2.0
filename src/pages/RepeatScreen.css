@@ -17,7 +17,7 @@
   filter: brightness(1.08);
 }
 
-.locked-typing-row {
+.repeat-typing-row {
   display: flex;
   gap: 6px;
   justify-content: center;
@@ -25,11 +25,11 @@
   width: fit-content;
 }
 
-.locked-typing-row--shake {
-  animation: locked-shake 0.45s ease;
+.repeat-typing-row--shake {
+  animation: repeat-row-shake 0.45s ease;
 }
 
-@keyframes locked-shake {
+@keyframes repeat-row-shake {
   0%,
   100% {
     transform: translateX(0);
@@ -48,33 +48,33 @@
   }
 }
 
-.locked-tile {
-  width: clamp(48px, 12vw, 56px);
-  height: clamp(48px, 12vw, 56px);
-  border: 2px solid var(--wordle-border, #3a3a3c);
-  border-radius: var(--wordle-tile-radius, 4px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 700;
-  font-size: clamp(1.1rem, 4vw, 1.35rem);
-  text-transform: uppercase;
-  color: var(--wordle-tile-ink, #fff);
-  background: var(--wordle-tile-empty, transparent);
-  box-sizing: border-box;
-}
-
-.locked-tile--filled {
-  border-color: var(--wordle-border-strong, #565758);
-}
-
-.locked-tile--cursor {
+/* Cursor / lock hint on the active row (Wordle tiles; full row uses score colors when complete) */
+.repeat-tile--cursor {
   outline: 2px solid var(--hub-accent, #6aaa64);
   outline-offset: 2px;
-  border-color: var(--hub-accent, #6aaa64);
+  border-color: var(--hub-accent, #6aaa64) !important;
 }
 
-.locked-tile--lock-hint {
+.repeat-tile--lock-hint {
   color: var(--hub-muted, #9ca3af);
   font-style: italic;
+}
+
+.repeat-submitted-list {
+  list-style: none;
+  margin: 0 auto 1.25rem;
+  padding: 0;
+  max-width: 520px;
+  text-align: center;
+}
+
+.repeat-submitted-row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+
+.repeat-submitted-row:last-child {
+  margin-bottom: 0;
 }

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { CustomPresetPlayView } from '../components/CustomPresetPlayView'
 import type { CustomGamePreset } from '../variants/customPreset'
 import { BROWSE_SESSION_PRESET_KEY } from '../play/browseSessionStorage'
@@ -29,7 +29,7 @@ export default function BrowseSessionPlayPage() {
     return (
       <div className="classic-screen">
         <p className="custom-game-screen-missing">Session expired or missing. Open a game from Browse again.</p>
-        <Link to="/browse">← Browse variants</Link>
+        <PlayScreenBackLink className="classic-screen-back" />
       </div>
     )
   }

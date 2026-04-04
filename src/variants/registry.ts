@@ -14,6 +14,7 @@ import {
   WORDS_11,
   WORDS_12,
 } from '../data/words/words12dictsGame'
+import { HUB_CATEGORY_SWAP } from './hubConfig'
 import { LADDER_PICK_LENGTHS } from './ladderLength'
 import { MULTI_BOARD_COUNTS, multiMaxGuesses } from './multiVariant'
 
@@ -27,12 +28,10 @@ const LadderInfiniteWordleScreen = lazy(() => import('../pages/LadderInfiniteWor
 const LadderWord500Screen = lazy(() => import('../pages/LadderWord500Screen'))
 const LadderColorlessScreen = lazy(() => import('../pages/LadderColorlessScreen'))
 const LadderAlternatingDuetScreen = lazy(() => import('../pages/LadderAlternatingDuetScreen'))
-const LadderStreakScreen = lazy(() => import('../pages/LadderStreakScreen'))
 const LadderMisleadingTileScreen = lazy(() => import('../pages/LadderMisleadingTileScreen'))
 const LadderZenScreen = lazy(() => import('../pages/LadderZenScreen'))
 const LadderUnscrambleScreen = lazy(() => import('../pages/LadderUnscrambleScreen'))
 const LadderMultiWordleScreen = lazy(() => import('../pages/LadderMultiWordleScreen'))
-const StreakScreen = lazy(() => import('../pages/StreakScreen'))
 const MisleadingTileScreen = lazy(() => import('../pages/MisleadingTileScreen'))
 const ZenScreen = lazy(() => import('../pages/ZenScreen'))
 const UnscrambleScreen = lazy(() => import('../pages/UnscrambleScreen'))
@@ -41,12 +40,17 @@ const LadderWordChainScreen = lazy(() => import('../pages/LadderWordChainScreen'
 const BannedWordleScreen = lazy(() => import('../pages/BannedWordleScreen'))
 const MemoryColorsScreen = lazy(() => import('../pages/MemoryColorsScreen'))
 const MemoryLettersScreen = lazy(() => import('../pages/MemoryLettersScreen'))
-const LockedScreen = lazy(() => import('../pages/LockedScreen'))
+const RepeatScreen = lazy(() => import('../pages/RepeatScreen'))
 const ReverseScreen = lazy(() => import('../pages/ReverseScreen'))
-const BlockedWordleScreen = lazy(() => import('../pages/BlockedWordleScreen'))
+const WildcardWordleScreen = lazy(() => import('../pages/WildcardWordleScreen'))
 const SpacesWordleScreen = lazy(() => import('../pages/SpacesWordleScreen'))
 const ForcedLetterScreen = lazy(() => import('../pages/ForcedLetterScreen'))
+const LockedLetterScreen = lazy(() => import('../pages/LockedLetterScreen'))
 const DoublesOnlyScreen = lazy(() => import('../pages/DoublesOnlyScreen'))
+const FrameDragScreen = lazy(() => import('../pages/FrameDragScreen'))
+const Cross6DragScreen = lazy(() => import('../pages/Cross6DragScreen'))
+const PlusDragScreen = lazy(() => import('../pages/PlusDragScreen'))
+const CrossXDragScreen = lazy(() => import('../pages/CrossXDragScreen'))
 
 const CAT_CLASSIC = 'Classic'
 const CAT_MULTI = 'Multi-board & special'
@@ -189,16 +193,6 @@ export const VARIANTS: VariantDefinition[] = [
       },
       {
         kind: 'custom' as const,
-        id: `streak-${n}`,
-        title: 'Streak',
-        description:
-          'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
-        tags: [lenLabel, 'streak', '6 guesses'],
-        category: CAT_NEW,
-        screen: StreakScreen,
-      },
-      {
-        kind: 'custom' as const,
         id: `misleading-${n}`,
         title: 'Misleading Tile',
         description:
@@ -259,13 +253,13 @@ export const VARIANTS: VariantDefinition[] = [
       },
       {
         kind: 'custom' as const,
-        id: `locked-${n}`,
-        title: 'Locked',
+        id: `repeat-${n}`,
+        title: 'Repeat',
         description:
           'One fixed letter at one position. Enter as many valid words as you can before the timer ends; see how many were possible.',
         tags: [lenLabel, 'timer', 'infinite tries'],
         category: CAT_NEW,
-        screen: LockedScreen,
+        screen: RepeatScreen,
       },
       {
         kind: 'custom' as const,
@@ -279,13 +273,13 @@ export const VARIANTS: VariantDefinition[] = [
       },
       {
         kind: 'custom' as const,
-        id: `blocked-${n}`,
-        title: 'Blocked',
+        id: `wildcard-${n}`,
+        title: 'Wildcard',
         description:
           'Wildcard slot per row—fill the rest so some valid word fits; Wordle scoring on your letters vs the answer.',
-        tags: [lenLabel, 'blocked', '6 guesses'],
+        tags: [lenLabel, 'wildcard', '6 guesses'],
         category: CAT_NEW,
-        screen: BlockedWordleScreen,
+        screen: WildcardWordleScreen,
       },
       {
         kind: 'custom' as const,
@@ -307,6 +301,16 @@ export const VARIANTS: VariantDefinition[] = [
         category: CAT_NEW,
         screen: ForcedLetterScreen,
       },
+      {
+        kind: 'custom' as const,
+        id: `locked-letter-${n}`,
+        title: 'Locked letter',
+        description:
+          'Like forced letter, but the required letter must sit in a random chosen column each guess (except your last, or if you type the answer). Green slot hint on the board.',
+        tags: [lenLabel, 'constraint', '6 guesses'],
+        category: CAT_NEW,
+        screen: LockedLetterScreen,
+      },
       ...(n >= 2
         ? [
             {
@@ -318,6 +322,50 @@ export const VARIANTS: VariantDefinition[] = [
               tags: [lenLabel, 'repeat', '6 guesses'],
               category: CAT_NEW,
               screen: DoublesOnlyScreen,
+            },
+          ]
+        : []),
+      ...(n === 5
+        ? [
+            {
+              kind: 'custom' as const,
+              id: 'square-5',
+              title: 'Square',
+              description:
+                '5×5 border: four five-letter words share corners. Letters start scrambled with Wordle colors (green/yellow/gray). Swap two at a time—drag onto another cell or tap two—within a swap limit to unscramble.',
+              tags: ['5-letter', 'swap', 'grid'],
+              category: HUB_CATEGORY_SWAP,
+              screen: FrameDragScreen,
+            },
+            {
+              kind: 'custom' as const,
+              id: 'waffle-5',
+              title: 'Waffle',
+              description:
+                'Like Square, plus a middle row and middle column—six five-letter words on a 5×5 cross. Same swap limit and per-cell green/yellow/gray hints.',
+              tags: ['5-letter', 'swap', 'grid'],
+              category: HUB_CATEGORY_SWAP,
+              screen: Cross6DragScreen,
+            },
+            {
+              kind: 'custom' as const,
+              id: 'plus-5',
+              title: 'Plus',
+              description:
+                'Middle row and middle column only—two five-letter words sharing the center. Same swap rules and Wordle multiset colors along each line.',
+              tags: ['5-letter', 'swap', 'grid'],
+              category: HUB_CATEGORY_SWAP,
+              screen: PlusDragScreen,
+            },
+            {
+              kind: 'custom' as const,
+              id: 'cross-5',
+              title: 'Cross',
+              description:
+                'Mini crossword: five five-letter words (three across, two down) on a 7×7 grid with black blocks. Shared letters sit at different positions. Same swap limit and Wordle hints per word.',
+              tags: ['5-letter', 'swap', 'grid'],
+              category: HUB_CATEGORY_SWAP,
+              screen: CrossXDragScreen,
             },
           ]
         : []),
@@ -382,16 +430,6 @@ export const VARIANTS: VariantDefinition[] = [
       tags: [`${n}-letter`, 'unscramble', 'ladder', '3 guesses'],
       category: CAT_NEW,
       screen: LadderUnscrambleScreen,
-    },
-    {
-      kind: 'custom' as const,
-      id: `ladder-streak-${n}`,
-      title: 'Streak',
-      description:
-        'Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.',
-      tags: [`${n}-letter`, 'streak', 'ladder', '6 guesses'],
-      category: CAT_NEW,
-      screen: LadderStreakScreen,
     },
     {
       kind: 'custom' as const,

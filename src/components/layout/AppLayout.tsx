@@ -1,11 +1,45 @@
-import { useState } from 'react'
-import { Link, NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useState } from 'react'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import {
+  applyTheme,
+  readStoredTheme,
+  THEME_CHANGE_EVENT,
+  THEME_STORAGE_KEY,
+  type ThemeMode,
+} from '../../lib/theme'
 import './AppLayout.css'
 
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [theme, setTheme] = useState<ThemeMode>(() => readStoredTheme())
   const { pathname } = useLocation()
   const createNavActive = pathname === '/create' || pathname.startsWith('/create/')
+
+  useEffect(() => {
+    applyTheme(theme)
+  }, [theme])
+
+  useEffect(() => {
+    const onThemeChange = (e: Event) => {
+      const ce = e as CustomEvent<ThemeMode>
+      const m = ce.detail
+      if (m === 'light' || m === 'dark') setTheme(m)
+    }
+    window.addEventListener(THEME_CHANGE_EVENT, onThemeChange)
+    return () => window.removeEventListener(THEME_CHANGE_EVENT, onThemeChange)
+  }, [])
+
+  const toggleTheme = useCallback(() => {
+    setTheme((prev) => {
+      const next: ThemeMode = prev === 'dark' ? 'light' : 'dark'
+      try {
+        localStorage.setItem(THEME_STORAGE_KEY, next)
+      } catch {
+        /* ignore */
+      }
+      return next
+    })
+  }, [])
 
   return (
     <div className="app-layout">
@@ -22,29 +56,33 @@ export function AppLayout() {
               ☰
             </span>
           </button>
-          <Link to="/" className="app-layout-brand">
+          <button
+            type="button"
+            className="app-layout-brand"
+            onClick={() => window.location.reload()}
+            title="Refresh this page"
+            aria-label="Wordle hub — refresh page"
+          >
             Wordle hub
-          </Link>
-          <nav className="app-layout-nav" aria-label="Main">
-            <NavLink to="/" className={({ isActive }) => (isActive ? 'active' : '')} end>
-              My hub
-            </NavLink>
-            <NavLink to="/browse" className={({ isActive }) => (isActive ? 'active' : '')}>
-              Browse
-            </NavLink>
-            <NavLink to="/create" className={() => (createNavActive ? 'active' : '')}>
-              Create
-            </NavLink>
-            <NavLink to="/community" className={({ isActive }) => (isActive ? 'active' : '')}>
-              Community
-            </NavLink>
-            <NavLink to="/my-variants" className={({ isActive }) => (isActive ? 'active' : '')}>
-              My variants
-            </NavLink>
-            <NavLink to="/settings" className={({ isActive }) => (isActive ? 'active' : '')}>
-              Settings
-            </NavLink>
-          </nav>
+          </button>
+          <div className="app-layout-header-actions">
+            <button
+              type="button"
+              className="app-layout-theme-btn"
+              onClick={toggleTheme}
+              aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+              title={theme === 'dark' ? 'Light theme' : 'Dark theme'}
+            >
+              <span className="app-layout-theme-icon" aria-hidden>
+                {theme === 'dark' ? '☀' : '☾'}
+              </span>
+            </button>
+            <div
+              className="app-layout-profile-placeholder"
+              aria-label="Profile photo (coming soon)"
+              title="Profile (coming soon)"
+            />
+          </div>
         </div>
       </header>
 

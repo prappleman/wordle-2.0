@@ -3,15 +3,15 @@ import { useParams } from 'react-router-dom'
 import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
-import { useForcedLetterGame } from '../game/useForcedLetterGame'
+import { useWildcardWordleGame } from '../game/useWildcardWordleGame'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
 import './ClassicWordleScreen.css'
 
-export default function ForcedLetterScreen() {
-  const { variantId = 'forced-letter-5' } = useParams<{ variantId: string }>()
+export default function WildcardWordleScreen() {
+  const { variantId = 'wildcard-5' } = useParams<{ variantId: string }>()
   const wordLength = wordLengthFromVariantId(variantId)
   const words = wordsForLength(wordLength)
-  const game = useForcedLetterGame({ words, wordLength, maxGuesses: 6 })
+  const game = useWildcardWordleGame({ words, wordLength, maxGuesses: 6 })
   const { onPhysicalKey } = game
 
   useEffect(() => {
@@ -42,17 +42,15 @@ export default function ForcedLetterScreen() {
     <div className="classic-screen">
       <header className="classic-screen-header">
         <PlayScreenBackLink className="classic-screen-back" />
-        <h1 className="classic-screen-title">Forced letter ({wordLength})</h1>
+        <h1 className="classic-screen-title">Wildcard ({wordLength})</h1>
         <button type="button" className="classic-screen-new" onClick={game.newGame}>
           New word
         </button>
       </header>
 
       <p className="classic-screen-banner">
-        Each guess (except your <strong>last</strong>) must include a required letter{' '}
-        <strong>anywhere</strong> in the word—unless you enter the <strong>answer</strong>, which
-        always works. The letter changes after every guess (green outline on keyboard and tiles where it
-        appears); missing it otherwise shakes.
+        One striped wildcard per row (any letter). Type the other {wordLength - 1} letters—a guess
+        counts if some valid word matches that pattern. Colors score your letters against the answer.
       </p>
 
       {game.phase === 'won' && (
@@ -71,15 +69,10 @@ export default function ForcedLetterScreen() {
         buffer={game.buffer}
         phase={game.phase}
         shake={game.shake}
-        typingRowForcedLetter={game.forcedHighlightKey}
+        blockedCellByRow={game.blockedCellByRow}
       />
 
-      <WordleKeyboard
-        guesses={game.guesses}
-        disabled={game.inputLocked}
-        onKey={onScreenKey}
-        forcedHighlightKey={game.forcedHighlightKey}
-      />
+      <WordleKeyboard guesses={game.guesses} disabled={game.inputLocked} onKey={onScreenKey} />
     </div>
   )
 }

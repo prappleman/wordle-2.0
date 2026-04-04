@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useInfiniteWordleGame } from '../game/useInfiniteWordleGame'
@@ -42,9 +43,7 @@ export default function InfiniteWordleScreen() {
   return (
     <div className="infinite-screen">
       <header className="infinite-screen-header">
-        <Link to="/" className="infinite-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="infinite-screen-back" />
         <h1 className="infinite-screen-title">Infinite ({wordLength})</h1>
         <button type="button" className="infinite-screen-new" onClick={game.newGame}>
           Reset

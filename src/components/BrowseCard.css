@@ -11,7 +11,31 @@
   flex: 1;
   min-height: 0;
   padding: 1rem;
-  gap: 0.65rem;
+  gap: 0.5rem;
+}
+
+.browse-card-top-bar {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.browse-card-top-left {
+  flex: 0 0 auto;
+  min-height: 2.35rem;
+  display: flex;
+  align-items: center;
+}
+
+.browse-card-top-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-left: auto;
 }
 
 .browse-card-body {
@@ -23,9 +47,65 @@
   overflow: hidden;
 }
 
+.browse-card-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  min-width: 0;
+  gap: 0.65rem;
+}
+
+.browse-card-two-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.browse-card-viz {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  margin-top: 0.35rem;
+}
+
+/* Larger than hub pins: full-size hub tiles + modest scale */
+.browse-card-viz .hub-viz {
+  transform: scale(1.12);
+  transform-origin: top center;
+}
+
+.browse-card-right {
+  display: none;
+  flex-direction: column;
+  gap: 0.5rem;
+  min-width: 0;
+  min-height: 0;
+  align-self: stretch;
+}
+
+.browse-card-title-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  min-width: 0;
+}
+
+.browse-card-timer-icon {
+  flex-shrink: 0;
+  width: 1.05rem;
+  height: 1.05rem;
+  color: var(--hub-muted, #9ca3af);
+}
+
 .browse-card-title {
   margin: 0;
-  flex-shrink: 0;
+  min-width: 0;
+  max-width: 100%;
   font-size: 1.05rem;
   font-weight: 800;
   letter-spacing: -0.02em;
@@ -37,16 +117,92 @@
 
 .browse-card-desc {
   margin: 0;
-  flex: 1;
-  min-height: 0;
   font-size: 0.85rem;
   line-height: 1.45;
   color: var(--hub-muted, #9ca3af);
+}
+
+/* Expanded: cap height + hide overflow so flex/grid width transitions don’t cause a tall-then-short jump */
+.browse-card:hover .browse-card-right,
+.browse-card--desc-expanded .browse-card-right {
   overflow: hidden;
+  min-width: 0;
+}
+
+.browse-card:hover .browse-card-desc,
+.browse-card--desc-expanded .browse-card-desc {
   display: -webkit-box;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 5;
-  line-clamp: 5;
+  -webkit-line-clamp: 7;
+  line-clamp: 7;
+  overflow: hidden;
+  word-break: break-word;
+}
+
+/* Mobile (≤900px): tap card to expand (see BrowseCard.tsx); add = plus icon only */
+@media (max-width: 900px) {
+  .browse-card {
+    cursor: pointer;
+  }
+
+  .browse-card-footer-actions,
+  .browse-card-icon-btn {
+    cursor: pointer;
+  }
+
+  .browse-card--desc-expanded .browse-card-two-col {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem 1.15rem;
+    align-items: start;
+    width: 100%;
+  }
+
+  .browse-card--desc-expanded .browse-card-viz {
+    margin-top: 0;
+    justify-content: flex-start;
+    padding: 0.55rem 0.65rem;
+    box-sizing: border-box;
+  }
+
+  .browse-card--desc-expanded .browse-card-viz .hub-viz {
+    transform-origin: top left;
+  }
+
+  .browse-card--desc-expanded .browse-card-right {
+    display: flex;
+  }
+
+  .browse-card--desc-expanded .browse-card-footer-actions {
+    width: 100%;
+  }
+
+  .browse-card-add-btn .browse-card-add-btn-icon {
+    display: block;
+  }
+
+  .browse-card-add-btn-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .browse-card-add-btn {
+    position: relative;
+    width: 2.75rem;
+    min-width: 2.75rem;
+    max-width: none;
+    min-height: 2.75rem;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+  }
 }
 
 .browse-card-tags {
@@ -76,13 +232,58 @@
   max-width: 100%;
 }
 
-.browse-card-actions {
+.browse-card-footer-actions {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  justify-content: space-between;
+  gap: 0.5rem;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 0.35rem;
+}
+
+.browse-card-text-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.35rem;
+  padding: 0.35rem 0.65rem;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-elevated, #18181b);
+  color: var(--shell-muted, #a1a1aa);
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  text-decoration: none;
+  box-sizing: border-box;
+  text-align: center;
+  max-width: min(48%, 11rem);
+  transition:
+    background 0.15s ease,
+    border-color 0.15s ease,
+    color 0.15s ease;
+}
+
+.browse-card-text-btn:hover {
+  background: var(--shell-hover, #27272a);
+  color: var(--shell-fg, #e5e7eb);
+}
+
+.browse-card-text-btn:focus-visible {
+  outline: 2px solid var(--wordle-present, #d9a527);
+  outline-offset: 2px;
+}
+
+.browse-card-play-btn {
+  font-size: 0.95rem;
+  min-height: 2.7rem;
+  padding: 0.5rem 1rem;
+  max-width: min(52%, 14rem);
 }
 
 .browse-card-icon {
@@ -121,42 +322,135 @@
   outline-offset: 2px;
 }
 
-/* Play + add: section accent (matches hub-mode-card--accent-*) */
-.hub-mode-card--accent-g .browse-card-icon-btn--play,
-.hub-mode-card--accent-g .browse-card-icon-btn--add {
-  border-color: var(--wordle-correct, #6aaa64);
-  color: var(--wordle-correct, #6aaa64);
-  background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 14%, var(--shell-elevated, #18181b));
+/*
+ * Desktop (≥901px): top bar always; title + centered viz; on hover — two columns (viz | desc+tags); footer add/play.
+ */
+@media (min-width: 901px) {
+  .browse-card-title {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    text-align: center;
+  }
+
+  .browse-card-title-row {
+    justify-content: center;
+  }
+
+  .browse-card-add-btn .browse-card-add-btn-icon {
+    display: none;
+  }
+
+  .browse-card-add-btn {
+    gap: 0.35rem;
+  }
+
+  .browse-card-icon-btn--gear {
+    display: none;
+  }
+
+  .browse-card-footer-actions {
+    display: none;
+  }
+
+  .browse-card:hover .browse-card-two-col {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    gap: 1rem 1.15rem;
+    align-items: start;
+    width: 100%;
+  }
+
+  .browse-card:hover .browse-card-viz {
+    margin-top: 0;
+    justify-content: flex-start;
+    padding: 0.55rem 0.65rem;
+    box-sizing: border-box;
+  }
+
+  .browse-card:hover .browse-card-viz .hub-viz {
+    transform-origin: top left;
+  }
+
+  /*
+   * Defer description + footer until flex grow is mostly done (BrowsePage transition 0.32s),
+   * so text doesn’t wrap in an ultra-narrow column and spike card height.
+   */
+  .browse-card:hover .browse-card-right {
+    display: flex;
+    overflow: hidden;
+    min-height: 0;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    animation: browse-card-desktop-right-reveal 0.28s ease 0.22s forwards;
+  }
+
+  .browse-card:hover .browse-card-footer-actions {
+    display: flex;
+    align-self: stretch;
+    width: 100%;
+    overflow: hidden;
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 0;
+    padding-top: 0;
+    animation: browse-card-desktop-footer-reveal 0.26s ease 0.22s forwards;
+  }
+
+  .browse-card:hover .browse-card-icon-btn--gear {
+    display: inline-flex;
+  }
 }
 
-.hub-mode-card--accent-g .browse-card-icon-btn--play:hover,
-.hub-mode-card--accent-g .browse-card-icon-btn--add:hover {
-  background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 26%, var(--shell-elevated, #18181b));
-  color: var(--wordle-correct, #6aaa64);
+@keyframes browse-card-desktop-right-reveal {
+  from {
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+  }
+
+  to {
+    max-height: 18rem;
+    opacity: 1;
+    visibility: visible;
+  }
 }
 
-.hub-mode-card--accent-y .browse-card-icon-btn--play,
-.hub-mode-card--accent-y .browse-card-icon-btn--add {
-  border-color: var(--wordle-present, #d9a527);
-  color: var(--wordle-present, #d9a527);
-  background: color-mix(in srgb, var(--wordle-present, #d9a527) 14%, var(--shell-elevated, #18181b));
+@keyframes browse-card-desktop-footer-reveal {
+  from {
+    max-height: 0;
+    opacity: 0;
+    visibility: hidden;
+    margin-top: 0;
+    padding-top: 0;
+  }
+
+  to {
+    max-height: 5rem;
+    opacity: 1;
+    visibility: visible;
+    margin-top: auto;
+    padding-top: 0.35rem;
+  }
 }
 
-.hub-mode-card--accent-y .browse-card-icon-btn--play:hover,
-.hub-mode-card--accent-y .browse-card-icon-btn--add:hover {
-  background: color-mix(in srgb, var(--wordle-present, #d9a527) 26%, var(--shell-elevated, #18181b));
-  color: var(--wordle-present, #d9a527);
-}
+@media (min-width: 901px) and (prefers-reduced-motion: reduce) {
+  .browse-card:hover .browse-card-right {
+    animation: none;
+    max-height: none;
+    opacity: 1;
+    visibility: visible;
+  }
 
-.hub-mode-card--accent-r .browse-card-icon-btn--play,
-.hub-mode-card--accent-r .browse-card-icon-btn--add {
-  border-color: var(--word500-red, #e05555);
-  color: var(--word500-red, #e05555);
-  background: color-mix(in srgb, var(--word500-red, #e05555) 14%, var(--shell-elevated, #18181b));
-}
-
-.hub-mode-card--accent-r .browse-card-icon-btn--play:hover,
-.hub-mode-card--accent-r .browse-card-icon-btn--add:hover {
-  background: color-mix(in srgb, var(--word500-red, #e05555) 26%, var(--shell-elevated, #18181b));
-  color: var(--word500-red, #e05555);
+  .browse-card:hover .browse-card-footer-actions {
+    animation: none;
+    max-height: none;
+    opacity: 1;
+    visibility: visible;
+    margin-top: auto;
+    padding-top: 0.35rem;
+  }
 }

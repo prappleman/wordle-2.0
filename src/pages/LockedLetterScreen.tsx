@@ -1,16 +1,17 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
-import { useBlockedWordleGame } from '../game/useBlockedWordleGame'
+import { useLockedLetterGame } from '../game/useLockedLetterGame'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
 import './ClassicWordleScreen.css'
 
-export default function BlockedWordleScreen() {
-  const { variantId = 'blocked-5' } = useParams<{ variantId: string }>()
+export default function LockedLetterScreen() {
+  const { variantId = 'locked-letter-5' } = useParams<{ variantId: string }>()
   const wordLength = wordLengthFromVariantId(variantId)
   const words = wordsForLength(wordLength)
-  const game = useBlockedWordleGame({ words, wordLength, maxGuesses: 6 })
+  const game = useLockedLetterGame({ words, wordLength, maxGuesses: 6 })
   const { onPhysicalKey } = game
 
   useEffect(() => {
@@ -40,18 +41,17 @@ export default function BlockedWordleScreen() {
   return (
     <div className="classic-screen">
       <header className="classic-screen-header">
-        <Link to="/" className="classic-screen-back">
-          ← Hub
-        </Link>
-        <h1 className="classic-screen-title">Blocked ({wordLength})</h1>
+        <PlayScreenBackLink className="classic-screen-back" />
+        <h1 className="classic-screen-title">Locked letter ({wordLength})</h1>
         <button type="button" className="classic-screen-new" onClick={game.newGame}>
           New word
         </button>
       </header>
 
       <p className="classic-screen-banner">
-        One striped wildcard per row (any letter). Type the other {wordLength - 1} letters—a guess
-        counts if some valid word matches that pattern. Colors score your letters against the answer.
+        Each guess (except your <strong>last</strong>) must have a required letter in a required{' '}
+        <strong>position</strong>—shown in green on the board and keyboard. Unless you enter the{' '}
+        <strong>answer</strong>, which always works. The slot and letter change after every guess.
       </p>
 
       {game.phase === 'won' && (
@@ -70,10 +70,15 @@ export default function BlockedWordleScreen() {
         buffer={game.buffer}
         phase={game.phase}
         shake={game.shake}
-        blockedCellByRow={game.blockedCellByRow}
+        typingRowForcedSlot={game.forcedSlot}
       />
 
-      <WordleKeyboard guesses={game.guesses} disabled={game.inputLocked} onKey={onScreenKey} />
+      <WordleKeyboard
+        guesses={game.guesses}
+        disabled={game.inputLocked}
+        onKey={onScreenKey}
+        forcedHighlightKey={game.forcedHighlightKey}
+      />
     </div>
   )
 }

@@ -13,13 +13,6 @@
         },
         {
           "kind": "lengthGroup",
-          "idPrefix": "streak",
-          "title": "Streak",
-          "description": "Chain words back-to-back with six guesses each. Fail once and the run ends. Best streak is saved locally.",
-          "tags": ["streak", "5 letters"]
-        },
-        {
-          "kind": "lengthGroup",
           "idPrefix": "zen",
           "title": "Zen",
           "description": "Unlimited guesses, scrolling six-row board, no loss. Solve to move to the next word.",
@@ -31,6 +24,13 @@
           "title": "Zen Infinite",
           "description": "Like Zen, but wins chain instantly with no pause—endless relaxed practice.",
           "tags": ["zen", "endless", "5 letters"]
+        },
+        {
+          "kind": "lengthGroup",
+          "idPrefix": "infinite",
+          "title": "Infinite",
+          "description": "Sliding answers. Guess up to six times per round; when you solve, the last two guesses slide away and a new answer appears.",
+          "tags": ["endless", "5 letters"]
         }
       ]
     },
@@ -74,7 +74,7 @@
           "kind": "lengthGroup",
           "idPrefix": "banned",
           "title": "Banned",
-          "description": "Normal Wordle with one banned common letter per guess (except the last). Bans avoid letters in the answer.",
+          "description": "Normal Wordle with one banned common letter per guess (except the last). The ban shows gray on the keyboard (like a letter not in the word); tiles with the ban get a red outline as you type. Enter won’t submit until it’s gone.",
           "tags": ["ban", "5 letters"]
         },
         {
@@ -86,10 +86,10 @@
         },
         {
           "kind": "lengthGroup",
-          "idPrefix": "locked",
-          "title": "Locked",
-          "description": "One letter locked to one position; infinite tries until the timer ends. Score vs total possible words.",
-          "tags": ["timer", "5 letters"]
+          "idPrefix": "locked-letter",
+          "title": "Locked letter",
+          "description": "Like forced letter, but the required letter must be in a random chosen position each guess (green slot on the board and key).",
+          "tags": ["constraint", "5 letters"]
         },
         {
           "kind": "lengthGroup",
@@ -105,10 +105,10 @@
       "entries": [
         {
           "kind": "lengthGroup",
-          "idPrefix": "blocked",
-          "title": "Blocked",
+          "idPrefix": "wildcard",
+          "title": "Wildcard",
           "description": "One wildcard tile per row—type the rest; any dictionary word that fits is a valid guess.",
-          "tags": ["blocked", "5 letters"]
+          "tags": ["wildcard", "5 letters"]
         },
         {
           "kind": "lengthGroup",
@@ -126,16 +126,23 @@
         },
         {
           "kind": "lengthGroup",
-          "idPrefix": "infinite",
-          "title": "Infinite",
-          "description": "Sliding answers. Guess up to six times per round; when you solve, the last two guesses slide away and a new answer appears.",
-          "tags": ["endless", "5 letters"]
+          "idPrefix": "repeat",
+          "title": "Repeat",
+          "description": "Same letter in the same position every guess; infinite tries until the timer ends. Score vs total possible words.",
+          "tags": ["timer", "5 letters"]
         }
       ]
     },
     {
       "category": "Puzzle",
       "entries": [
+        {
+          "kind": "lengthGroup",
+          "idPrefix": "reverse",
+          "title": "Reverse",
+          "description": "Answer is known. Match any open row’s pattern to clear it; beat the timer as you finish the board.",
+          "tags": ["puzzle", "5 letters"]
+        },
         {
           "kind": "lengthGroup",
           "idPrefix": "word-chain",
@@ -156,13 +163,43 @@
           "title": "Alternating",
           "description": "One board, two hidden words. Odd guesses score Word A, even score Word B until one is solved—then normal Wordle on the other. Twelve guesses total.",
           "tags": ["dual", "5 letters"]
+        }
+      ]
+    },
+    {
+      "category": "Swap",
+      "entries": [
+        {
+          "kind": "lengthGroup",
+          "idPrefix": "square",
+          "title": "Square",
+          "description": "5×5 border: four words share corners. Letters start scrambled with green/yellow/gray hints. Swap—drag or tap two—within a limited number of swaps.",
+          "tags": ["swap", "grid", "5 letters"],
+          "game": { "wordLength": 5 }
         },
         {
           "kind": "lengthGroup",
-          "idPrefix": "reverse",
-          "title": "Reverse",
-          "description": "Answer is known. Match any open row’s pattern to clear it; clock runs—beat your time.",
-          "tags": ["puzzle", "5 letters"]
+          "idPrefix": "waffle",
+          "title": "Waffle",
+          "description": "Border plus middle row and column—six words. Same rules as Square: scrambled letters, Wordle colors per cell, limited swaps.",
+          "tags": ["swap", "grid", "5 letters"],
+          "game": { "wordLength": 5 }
+        },
+        {
+          "kind": "lengthGroup",
+          "idPrefix": "plus",
+          "title": "Plus",
+          "description": "Middle row and column only—two five-letter words sharing the center. Scrambled letters, Wordle colors, limited swaps.",
+          "tags": ["swap", "grid", "5 letters"],
+          "game": { "wordLength": 5 }
+        },
+        {
+          "kind": "lengthGroup",
+          "idPrefix": "cross",
+          "title": "Cross",
+          "description": "Mini crossword: three across (mixed 4–6 letters) and two down (5 or 6), staggered rows and spaced columns so parallel strips stay apart. Black blocks fill unused cells. Limited swaps.",
+          "tags": ["swap", "grid", "4–6 letters"],
+          "game": { "wordLength": 5 }
         }
       ]
     },

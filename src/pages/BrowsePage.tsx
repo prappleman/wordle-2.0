@@ -3,7 +3,7 @@ import { BrowseCard } from '../components/BrowseCard'
 import { useFeedback } from '../components/FeedbackProvider'
 import { useHubPins } from '../hub/useHubPins'
 import type { HubPin, HubPinGameExtras, HubPinLengthGroup, HubPinMultiGrid } from '../hub/types'
-import { hubAccentForBrowseCategory } from '../components/hubModeThemes'
+import { getHubModeTheme, hubAccentForBrowseCategory } from '../components/hubModeThemes'
 import {
   BROWSE_PAGE_SECTIONS,
   mergedBrowseGameForEntry,
@@ -19,6 +19,10 @@ import {
 } from '../variants/browseGameMerge'
 import { buildCreateSearchFromMerged } from '../variants/browseCreateHydrate'
 import { validateCustomPreset } from '../variants/customPreset'
+import {
+  appendPlayBackBrowseToPlayHref,
+  browseSessionPlaySearch,
+} from '../play/playBackNavigation'
 import { BROWSE_SESSION_PRESET_KEY, CREATE_BROWSE_WORDS_KEY } from '../play/browseSessionStorage'
 import './BrowsePage.css'
 
@@ -136,7 +140,7 @@ export default function BrowsePage() {
       notify('Could not start session (storage blocked).')
       return
     }
-    navigate('/play/browse-session')
+    navigate({ pathname: '/play/browse-session', search: browseSessionPlaySearch() })
   }
 
   return (
@@ -163,12 +167,15 @@ export default function BrowsePage() {
               {section.entries.map((entry) => {
                 const merged = mergedBrowseGameForEntry(section, entry)
                 const catalogEntry = toCatalogEntry(entry)
-                const playHref = playHrefFromMergedBrowse(catalogEntry, merged)
+                const playHref = appendPlayBackBrowseToPlayHref(
+                  playHrefFromMergedBrowse(catalogEntry, merged),
+                )
                 const needSession =
                   entry.kind === 'lengthGroup' && browseGameNeedsCustomSessionPlay(merged)
 
                 if (entry.kind === 'multiGrid') {
                   const { boardCount, title, description, tags } = entry
+                  const { tilePreset } = getHubModeTheme('multi', sectionAccent)
                   const multiModal: ModalOpen = {
                     kind: 'multiGrid',
                     boardCount,
@@ -179,6 +186,8 @@ export default function BrowsePage() {
                     <BrowseCard
                       key={`multi-${boardCount}`}
                       accent={sectionAccent}
+                      tilePreset={tilePreset}
+                      boardCount={boardCount}
                       title={title}
                       description={description}
                       tags={tags}
@@ -191,6 +200,7 @@ export default function BrowsePage() {
                 }
 
                 const { idPrefix, title, description, tags } = entry
+                const { tilePreset } = getHubModeTheme(idPrefix, sectionAccent)
                 const lengthModal: ModalOpen = {
                   kind: 'lengthGroup',
                   idPrefix,
@@ -198,13 +208,16 @@ export default function BrowsePage() {
                   description,
                   tags,
                 }
+                const showTimer = idPrefix === 'repeat' || idPrefix === 'reverse'
                 return (
                   <BrowseCard
                     key={idPrefix}
                     accent={sectionAccent}
+                    tilePreset={tilePreset}
                     title={title}
                     description={description}
                     tags={tags}
+                    showTimer={showTimer}
                     playHref={playHref}
                     onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}
                     onAddQuick={() => quickAdd(lengthModal, merged)}

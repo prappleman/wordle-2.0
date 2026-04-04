@@ -1,11 +1,12 @@
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import { PlayScreenBackLink } from '../components/PlayScreenBackLink'
 import { WordleGrid } from '../components/WordleGrid'
 import { WordleKeyboard } from '../components/WordleKeyboard'
 import { useReverseGame } from '../game/useReverseGame'
 import { wordsForLength, wordLengthFromVariantId } from '../variants/variantWordLength'
 import './ClassicWordleScreen.css'
-import './LockedScreen.css'
+import './RepeatScreen.css'
 
 function formatElapsed(ms: number): string {
   if (ms <= 0) return '—'
@@ -55,9 +56,7 @@ export default function ReverseScreen() {
   return (
     <div className="classic-screen">
       <header className="classic-screen-header">
-        <Link to="/" className="classic-screen-back">
-          ← Hub
-        </Link>
+        <PlayScreenBackLink className="classic-screen-back" />
         <h1 className="classic-screen-title">Reverse ({wordLength})</h1>
         <button type="button" className="classic-screen-new" onClick={game.newGame}>
           New puzzle

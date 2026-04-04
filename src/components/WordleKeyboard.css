@@ -52,8 +52,9 @@
   color: var(--wordle-key-absent-text, rgba(255, 255, 255, 0.55));
 }
 
-.wordle-key--banned {
-  outline: 2px solid var(--wordle-present, #d9a527);
+/* Banned letter: same gray fill as absent + red ring (keys use border: none, so outline). */
+.wordle-key--banned.wordle-key--absent {
+  outline: 2px solid var(--word500-red, #e05555);
   outline-offset: 0;
 }
 
@@ -62,9 +63,8 @@
   outline-offset: 0;
 }
 
-.wordle-key--forced-white {
-  background: #f8f8f8;
-  color: var(--wordle-tile-ink, #121213);
-  outline: 2px solid #fff;
+/* Forced letter: ring only; background comes from default key or --correct / --present / --absent. */
+.wordle-key--forced-outline {
+  outline: 2px solid var(--wordle-correct, #6aaa64);
   outline-offset: 0;
 }

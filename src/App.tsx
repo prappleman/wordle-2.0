@@ -26,11 +26,11 @@ export default function App() {
             <Route path="/create/edit/:presetId" element={<CreatePage />} />
             <Route path="/my-variants" element={<MyVariantsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/play/my/:presetId" element={<CustomGameScreen />} />
+            <Route path="/play/browse-session" element={<BrowseSessionPlayPage />} />
+            <Route path="/play/:variantId" element={<PlayPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
           </Route>
-          <Route path="/play/my/:presetId" element={<CustomGameScreen />} />
-          <Route path="/play/browse-session" element={<BrowseSessionPlayPage />} />
-          <Route path="/play/:variantId" element={<PlayPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
       </FeedbackProvider>
