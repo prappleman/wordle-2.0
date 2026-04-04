@@ -174,7 +174,7 @@ export default function BrowsePage() {
                   entry.kind === 'lengthGroup' && browseGameNeedsCustomSessionPlay(merged)
 
                 if (entry.kind === 'multiGrid') {
-                  const { boardCount, title, description, tags } = entry
+                  const { boardCount, title, description } = entry
                   const { tilePreset } = getHubModeTheme('multi', sectionAccent)
                   const multiModal: ModalOpen = {
                     kind: 'multiGrid',
@@ -190,7 +190,6 @@ export default function BrowsePage() {
                       boardCount={boardCount}
                       title={title}
                       description={description}
-                      tags={tags}
                       playHref={playHref}
                       onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}
                       onAddQuick={() => quickAdd(multiModal, merged)}
@@ -216,7 +215,6 @@ export default function BrowsePage() {
                     tilePreset={tilePreset}
                     title={title}
                     description={description}
-                    tags={tags}
                     showTimer={showTimer}
                     playHref={playHref}
                     onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}

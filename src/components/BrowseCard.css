@@ -10,32 +10,55 @@
   flex-direction: column;
   flex: 1;
   min-height: 0;
-  padding: 1rem;
-  gap: 0.5rem;
+  padding: 0.75rem 0.85rem;
+  gap: 0.4rem;
 }
 
 .browse-card-top-bar {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: minmax(2.35rem, auto) minmax(0, 1fr) minmax(2.35rem, auto);
+  align-items: center;
+  gap: 0.35rem 0.5rem;
   flex-shrink: 0;
   min-width: 0;
 }
 
 .browse-card-top-left {
-  flex: 0 0 auto;
-  min-height: 2.35rem;
   display: flex;
   align-items: center;
+  justify-content: flex-start;
+  min-height: 2.35rem;
 }
 
 .browse-card-top-right {
-  flex: 0 0 auto;
   display: flex;
   align-items: center;
+  justify-content: flex-end;
   gap: 0.35rem;
-  margin-left: auto;
+}
+
+.browse-card-title-cluster {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 0;
+  max-width: 100%;
+  justify-self: center;
+}
+
+/* Same footprint as timer so title stays optically centered (title | timer) */
+.browse-card-timer-balance {
+  flex: 0 0 1.05rem;
+  width: 1.05rem;
+  height: 1.05rem;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.browse-card-title-cluster .browse-card-timer-icon {
+  flex-shrink: 0;
+  align-self: center;
 }
 
 .browse-card-body {
@@ -53,7 +76,7 @@
   flex: 1;
   min-height: 0;
   min-width: 0;
-  gap: 0.65rem;
+  gap: 0.45rem;
 }
 
 .browse-card-two-col {
@@ -69,12 +92,12 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  margin-top: 0.35rem;
+  margin-top: 0.2rem;
 }
 
 /* Larger than hub pins: full-size hub tiles + modest scale */
 .browse-card-viz .hub-viz {
-  transform: scale(1.12);
+  transform: scale(1.06);
   transform-origin: top center;
 }
 
@@ -85,14 +108,6 @@
   min-width: 0;
   min-height: 0;
   align-self: stretch;
-}
-
-.browse-card-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  min-width: 0;
 }
 
 .browse-card-timer-icon {
@@ -113,6 +128,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-align: center;
 }
 
 .browse-card-desc {
@@ -122,127 +138,70 @@
   color: var(--hub-muted, #9ca3af);
 }
 
-/* Expanded: cap height + hide overflow so flex/grid width transitions don’t cause a tall-then-short jump */
-.browse-card:hover .browse-card-right,
-.browse-card--desc-expanded .browse-card-right {
-  overflow: hidden;
-  min-width: 0;
-}
-
-.browse-card:hover .browse-card-desc,
-.browse-card--desc-expanded .browse-card-desc {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 7;
-  line-clamp: 7;
-  overflow: hidden;
-  word-break: break-word;
-}
-
-/* Mobile (≤900px): tap card to expand (see BrowseCard.tsx); add = plus icon only */
+/* Mobile (≤900px): one card per page row; inner row = viz | description */
 @media (max-width: 900px) {
-  .browse-card {
-    cursor: pointer;
+  .browse-card-title {
+    white-space: normal;
+    text-align: center;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
+    overflow: hidden;
   }
 
-  .browse-card-footer-actions,
-  .browse-card-icon-btn {
-    cursor: pointer;
+  .browse-card-main {
+    flex: 0 1 auto;
   }
 
-  .browse-card--desc-expanded .browse-card-two-col {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    gap: 1rem 1.15rem;
-    align-items: start;
+  .browse-card-two-col {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 0.85rem 1rem;
     width: 100%;
   }
 
-  .browse-card--desc-expanded .browse-card-viz {
+  .browse-card-viz {
     margin-top: 0;
     justify-content: flex-start;
-    padding: 0.55rem 0.65rem;
+    padding: 0.35rem 0.45rem;
     box-sizing: border-box;
+    flex-shrink: 0;
   }
 
-  .browse-card--desc-expanded .browse-card-viz .hub-viz {
+  .browse-card-viz .hub-viz {
     transform-origin: top left;
   }
 
-  .browse-card--desc-expanded .browse-card-right {
+  .browse-card-right {
     display: flex;
+    flex: 1;
+    min-width: 0;
+    overflow: visible;
+    align-self: stretch;
   }
 
-  .browse-card--desc-expanded .browse-card-footer-actions {
-    width: 100%;
-  }
-
-  .browse-card-add-btn .browse-card-add-btn-icon {
+  .browse-card .browse-card-desc {
     display: block;
+    overflow: visible;
+    -webkit-line-clamp: unset;
+    line-clamp: unset;
+    word-break: break-word;
   }
-
-  .browse-card-add-btn-label {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
-  }
-
-  .browse-card-add-btn {
-    position: relative;
-    width: 2.75rem;
-    min-width: 2.75rem;
-    max-width: none;
-    min-height: 2.75rem;
-    padding: 0;
-    align-items: center;
-    justify-content: center;
-  }
-}
-
-.browse-card-tags {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  flex-shrink: 0;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  max-height: calc(2 * 1.35em + 0.35rem);
-  overflow: hidden;
-}
-
-.browse-card-tag {
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  padding: 0.2rem 0.45rem;
-  border-radius: 4px;
-  background: var(--shell-elevated, #18181b);
-  color: var(--shell-muted, #a1a1aa);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 100%;
 }
 
 .browse-card-footer-actions {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 0.5rem;
   flex-shrink: 0;
   position: relative;
   z-index: 2;
   width: 100%;
   margin-top: auto;
-  padding-top: 0.35rem;
+  padding-top: 0.2rem;
 }
 
 .browse-card-text-btn {
@@ -283,7 +242,21 @@
   font-size: 0.95rem;
   min-height: 2.7rem;
   padding: 0.5rem 1rem;
-  max-width: min(52%, 14rem);
+  max-width: none;
+  border: 1px solid var(--wordle-correct, #6aaa64);
+  background: var(--wordle-correct, #6aaa64);
+  color: #ffffff;
+  opacity: 1;
+}
+
+.browse-card-play-btn:hover {
+  background: color-mix(in srgb, var(--wordle-correct, #6aaa64) 85%, #0c0c0c);
+  border-color: color-mix(in srgb, var(--wordle-correct, #6aaa64) 85%, #0c0c0c);
+  color: #ffffff;
+}
+
+.browse-card-play-btn:focus-visible {
+  outline-color: var(--wordle-correct, #6aaa64);
 }
 
 .browse-card-icon {
@@ -323,7 +296,7 @@
 }
 
 /*
- * Desktop (≥901px): top bar always; title + centered viz; on hover — two columns (viz | desc+tags); footer add/play.
+ * Desktop (≥901px): top bar (+ | title+timer | gear); centered viz; on hover — two columns (viz | desc); footer Play.
  */
 @media (min-width: 901px) {
   .browse-card-title {
@@ -334,19 +307,8 @@
     text-align: center;
   }
 
-  .browse-card-title-row {
-    justify-content: center;
-  }
-
-  .browse-card-add-btn .browse-card-add-btn-icon {
-    display: none;
-  }
-
-  .browse-card-add-btn {
-    gap: 0.35rem;
-  }
-
-  .browse-card-icon-btn--gear {
+  .browse-card-icon-btn--gear,
+  .browse-card-icon-btn--add {
     display: none;
   }
 
@@ -373,6 +335,15 @@
     transform-origin: top left;
   }
 
+  .browse-card:hover .browse-card-desc {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 7;
+    line-clamp: 7;
+    overflow: hidden;
+    word-break: break-word;
+  }
+
   /*
    * Defer description + footer until flex grow is mostly done (BrowsePage transition 0.32s),
    * so text doesn’t wrap in an ultra-narrow column and spike card height.
@@ -380,6 +351,7 @@
   .browse-card:hover .browse-card-right {
     display: flex;
     overflow: hidden;
+    min-width: 0;
     min-height: 0;
     max-height: 0;
     opacity: 0;
@@ -400,7 +372,8 @@
     animation: browse-card-desktop-footer-reveal 0.26s ease 0.22s forwards;
   }
 
-  .browse-card:hover .browse-card-icon-btn--gear {
+  .browse-card:hover .browse-card-icon-btn--gear,
+  .browse-card:hover .browse-card-icon-btn--add {
     display: inline-flex;
   }
 }
@@ -433,7 +406,7 @@
     opacity: 1;
     visibility: visible;
     margin-top: auto;
-    padding-top: 0.35rem;
+    padding-top: 0.2rem;
   }
 }
 
@@ -451,6 +424,6 @@
     opacity: 1;
     visibility: visible;
     margin-top: auto;
-    padding-top: 0.35rem;
+    padding-top: 0.2rem;
   }
 }
