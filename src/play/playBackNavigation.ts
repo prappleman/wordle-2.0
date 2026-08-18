@@ -18,7 +18,11 @@ export function browseSessionPlaySearch(): string {
   return new URLSearchParams({ [PLAY_BACK_QUERY_KEY]: PLAY_BACK_BROWSE_VALUE }).toString()
 }
 
-export function playScreenBackFromPathAndSearch(pathname: string, search: string): PlayScreenBack {
+export function playScreenBackFromPathAndSearch(
+  pathname: string,
+  search: string,
+  isLoggedIn = true,
+): PlayScreenBack {
   const qs = search.startsWith('?') ? search.slice(1) : search
   const params = new URLSearchParams(qs)
 
@@ -27,13 +31,17 @@ export function playScreenBackFromPathAndSearch(pathname: string, search: string
   }
 
   if (pathname === '/play/browse-session') {
-    if (params.get(PLAY_BACK_QUERY_KEY) === PLAY_BACK_BROWSE_VALUE) {
+    if (params.get(PLAY_BACK_QUERY_KEY) === PLAY_BACK_BROWSE_VALUE || !isLoggedIn) {
       return { to: '/browse', label: '← Browse variants' }
     }
     return { to: '/', label: '← Hub' }
   }
 
   if (params.get(PLAY_BACK_QUERY_KEY) === PLAY_BACK_BROWSE_VALUE) {
+    return { to: '/browse', label: '← Browse variants' }
+  }
+
+  if (!isLoggedIn) {
     return { to: '/browse', label: '← Browse variants' }
   }
 

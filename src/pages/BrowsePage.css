@@ -8,6 +8,80 @@
   margin-bottom: 1.75rem;
 }
 
+.browse-hero {
+  margin-bottom: 2rem;
+  padding: 1.35rem 1.25rem 1.4rem;
+  border-radius: 14px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--hub-card, #1a1a1b);
+  box-shadow: var(--card-shadow);
+}
+
+.browse-hero-kicker {
+  margin: 0 0 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--hub-accent, #6aaa64);
+}
+
+.browse-hero-title {
+  margin: 0 0 0.55rem;
+  font-size: clamp(1.7rem, 4.5vw, 2.35rem);
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  line-height: 1.15;
+  color: var(--shell-fg, #f4f4f5);
+}
+
+.browse-hero-lead {
+  margin: 0 0 1.1rem;
+  max-width: 38rem;
+  font-size: 1rem;
+  line-height: 1.55;
+  color: var(--shell-muted, #a1a1aa);
+}
+
+.browse-hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
+}
+
+.browse-hero-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 2.45rem;
+  padding: 0.45rem 1rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.browse-hero-btn--primary {
+  border: 1px solid var(--hub-accent, #6aaa64);
+  background: var(--hub-accent, #6aaa64);
+  color: #fff;
+}
+
+.browse-hero-btn--primary:hover {
+  filter: brightness(1.08);
+}
+
+.browse-hero-btn--ghost {
+  border: 1px solid var(--shell-border, #27272a);
+  background: transparent;
+  color: var(--shell-fg, #e5e7eb);
+}
+
+.browse-hero-btn--ghost:hover {
+  background: var(--shell-hover, #27272a);
+}
+
 .browse-page-title {
   margin: 0 0 0.5rem;
   font-size: clamp(1.5rem, 4vw, 2rem);
@@ -30,6 +104,7 @@
 
 .browse-page-section {
   margin-bottom: 2.25rem;
+  scroll-margin-top: 4.75rem;
 }
 
 .browse-page-section-title {

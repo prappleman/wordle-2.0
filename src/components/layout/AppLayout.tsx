@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { useCallback, useEffect, useId, useRef, useState } from 'react'
+import { Link, NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
+import { useAuth } from '../../auth/AuthProvider'
 import {
   applyTheme,
   readStoredTheme,
@@ -12,8 +13,15 @@ import './AppLayout.css'
 export function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [theme, setTheme] = useState<ThemeMode>(() => readStoredTheme())
+  const [accountMenuOpen, setAccountMenuOpen] = useState(false)
+  const accountMenuRef = useRef<HTMLDivElement>(null)
+  const accountMenuId = useId()
   const { pathname } = useLocation()
+  const navigate = useNavigate()
+  const { isLoggedIn, user, promptAuth, logout } = useAuth()
   const createNavActive = pathname === '/create' || pathname.startsWith('/create/')
+  const browseNavActive = pathname === '/browse' || (!isLoggedIn && pathname === '/')
+  const initial = user?.email?.charAt(0).toUpperCase() ?? '?'
 
   useEffect(() => {
     applyTheme(theme)
@@ -29,6 +37,28 @@ export function AppLayout() {
     return () => window.removeEventListener(THEME_CHANGE_EVENT, onThemeChange)
   }, [])
 
+  useEffect(() => {
+    setAccountMenuOpen(false)
+  }, [pathname, isLoggedIn])
+
+  useEffect(() => {
+    if (!accountMenuOpen) return
+    function onPointerDown(e: PointerEvent) {
+      if (accountMenuRef.current && !accountMenuRef.current.contains(e.target as Node)) {
+        setAccountMenuOpen(false)
+      }
+    }
+    function onKey(e: KeyboardEvent) {
+      if (e.key === 'Escape') setAccountMenuOpen(false)
+    }
+    window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('keydown', onKey)
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [accountMenuOpen])
+
   const toggleTheme = useCallback(() => {
     setTheme((prev) => {
       const next: ThemeMode = prev === 'dark' ? 'light' : 'dark'
@@ -40,6 +70,16 @@ export function AppLayout() {
       return next
     })
   }, [])
+
+  function closeSidebar() {
+    setSidebarOpen(false)
+  }
+
+  function onCreateClick() {
+    closeSidebar()
+    if (isLoggedIn) return
+    promptAuth({ mode: 'signup', intent: 'create', redirectTo: '/create' })
+  }
 
   return (
     <div className="app-layout">
@@ -56,15 +96,9 @@ export function AppLayout() {
               ☰
             </span>
           </button>
-          <button
-            type="button"
-            className="app-layout-brand"
-            onClick={() => window.location.reload()}
-            title="Refresh this page"
-            aria-label="Wordle hub — refresh page"
-          >
+          <Link to="/" className="app-layout-brand" aria-label="Wordle hub — home">
             Wordle hub
-          </button>
+          </Link>
           <div className="app-layout-header-actions">
             <button
               type="button"
@@ -77,11 +111,59 @@ export function AppLayout() {
                 {theme === 'dark' ? '☀' : '☾'}
               </span>
             </button>
-            <div
-              className="app-layout-profile-placeholder"
-              aria-label="Profile photo (coming soon)"
-              title="Profile (coming soon)"
-            />
+            {isLoggedIn ? (
+              <div className="app-layout-account" ref={accountMenuRef}>
+                <button
+                  type="button"
+                  className="app-layout-profile-btn"
+                  aria-label="Account menu"
+                  aria-expanded={accountMenuOpen}
+                  aria-haspopup="menu"
+                  aria-controls={accountMenuOpen ? accountMenuId : undefined}
+                  title={user?.email}
+                  onClick={() => setAccountMenuOpen((o) => !o)}
+                >
+                  <span className="app-layout-profile-initial" aria-hidden>
+                    {initial}
+                  </span>
+                </button>
+                {accountMenuOpen && (
+                  <div id={accountMenuId} className="app-layout-account-menu" role="menu">
+                    <p className="app-layout-account-email">{user?.email}</p>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="app-layout-account-item"
+                      onClick={() => {
+                        setAccountMenuOpen(false)
+                        navigate('/settings')
+                      }}
+                    >
+                      Settings
+                    </button>
+                    <button
+                      type="button"
+                      role="menuitem"
+                      className="app-layout-account-item"
+                      onClick={() => {
+                        setAccountMenuOpen(false)
+                        logout()
+                      }}
+                    >
+                      Log out
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <button
+                type="button"
+                className="app-layout-login-btn"
+                onClick={() => promptAuth({ mode: 'login' })}
+              >
+                Log in
+              </button>
+            )}
           </div>
         </div>
       </header>
@@ -92,50 +174,62 @@ export function AppLayout() {
           aria-label="Sidebar"
         >
           <nav className="app-layout-sidebar-nav">
-            <NavLink
-              to="/"
-              end
-              className={({ isActive }) => (isActive ? 'active' : '')}
-              onClick={() => setSidebarOpen(false)}
-            >
-              My hub
-            </NavLink>
+            {isLoggedIn && (
+              <NavLink
+                to="/"
+                end
+                className={({ isActive }) => (isActive ? 'active' : '')}
+                onClick={closeSidebar}
+              >
+                My hub
+              </NavLink>
+            )}
             <NavLink
               to="/browse"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-              onClick={() => setSidebarOpen(false)}
+              className={() => (browseNavActive ? 'active' : '')}
+              onClick={closeSidebar}
             >
               Browse variants
             </NavLink>
-            <NavLink
-              to="/create"
-              className={() => (createNavActive ? 'active' : '')}
-              onClick={() => setSidebarOpen(false)}
-            >
-              Create
-            </NavLink>
-            <NavLink
-              to="/settings"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-              onClick={() => setSidebarOpen(false)}
-            >
-              Settings
-            </NavLink>
+            {isLoggedIn ? (
+              <NavLink
+                to="/create"
+                className={() => (createNavActive ? 'active' : '')}
+                onClick={closeSidebar}
+              >
+                Create
+              </NavLink>
+            ) : (
+              <button type="button" className="app-layout-nav-action" onClick={onCreateClick}>
+                Create
+              </button>
+            )}
+            {isLoggedIn && (
+              <NavLink
+                to="/settings"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+                onClick={closeSidebar}
+              >
+                Settings
+              </NavLink>
+            )}
             <div className="app-layout-sidebar-divider" role="presentation" />
             <NavLink
               to="/community"
               className={({ isActive }) => (isActive ? 'active' : '')}
-              onClick={() => setSidebarOpen(false)}
+              onClick={closeSidebar}
             >
               Community
             </NavLink>
-            <NavLink
-              to="/my-variants"
-              className={({ isActive }) => (isActive ? 'active' : '')}
-              onClick={() => setSidebarOpen(false)}
-            >
-              My variants
-            </NavLink>
+            {isLoggedIn && (
+              <NavLink
+                to="/my-variants"
+                className={({ isActive }) => (isActive ? 'active' : '')}
+                onClick={closeSidebar}
+              >
+                My variants
+              </NavLink>
+            )}
           </nav>
         </aside>
         {sidebarOpen && (
@@ -143,7 +237,7 @@ export function AppLayout() {
             type="button"
             className="app-layout-backdrop"
             aria-label="Close menu"
-            onClick={() => setSidebarOpen(false)}
+            onClick={closeSidebar}
           />
         )}
         <main className="app-layout-main">

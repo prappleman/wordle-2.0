@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useAuth } from '../auth/AuthProvider'
 import { BrowseCard } from '../components/BrowseCard'
 import { useFeedback } from '../components/FeedbackProvider'
 import { useHubPins } from '../hub/useHubPins'
@@ -100,6 +101,19 @@ export default function BrowsePage() {
   const navigate = useNavigate()
   const { notify } = useFeedback()
   const { addPin } = useHubPins()
+  const { isLoggedIn, promptAuth } = useAuth()
+
+  function requireAccount(action: () => void, intent: 'create' | 'hub') {
+    if (isLoggedIn) {
+      action()
+      return
+    }
+    promptAuth({
+      mode: 'signup',
+      intent,
+      onSuccess: action,
+    })
+  }
 
   function quickAdd(modal: ModalOpen, merged: ReturnType<typeof mergedBrowseGameForEntry>) {
     const hub = mergedBrowseGameToHubSettings(merged)
@@ -145,21 +159,49 @@ export default function BrowsePage() {
 
   return (
     <div className="browse-page">
-      <header className="browse-page-header">
-        <h1 className="browse-page-title">Browse variants</h1>
-        <p className="browse-page-lead">
-          Optional <strong>defaults</strong> / per-card <strong>game</strong> in <code>browseGames.json</code> mirror
-          Create (letters, ladder, guesses, timer, custom lists, restrictions). <strong>Play</strong> uses those rules;
-          custom lists and timers use the session player. The plus saves a hub pin with the same settings; the gear opens{' '}
-          <strong>Create</strong> with everything filled in.
-        </p>
-      </header>
+      {isLoggedIn ? (
+        <header className="browse-page-header">
+          <h1 className="browse-page-title">Browse variants</h1>
+          <p className="browse-page-lead">
+            Optional <strong>defaults</strong> / per-card <strong>game</strong> in <code>browseGames.json</code> mirror
+            Create (letters, ladder, guesses, timer, custom lists, restrictions). <strong>Play</strong> uses those rules;
+            custom lists and timers use the session player. The plus saves a hub pin with the same settings; the gear
+            opens <strong>Create</strong> with everything filled in.
+          </p>
+        </header>
+      ) : (
+        <header className="browse-hero">
+          <p className="browse-hero-kicker">Wordle hub</p>
+          <h1 className="browse-hero-title">Pick a variant. Play instantly.</h1>
+          <p className="browse-hero-lead">
+            Jump into Classic, ladders, and twist modes below. Sign up when you want a personal hub, custom games, and
+            saved settings.
+          </p>
+          <div className="browse-hero-actions">
+            <button
+              type="button"
+              className="browse-hero-btn browse-hero-btn--primary"
+              onClick={() => promptAuth({ mode: 'signup', intent: 'account' })}
+            >
+              Sign up
+            </button>
+            <a href="#browse-catalog" className="browse-hero-btn browse-hero-btn--ghost">
+              Browse variants
+            </a>
+          </div>
+        </header>
+      )}
 
       {BROWSE_PAGE_SECTIONS.map((section) => {
         const sectionAccent = hubAccentForBrowseCategory(section.category)
         const headingId = sectionHeadingId(section.category)
         return (
-          <section key={section.category} className="browse-page-section" aria-labelledby={headingId}>
+          <section
+            key={section.category}
+            id={section === BROWSE_PAGE_SECTIONS[0] ? 'browse-catalog' : undefined}
+            className="browse-page-section"
+            aria-labelledby={headingId}
+          >
             <h2 id={headingId} className="browse-page-section-title">
               {section.category}
             </h2>
@@ -192,8 +234,8 @@ export default function BrowsePage() {
                       description={description}
                       playHref={playHref}
                       onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}
-                      onAddQuick={() => quickAdd(multiModal, merged)}
-                      onConfigure={() => openInCreate(multiModal, merged)}
+                      onAddQuick={() => requireAccount(() => quickAdd(multiModal, merged), 'hub')}
+                      onConfigure={() => requireAccount(() => openInCreate(multiModal, merged), 'create')}
                     />
                   )
                 }
@@ -218,8 +260,8 @@ export default function BrowsePage() {
                     showTimer={showTimer}
                     playHref={playHref}
                     onPlay={needSession ? () => playBrowseSession(merged, title) : undefined}
-                    onAddQuick={() => quickAdd(lengthModal, merged)}
-                    onConfigure={() => openInCreate(lengthModal, merged)}
+                    onAddQuick={() => requireAccount(() => quickAdd(lengthModal, merged), 'hub')}
+                    onConfigure={() => requireAccount(() => openInCreate(lengthModal, merged), 'create')}
                   />
                 )
               })}

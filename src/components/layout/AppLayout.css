@@ -111,14 +111,104 @@
   top: 1px;
 }
 
-.app-layout-profile-placeholder {
+.app-layout-login-btn {
+  height: 2.5rem;
+  padding: 0 0.9rem;
+  border-radius: 8px;
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--shell-elevated, #18181b);
+  color: var(--shell-fg, #e5e7eb);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.app-layout-login-btn:hover {
+  background: var(--shell-hover, #27272a);
+}
+
+.app-layout-login-btn:focus-visible {
+  outline: 2px solid var(--hub-accent, #6aaa64);
+  outline-offset: 2px;
+}
+
+.app-layout-account {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.app-layout-profile-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 2.5rem;
   height: 2.5rem;
+  padding: 0;
   border-radius: 50%;
-  flex-shrink: 0;
-  border: 2px dashed var(--shell-border, #3f3f46);
+  border: 1px solid var(--shell-border, #27272a);
+  background: var(--hub-accent, #6aaa64);
+  color: #fff;
+  cursor: pointer;
+}
+
+.app-layout-profile-btn:hover {
+  filter: brightness(1.08);
+}
+
+.app-layout-profile-btn:focus-visible {
+  outline: 2px solid var(--hub-accent, #6aaa64);
+  outline-offset: 2px;
+}
+
+.app-layout-profile-initial {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.app-layout-account-menu {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 60;
+  min-width: 12.5rem;
+  padding: 0.45rem;
+  border-radius: 10px;
+  border: 1px solid var(--shell-border, #27272a);
   background: var(--shell-elevated, #18181b);
-  box-sizing: border-box;
+  box-shadow: var(--shell-shadow-modal, 0 16px 40px rgba(0, 0, 0, 0.45));
+}
+
+.app-layout-account-email {
+  margin: 0 0 0.35rem;
+  padding: 0.35rem 0.5rem 0.45rem;
+  border-bottom: 1px solid var(--shell-border, #27272a);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--shell-muted, #a1a1aa);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-layout-account-item {
+  display: block;
+  width: 100%;
+  padding: 0.45rem 0.5rem;
+  border: none;
+  border-radius: 6px;
+  background: none;
+  color: var(--shell-fg, #e5e7eb);
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-layout-account-item:hover {
+  background: var(--shell-hover, #27272a);
 }
 
 .app-layout-body {
@@ -164,6 +254,26 @@
 .app-layout-sidebar-nav a.active {
   color: var(--shell-fg, #fafafa);
   background: var(--shell-active, #27272a);
+}
+
+.app-layout-nav-action {
+  display: block;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--shell-muted, #a1a1aa);
+  text-align: left;
+  cursor: pointer;
+}
+
+.app-layout-nav-action:hover {
+  color: var(--shell-fg, #e5e7eb);
+  background: var(--shell-hover, #27272a);
 }
 
 .app-layout-sidebar-divider {
